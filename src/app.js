@@ -1948,7 +1948,7 @@ function TimerPop({ pinned }) {
       <${Ring} size=${pinned ? 150 : 184} frac=${frac} done=${T && T.done}>
         ${edit ? html`<input class="tm-in-edit" aria-label="設定時間" value=${mmss(left)} ref=${(el) => el && document.activeElement !== el && (el.focus(), el.select())}
             onKeyDown=${(e) => { if (e.key === 'Enter') commit(e.currentTarget.value); if (e.key === 'Escape') setEdit(false); }} onBlur=${(e) => commit(e.currentTarget.value)} />`
-          : html`<button class="tm-t tm-edit" aria-label="點一下改時間" disabled=${T && T.done} onClick=${() => setEdit(true)}>${mmss(left)}</button>`}
+          : html`<button class="tm-t tm-edit" aria-label="點一下改時間" disabled=${T && T.done} onClick=${() => setEdit(true)}>${T && T.done ? '時間到' : mmss(left)}</button>`}
         ${!(T && T.done) && html`<span class="tm-adj"><button aria-label="少 1 分鐘" disabled=${T ? left <= 60 : t.timerSec <= 60} onClick=${bump(-1)}><${Icon} n="minus" s=${14} /></button>1 分鐘<button aria-label="多 1 分鐘" onClick=${bump(1)}><${Icon} n="plus" s=${14} /></button></span>`}
       </${Ring}>
       ${!(T && T.taskId) && html`<div class="tm-acts">
@@ -2546,7 +2546,7 @@ const Empty = ({ cols }) => html`<tr><td colspan=${cols} style="text-align:cente
    靠近清單底部就往上開，不被捲動區切掉（2026-11-03 乙練抓到） */
 const rowMenu = (A, id, items) => html`<td class="r"><button class="dots" aria-label="更多" aria-expanded=${A.rowMenu === id} onClick=${act((e) => { e.stopPropagation(); A.menu = false;
     const box = e.currentTarget.closest('.acc-list'), r = e.currentTarget.getBoundingClientRect(), br = box ? box.getBoundingClientRect() : null;
-    A.rowUp = !!br && br.bottom - r.bottom < 200; A.rowMenu = A.rowMenu === id ? null : id; })}>⋯</button>
+    A.rowUp = !!br && br.bottom - r.bottom < 200 && r.top - br.top > br.bottom - r.bottom; /* 上面空間比較多才往上開 */ A.rowMenu = A.rowMenu === id ? null : id; })}>⋯</button>
   ${A.rowMenu === id && html`<div class=${'mini-menu' + (A.rowUp ? ' up' : '')} onClick=${(e) => e.stopPropagation()}>${items.map((it) => (it === '-' ? html`<i class="sep"></i>` : html`<button class=${it[2] ? 'danger' : ''} onClick=${act(() => { A.rowMenu = null; it[1](); })}>${it[0]}</button>`))}</div>`}</td>`;
 const OFF = () => html` <span class="chip gray">已停用</span>`;
 /* 臨時密碼：8 碼、去掉容易看錯的 0 o 1 l */

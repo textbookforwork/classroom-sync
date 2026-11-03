@@ -437,7 +437,7 @@ svg.i { flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-
 .search { display: flex; align-items: center; gap: 8px; width: 360px; height: 40px; padding: 0 6px 0 14px; border-radius: 999px; background: var(--sunken); color: var(--text-3); }
 .search:focus-within { box-shadow: inset 0 0 0 1.5px var(--ink); color: var(--ink); }
 .search input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 14px; color: var(--ink); outline: none; }
-.acc-list { flex: 1; min-height: 0; max-height: 560px; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding-right: 8px; }
+.acc-list { flex: 1; min-height: 300px; max-height: 560px; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding-right: 8px; }
 .acc-list::-webkit-scrollbar { width: 6px; }
 .acc-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
 .scroll-wrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
