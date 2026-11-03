@@ -1387,6 +1387,9 @@ button.pt:hover { box-shadow: inset 0 0 0 1px var(--line); }
 .sync-tile .sync-ic { position: static; }
 .sync-tile .live-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; } /* 紅點放整格右上角，跟其他提示點同一個位置（2026-11-03） */
 .sync-tile small { font-size: 11px; color: var(--text-2); }
+/* 2026-11-03 乙練：紅點貼在整格右上角的外框上；上課中按下去（膠囊展開）用白底，不用黃色 */
+.tile.sync-tile .live-dot { top: -3px; right: -3px; width: 10px; height: 10px; box-shadow: 0 0 0 2px var(--canvas, #F2F2F2); }
+.tile.sync-tile.live.sel, .tile.sync-tile.live.sel:hover:not(:disabled) { background: var(--raised); border: 1px solid var(--line-subtle); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
 .box-live::after { content: ''; position: absolute; top: 6px; right: 10px; width: 8px; height: 8px; border-radius: 999px; background: var(--danger); box-shadow: 0 0 0 2px var(--backdrop); }
 .reader.bar-toolbox .pageframe { top: 24px; } /* 畫布最大化：膠囊沒展開時不讓位 */
 .reader.bar-toolbox.cb-open .pageframe { bottom: 64px; } /* 課本頁撐到底時才讓出一條；膠囊貼在課本頁正下方 */
@@ -1405,6 +1408,7 @@ button.pt:hover { box-shadow: inset 0 0 0 1px var(--line); }
 .q-box { padding: 14px 16px; border-radius: 16px; background: var(--sunken); margin-bottom: 16px; }
 .cb-cls.on { background: var(--lime-subtle); } /* 按「501 29/30」開名單與加分；開著時底色亮起（2026-11-03 乙練） */ /* 派任務跟鎖定一樣只放圖示（2026-11-03 乙練：要更簡潔） */
 .cb-task:hover { background: var(--sunken); }
+.cb-task.busy { box-shadow: inset 0 0 0 1.5px var(--olive); color: var(--olive); } /* 任務還在進行、面板關著：橄欖綠外框，好認（2026-11-03 乙練） */
 .cb-task .badge { position: absolute; top: -1px; right: -1px; width: 10px; height: 10px; border-radius: 999px; background: var(--danger); box-shadow: 0 0 0 2px var(--raised); } /* 紅點貼在圓鈕右上角外緣，不壓到圖示（2026-11-03） */
 .class-bar.under .cb-cls { padding: 0 12px 0 14px; }
 .class-bar.under .cb-sep { margin: 0 2px; }
