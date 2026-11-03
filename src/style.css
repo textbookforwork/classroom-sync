@@ -473,7 +473,7 @@ svg.i { flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-
 .tabs button.on:hover { color: var(--olive); }
 .acc .tabs { margin-bottom: 18px; }
 .tab-row { position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 24px; }
-.new-btn { position: absolute; right: 0; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 18px 0 20px; border: 0; border-radius: 999px; background: var(--ink); color: #FAFAFA; font-size: 14px; font-weight: 500; cursor: pointer; }
+.new-btn { position: absolute; right: 0; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 20px 0 16px; border: 0; border-radius: 999px; background: var(--ink); color: #FAFAFA; font-size: 14px; font-weight: 500; cursor: pointer; }
 .new-btn:hover { background: var(--ink-hover); }
 .sec + .sec { margin-top: 40px; }
 .sec-h { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
@@ -590,6 +590,16 @@ textarea.inp { border-radius: 16px; }
 .switch.on i { transform: translateX(28px); }
 .toast { max-width: 560px; padding: 10px 20px; border-radius: 999px; background: var(--ink); color: #FAFAFA; font-size: 15px; line-height: 1.5; box-shadow: var(--shadow-pop); animation: toast .22s var(--ease); display: inline-flex; align-items: center; gap: 8px; }
 .toast svg { color: var(--lime); }
+/* 提示框改淺色浮卡（2026-11-03 乙練）：黑色只留給要按的按鈕，提示不跟 CTA 搶注意力；左邊小圓圖示，成功是綠勾 */
+.toast { background: var(--page); color: var(--ink); padding: 8px 18px 8px 10px; box-shadow: 0 0 0 1px var(--line-subtle), 0 8px 24px rgba(26,25,23,.14); }
+.toast .t-ic { width: 26px; height: 26px; flex: none; border-radius: 999px; display: grid; place-items: center; background: var(--sunken); }
+.toast .t-ic svg { color: var(--text-2); }
+.toast .t-ic.ok { background: var(--success-surface); }
+.toast .t-ic.ok svg { color: var(--success); }
+.toast:not(:has(.t-ic)) { padding-left: 18px; }
+/* 提示框跟左下的上課膠囊在同一條水平線上（膠囊中線離底 44px）；膠囊放正中間時才墊高，不疊在膠囊上（2026-11-03） */
+.toasts { bottom: 23px; } /* 最下面那則的中線＝44px，多則時往上疊 */
+.stage:has(.reader.bar-dock) .toasts, .stage:has(.reader.bar-row) .toasts { bottom: 112px; }
 @keyframes toast { from { opacity: 0; transform: translateY(8px); } }
 
 @media (prefers-reduced-motion: reduce) {
@@ -618,6 +628,7 @@ textarea.inp { border-radius: 16px; }
 .mini-menu button.danger { color: var(--danger); }
 .mini-menu .sep { display: block; height: 1px; margin: 4px 6px; background: var(--line-subtle); }
 .mini-menu { min-width: 150px; }
+.mini-menu.up { top: auto; bottom: 100%; }
 .dots[aria-expanded="true"] { background: var(--muted); color: var(--ink); }
 .dots { width: 32px; height: 32px; border-radius: 999px; border: 0; background: transparent; cursor: pointer; color: var(--text-2); font-size: 18px; line-height: 1; letter-spacing: 1px; }
 /* 管理員編輯視窗（2026-11-03）：任教班級一列一班；重設密碼先是一行說明＋按鈕，按了才出現臨時密碼 */
@@ -660,6 +671,12 @@ textarea.inp { border-radius: 16px; }
 .empty-state { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 90px 0; text-align: center; color: var(--text-2); font-size: 15px; line-height: 1.7; }
 .class-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .class-card { position: relative; text-align: left; border: 0; border-radius: var(--r-card); background: var(--raised); box-shadow: inset 0 0 0 1px var(--line-subtle); padding: 22px; cursor: pointer; display: flex; flex-direction: column; gap: 10px; min-height: 168px; transition: box-shadow .2s, transform .25s var(--ease); }
+.rec-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.rec-card { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.rec-card .rc-ic { width: 44px; height: 44px; border-radius: 12px; background: var(--sunken); display: grid; place-items: center; color: var(--ink); }
+.rec-card b { font-size: 17px; font-weight: 600; }
+.rec-card .rc-n { font-size: 14px; color: var(--text-2); display: flex; align-items: baseline; gap: 4px; }
+.rec-card .rc-n em { font-style: normal; font-size: 28px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
 .class-card:hover { box-shadow: inset 0 0 0 1px var(--line-subtle), var(--shadow-card); transform: translateY(-2px); }
 .class-card .cn { font-size: 38px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
 .class-card .meta2 { margin-top: auto; display: flex; align-items: center; gap: 8px; color: var(--text-2); font-size: 14px; }
@@ -683,6 +700,13 @@ textarea.inp { border-radius: 16px; }
 .ctabs button { border: 0; background: transparent; padding: 12px 0; font-size: 15px; color: var(--text-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; display: inline-flex; gap: 6px; align-items: center; }
 .ctabs button b { font-weight: 500; font-variant-numeric: tabular-nums; }
 .ctabs button.on { color: var(--olive); border-color: var(--olive); font-weight: 600; }
+/* 底線改成跟書櫃分頁一樣：一條平的 2px 線，不跟著按鈕圓角彎（2026-11-03 乙練抓到底線是彎的） */
+.ctabs button { position: relative; border-radius: 0; border-bottom: 0; }
+.ctabs button::before { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--olive); transform: scaleX(0); transition: transform .2s var(--ease); }
+.ctabs button.on::before { transform: scaleX(1); }
+.ctabs button.hint::after { border-radius: 10px; inset: 2px -10px; }
+.ctabs button:hover { color: var(--ink); }
+.ctabs button.on:hover { color: var(--olive); }
 .ctabs .end { margin-left: auto; align-self: center; }
 .tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
 .tbl th { text-align: left; font-weight: 500; color: var(--text-3); font-size: 12.5px; padding: 10px 12px; background: var(--sunken); }
@@ -716,7 +740,33 @@ textarea.inp { border-radius: 16px; }
 .tb-row .ic { color: var(--text-2); display: flex; }
 .cap-chip { display: inline-flex; align-items: center; height: 26px; padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 500; background: var(--lime-subtle); color: var(--olive); font-variant-numeric: tabular-nums; }
 .cap-chip.full { background: var(--ink); color: var(--lime); }
-.tb-preview { border-radius: 18px; background: var(--sunken); padding: 14px; display: flex; gap: 14px; }
+.tb-preview { border-radius: 18px; background: var(--sunken); padding: 0; overflow: hidden; }
+.tb-reader { position: absolute; inset: 0; }
+.tb2 { display: flex; flex-direction: column; gap: 14px; }
+.tb2-h { display: flex; align-items: center; justify-content: space-between; }
+.tb2-h b { font-size: 16px; }
+.tb2-h { gap: 10px; }
+.tb2-sp { flex: 1; }
+.tb2-h .seg { margin-right: 6px; }
+.tb2-out { width: 100%; }
+.tb2 { margin: 0 auto; }
+.seg .cap-n { margin-left: 6px; font-size: 12px; color: var(--text-3); font-weight: 400; }
+.tb2-over { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--danger-surface); color: var(--danger); font-size: 14px; }
+.tb2-screen { position: relative; overflow: hidden; border-radius: 18px; box-shadow: 0 0 0 1px var(--line-subtle); }
+.tb2-screen .tb-preview { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.tb2 .tb-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.tb-reader .rail .tile:disabled { color: inherit; }
+.rail-drag { cursor: grab; }
+.rail-drag.dragging { opacity: .35; }
+.rail-slot { position: relative; flex: none; }
+.tb-reader .rail { z-index: 5; overflow: visible; }
+.add-slot { border: 1.5px dashed var(--line) !important; background: transparent; color: var(--text-2); }
+.add-slot:hover, .add-slot.on { border-color: var(--olive-selected) !important; background: var(--lime-subtle); color: var(--olive); }
+.slot-box { position: absolute; z-index: 20; left: 116px; bottom: 16px; top: auto; width: 360px; }
+.slot-menu { position: absolute; z-index: 30; left: calc(100% + 10px); top: 0; width: 200px; padding: 6px; border-radius: 16px; background: var(--page); box-shadow: var(--popover); display: flex; flex-direction: column; }
+.slot-menu button { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; font-size: 15px; cursor: pointer; text-align: left; }
+.slot-menu button:hover { background: var(--sunken); }
+.tb-reader .fit-wrap { width: 100%; height: 100%; display: grid; place-items: center; }
 .tb-preview .mini-rail { width: 76px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0; border-radius: 14px; background: var(--raised); box-shadow: var(--shadow-card); }
 .mini-rail .mt { width: 56px; padding: 6px 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; border-radius: 10px; }
 .mini-rail .mt.sel { outline: 1.5px dashed var(--olive-selected); outline-offset: -2px; background: var(--lime-subtle); }
@@ -743,7 +793,7 @@ textarea.inp { border-radius: 16px; }
 textarea.inp { height: 130px; padding: 12px 16px; resize: none; line-height: 1.6; }
 .preview-line { font-size: 13px; color: var(--text-2); padding: 12px 14px; border-radius: 10px; background: var(--sunken); font-variant-numeric: tabular-nums; }
 .done-card { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 16px; background: var(--success-surface); color: var(--success); margin-top: 20px; max-width: 780px; }
-.create-dlg .done-card { max-width: none; margin-top: 0; }
+.create-dlg .done-card { max-width: none; margin: 0 0 18px; padding: 12px 14px 12px 18px; }
 .done-card b { display: block; font-size: 16px; color: var(--ink); }
 .done-card .spacer { flex: 1; }
 .drop { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; border: 1.5px dashed var(--line); border-radius: var(--r-card); background: var(--raised); font: inherit; color: inherit; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
@@ -800,11 +850,20 @@ textarea.inp { height: 130px; padding: 12px 16px; resize: none; line-height: 1.6
 @keyframes bob { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-3px) scale(1.02, .98); } }
 .comp.jump { animation: jump .9s cubic-bezier(.3, 1.6, .5, 1) 2; transform-origin: 50% 100%; }
 @keyframes jump { 0% { transform: translateY(0) scale(1); } 30% { transform: translateY(-18px) scale(1.06, .94) rotate(-6deg); } 60% { transform: translateY(0) scale(1.08, .92); } 100% { transform: translateY(0) scale(1); } }
-.av-circle { display: grid; place-items: center; border-radius: 999px; background: var(--sunken); flex: none; overflow: hidden; }
+.av-circle { display: grid; place-items: center; border-radius: 999px; background: transparent !important; flex: none; overflow: visible; } /* 形狀夥伴頭像不墊灰色圓底（2026-11-03 乙練） */
 .buddy { position: absolute; z-index: 5; right: 36px; bottom: 30px; border: 0; background: transparent; cursor: pointer; padding: 0; }
 .buddy .say { position: absolute; right: calc(100% + 6px); bottom: 34px; white-space: nowrap; padding: 10px 16px; border-radius: 18px 18px 4px 18px; background: var(--raised); box-shadow: var(--shadow-pop); font-size: 14px; animation: toast .25s var(--ease); }
 
 /* 跟隨老師：像 FigJam 點頭像跟隨 */
+.tchip-tile { height: 56px; gap: 2px; }
+.tchip-tile .tav { width: 26px; height: 26px; border-radius: 999px; background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 500; line-height: 1; }
+.tchip-tile .pgn { font-size: 11px; color: var(--text-2); }
+.tchip-tile.on { background: var(--follow, #2F5FBF) !important; border-color: transparent !important; }
+.tchip-tile.on .tav { background: #fff; color: var(--follow, #2F5FBF); }
+.tchip-tile.on .pgn { color: rgba(255,255,255,.85); }
+.tchip-tile.locked { background: var(--ink) !important; color: #fff; }
+.tchip-tile.locked .tav { background: #fff; color: var(--ink); }
+.tchip-tile.locked .pgn { color: rgba(255,255,255,.75); }
 .tchip { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px 0 4px; border: 0; border-radius: 999px; background: var(--raised); cursor: pointer; font-size: 14px; font-weight: 500; color: var(--ink); white-space: nowrap; transition: background .15s, color .15s; }
 .tchip:hover:not(:disabled) { background: var(--sunken); }
 .tchip .tav { position: relative; width: 32px; height: 32px; border-radius: 999px; background: var(--ink); color: #FAFAFA; display: grid; place-items: center; font-size: 14px; font-weight: 500; transition: box-shadow .2s; }
@@ -896,6 +955,9 @@ textarea.note-t { field-sizing: content; min-width: 96px; max-width: 296px; min-
 .grp-res { display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px; }
 .grp-res .field-l { margin-bottom: 8px; }
 .grp-seats { display: grid; grid-template-columns: repeat(5, 40px); gap: 8px; }
+/* 分好組後面板加寬：一組最多 10 人，一列排得下 10 個座號（2026-11-03 乙練） */
+.grp-pop.wide { width: 520px; }
+.grp-pop.wide .grp-seats { grid-template-columns: repeat(10, 40px); }
 .grp-seats span { width: 40px; height: 40px; border-radius: 999px; background: var(--ink); /* 座號頭像一律黑底白字，同名單 */ color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .spin { width: 16px; height: 16px; border-radius: 999px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; animation: spin .7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -924,6 +986,10 @@ textarea.note-t { field-sizing: content; min-width: 96px; max-width: 296px; min-
 .adj { display: flex; align-items: center; justify-content: center; gap: 18px; }
 .adj .big { margin: 0; min-width: 210px; }
 .timer-pill { cursor: pointer; border: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
+.timer-pin { position: absolute; z-index: 15; top: 16px; left: 120px; }
+.timer-pop.pinned { width: 190px; box-shadow: var(--shadow-pop); }
+.timer-pop.pinned .pop-b { padding: 16px 16px 16px; gap: 12px; }
+.float-timer { position: absolute; z-index: 15; top: 36px; right: 40px; height: 44px; padding: 0 18px; font-size: 18px; box-shadow: var(--shadow-pop); }
 .timer-pill.done { background: var(--danger); color: #fff; box-shadow: none; animation: shake .5s 3; }
 @keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 .timer-box { position: absolute; z-index: 16; top: 96px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 10px 22px 10px 12px; border-radius: 999px; background: var(--ink); color: #FAFAFA; box-shadow: var(--shadow-pop); animation: dropin .35s var(--ease); }
@@ -973,6 +1039,19 @@ textarea.note-t { field-sizing: content; min-width: 96px; max-width: 296px; min-
 .kid .sc { position: absolute; right: -2px; top: -4px; min-width: 30px; height: 24px; padding: 0 6px; border-radius: 999px; background: var(--raised); box-shadow: inset 0 0 0 1px var(--line-subtle); font-size: 12.5px; font-weight: 700; display: grid; place-items: center; font-variant-numeric: tabular-nums; color: var(--text-3); }
 .kid .sc.up { background: var(--lime); box-shadow: none; color: var(--ink); }
 .kid .sc.down { background: var(--danger-surface); color: var(--danger); box-shadow: none; }
+/* 加減分的動畫收進右上角的分數角標：角標先跳出「+1／−1」、放大一下，再變回總分；不再有浮在頭像上的字（2026-11-03 乙練：擋住頭像） */
+.kid .sc.bump { animation: scbump .9s var(--ease); }
+/* 分數角標永遠在最上層：不被自己的格子框、導覽提示框、隔壁格蓋住；名單上緣多留一點空間給第一排的角標（2026-11-03） */
+.kid .sc { z-index: 3; }
+.kid:has(.sc) { z-index: 2; }
+.kid-grid { padding-top: 12px; padding-right: 8px; }
+.kid .sc.bump:not(.minus) { background: var(--ink); color: var(--lime); }
+.kid .sc.bump.minus { background: var(--danger); color: #fff; animation: scshake .8s var(--ease); }
+/* 扣分：角標往下掉一點再左右搖頭，整格閃一下淡紅，比加分的彈跳更有「哎呀」的感覺，但不擋臉（2026-11-03 乙練：太 plain） */
+@keyframes scshake { 0% { transform: translateY(-10px) scale(.6); } 20% { transform: translateY(2px) scale(1.25); } 35% { transform: translateX(-4px) rotate(-12deg); } 50% { transform: translateX(4px) rotate(10deg); } 65% { transform: translateX(-3px) rotate(-6deg); } 80% { transform: translateX(2px) rotate(3deg); } 100% { transform: none; } }
+.kid.down { animation: kidred .9s ease-out; border-radius: 16px; }
+@keyframes kidred { 0% { background: transparent; } 20% { background: var(--danger-surface); } 100% { background: transparent; } }
+@keyframes scbump { 0% { transform: scale(.6); } 25% { transform: scale(1.35); } 55% { transform: scale(1); } 100% { transform: scale(1); } }
 .kid .seat-dot { width: 52px; height: 52px; border-radius: 999px; background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--line); color: var(--ink); display: grid; place-items: center; font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; transition: background .12s, transform .12s; }
 .kid:hover:not(:disabled) .seat-dot { background: var(--raised); color: var(--ink); } /* 卡片底已經變色（加分 Lime、扣分紅），號碼圈留白底才看得清 */
 .kid:active .seat-dot { transform: scale(.9); }
@@ -1047,7 +1126,7 @@ textarea.note-t { field-sizing: content; min-width: 96px; max-width: 296px; min-
 .big-count span { font-size: 18px; color: var(--text-2); }
 .seat-dots { display: grid; grid-template-columns: repeat(15, 1fr); gap: 6px; margin-bottom: 18px; }
 .seat-dots i { aspect-ratio: 1; border-radius: 999px; background: var(--sunken); color: var(--text-3); font-style: normal; font-size: 11px; display: grid; place-items: center; font-variant-numeric: tabular-nums; transition: background .3s; }
-.seat-dots i.on { background: var(--lime); color: var(--ink); font-weight: 600; }
+.seat-dots i.on { background: var(--ink); color: #FAFAFA; font-weight: 600; } /* 已回傳＝黑底白字，跟座號頭像同一套；黃色留給重點（2026-11-03 乙練） */
 .reveal { border-top: 1px solid var(--line-subtle); padding-top: 14px; display: flex; align-items: center; gap: 10px; }
 .reveal .q { font-size: 14px; color: var(--text-2); margin-right: 4px; }
 .reveal .lt { width: 46px; height: 46px; border-radius: 12px; border: 1px solid var(--line); background: var(--raised); font-size: 18px; font-weight: 600; cursor: pointer; }
@@ -1067,12 +1146,21 @@ textarea.note-t { field-sizing: content; min-width: 96px; max-width: 296px; min-
 .cbar.ok i { background: var(--lime); }
 .cbar span { font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
 .cbar.ok span { color: var(--olive); font-weight: 600; }
+.rv-sum { display: flex; gap: 28px; align-items: baseline; margin: 0 0 6px; font-size: 14px; color: var(--text-2); }
+.rv-sum b { font-size: 26px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.rv-sum .right b { color: var(--olive); }
+.rv-sum small { margin-left: 6px; font-size: 13px; color: var(--text-3); }
 .bar-l { display: flex; justify-content: space-around; padding: 8px 30px 0; font-size: 16px; font-weight: 600; }
 .bar-l span { width: 110px; text-align: center; }
 .bar-l .ok { color: var(--olive); }
 /* 派任務的面板都在同一個位置：出題窄一點，作答中、結果、放大作品同寬 */
 .task-pop { left: 112px; top: 40px; width: 820px; }
 .task-pop.narrow { width: 480px; }
+/* 派任務、名單從上課膠囊打開時：浮在畫布下方、膠囊正上方，靠近剛剛按的位置（2026-11-03 乙練） */
+.reader.cb-open .pop-layer:not(.center) > .task-pop, .reader.cb-open .pop-layer:not(.center) > .score-pop { position: absolute; left: 104px; top: auto !important; bottom: calc(100% - var(--cb-top, 830px) + 10px); } /* 底邊貼在膠囊上方 10px */
+/* 面板再高也不能超出畫面上緣：最高到膠囊上方，超過的內容在面板裡捲（2026-11-03 乙練抓到文字題檢討整個衝出畫面） */
+.reader.cb-open .pop-layer:not(.center) > .task-pop, .reader.cb-open .pop-layer:not(.center) > .score-pop { max-height: calc(var(--cb-top, 830px) - 34px); display: flex; flex-direction: column; overflow: hidden; }
+.reader.cb-open .pop-layer:not(.center) > .task-pop > .pop-b, .reader.cb-open .pop-layer:not(.center) > .score-pop > .pop-b { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; }
 .task-pop .pop-h .clock { margin-left: auto; margin-right: 8px; font-variant-numeric: tabular-nums; color: var(--text-2); font-size: 14px; }
 .t-count { display: flex; align-items: center; gap: 6px; margin: 4px 0 14px; font-size: 14px; color: var(--text-2); }
 .t-count b { font-size: 20px; color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -1165,6 +1253,22 @@ textarea.note-t { field-sizing: content; min-width: 96px; max-width: 296px; min-
 .rec-h .spacer { flex: 1; }
 .sel-sm { height: 34px; border: 1px solid var(--line); border-radius: 999px; background: var(--raised); padding: 0 12px; font: inherit; font-size: 13px; }
 .pts-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.rec-sum { display: flex; align-items: baseline; gap: 28px; margin: 0 0 16px; font-size: 14px; color: var(--text-2); }
+.rec-sum b { font-size: 24px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; margin: 0 2px; }
+.rec-sum .tops { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.rec-sum .tops em { font-style: normal; font-size: 13px; font-weight: 600; color: var(--ink); background: var(--lime); padding: 3px 10px; border-radius: 999px; }
+.pts2 { display: grid; grid-template-columns: repeat(5, 1fr); column-gap: 24px; }
+.pt2 { display: flex; align-items: center; gap: 10px; padding: 11px 6px; border: 0; border-bottom: 1px solid var(--line-subtle); background: transparent; font: inherit; font-size: 15px; text-align: left; color: var(--ink); }
+button.pt2 { cursor: pointer; border-radius: 0; }
+button.pt2:hover { background: var(--sunken); }
+.pt2.sel { background: var(--lime-subtle); }
+.pt2 .sn { width: 20px; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.pt2 .nm { white-space: nowrap; }
+.pt2.zero .nm { color: var(--text-3); }
+.pt2 .sc0 { margin-left: auto; color: var(--disabled); }
+.pt2 .sc { margin-left: auto; min-width: 34px; text-align: center; padding: 2px 8px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--lime-subtle); color: var(--olive); font-variant-numeric: tabular-nums; }
+.pt2 .sc.top { background: var(--lime); color: var(--ink); }
+.pt2 .sc.neg { background: var(--danger-surface); color: var(--danger); }
 .pt { border: 0; border-radius: 12px; background: var(--sunken); padding: 10px 14px; display: flex; align-items: center; gap: 8px; font-size: 14px; text-align: left; }
 button.pt { cursor: pointer; }
 button.pt:hover { box-shadow: inset 0 0 0 1px var(--line); }
@@ -1235,6 +1339,19 @@ button.pt:hover { box-shadow: inset 0 0 0 1px var(--line); }
 .class-bar { position: absolute; z-index: 18; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px; background: var(--raised); box-shadow: 0 0 0 1px var(--line-subtle), 0 10px 30px rgba(26,25,23,.16); white-space: nowrap; }
 .class-bar.float { box-shadow: 0 0 0 1px var(--line-subtle), 0 18px 44px rgba(26,25,23,.24); }
 .reader.bar-dock .pageframe { top: 24px; bottom: 92px; }
+.reader.bar-left .pageframe { top: 24px; bottom: 92px; }
+.reader.bar-row .pageframe { top: 24px; bottom: 88px; }
+.class-bar.left { left: 112px; transform: none; } /* 左下膠囊：貼著左欄 */
+/* 平的版本（2026-11-03 乙練：浮在畫面上很突兀）：跟左欄頁數一樣白底、沒有陰影，貼在課本下方的灰邊，看起來是左欄延伸出來的狀態列 */
+.class-bar.left { left: 104px; bottom: 14px; box-shadow: none; background: var(--raised); }
+.class-bar.inrail { left: 112px; bottom: 16px; transform: none; animation: rise .18s var(--ease); } /* 收進左欄：按左欄最下面的「上課」才在旁邊展開 */
+.reader.bar-rail .pageframe { top: 24px; }
+.cls-tile { height: 56px; }
+.sync-ic { position: relative; display: grid; place-items: center; }
+.sync-ic .live-dot { position: absolute; top: -3px; right: -5px; width: 8px; height: 8px; }
+.cls-tile .cls-n { display: flex; align-items: center; gap: 5px; font-weight: 600; font-size: 14px; }
+.cls-tile .live-dot { width: 6px; height: 6px; }
+.class-bar.row { left: 104px; right: 24px; bottom: 16px; transform: none; border-radius: 18px; justify-content: flex-start; } /* 下方整列：內容靠左 */
 .reader.bar-float .pageframe { top: 24px; }
 .cb-cls { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px 0 16px; border: 0; border-radius: 999px; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer; }
 .cb-cls:hover { background: var(--sunken); }
@@ -1244,6 +1361,73 @@ button.pt:hover { box-shadow: inset 0 0 0 1px var(--line); }
 .cb-lock:hover { background: var(--muted); color: var(--ink); }
 .cb-lock.on { background: var(--lime-subtle); color: var(--olive); box-shadow: inset 0 0 0 1.5px var(--olive); }
 .class-bar .btn { height: 44px; }
+.opt-wrap { position: relative; }
+.sync-zone { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 8px; flex: none; } /* 不加灰框，跟學生端一樣（2026-11-03） */
+.sync-zone .pager { margin: 0; }
+.spill { width: 56px; height: 92px; border: 0; border-radius: 999px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font: inherit; cursor: pointer; }
+.spill b { font-family: Lexend, var(--font); font-size: 16px; font-variant-numeric: tabular-nums; }
+.spill .sav { width: 30px; height: 30px; border-radius: 999px; display: grid; place-items: center; font-size: 13px; font-weight: 500; line-height: 1; }
+.spill.on { background: #2F5FBF; color: #fff; }
+.spill.on .sav { background: #fff; color: #2F5FBF; }
+.spill.lock { background: var(--ink); color: #fff; cursor: default; }
+.spill.lock .sav { background: #fff; color: var(--ink); }
+.spill-wrap { margin-top: 8px; flex: none; }
+.spill.free { height: auto; padding: 8px 0 0; gap: 2px; background: var(--raised); cursor: default; }
+.spill.free .pager { margin: 0; background: transparent; }
+.spill-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.sfollow { width: 48px; height: 48px; border: 0; border-radius: 999px; background: #2F5FBF; color: #fff; font: inherit; font-size: 16px; font-weight: 500; line-height: 1; cursor: pointer; display: grid; place-items: center; } /* 一顆圓形老師頭像，按了跟老師（2026-11-03 乙練） */
+.sfollow .sav { width: 24px; height: 24px; border-radius: 999px; background: #2F5FBF; color: #fff; display: grid; place-items: center; font-size: 12px; line-height: 1; }
+.sfollow:hover { background: #264FA3; }
+.sfollow:hover { background: var(--ink-hover); }
+.sync-tile { background: var(--ink); color: #FAFAFA; border-color: transparent; }
+.sync-tile:hover:not(:disabled) { background: var(--ink-hover); box-shadow: none; }
+.sync-tile.live { background: transparent; color: var(--ink); } /* 上課中：跟其他格一樣素，只有圖示角落的紅點（2026-11-03 乙練：要更簡潔） */
+.sync-tile.live:hover { background: var(--raised); }
+.sync-tile .sync-on { display: flex; align-items: center; gap: 4px; font-weight: 600; font-size: 12px; }
+.sync-tile .sync-ic { position: static; }
+.sync-tile .live-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; } /* 紅點放整格右上角，跟其他提示點同一個位置（2026-11-03） */
+.sync-tile small { font-size: 11px; color: var(--text-2); }
+.box-live::after { content: ''; position: absolute; top: 6px; right: 10px; width: 8px; height: 8px; border-radius: 999px; background: var(--danger); box-shadow: 0 0 0 2px var(--backdrop); }
+.reader.bar-toolbox .pageframe { top: 24px; } /* 畫布最大化：膠囊沒展開時不讓位 */
+.reader.bar-toolbox.cb-open .pageframe { bottom: 64px; } /* 課本頁撐到底時才讓出一條；膠囊貼在課本頁正下方 */
+/* 上課同步展開後：放在畫布下面的灰邊，不壓到課本；做得矮一點，畫布只讓出一小條（2026-11-03 乙練） */
+.class-bar.under { z-index: 25; left: 104px; bottom: 14px; transform: none; padding: 2px; box-shadow: none; background: var(--raised); gap: 2px; animation: rise .18s var(--ease); }
+.class-bar.under .cb-cls, .class-bar.under .btn { height: 40px; }
+.cb-task { position: relative; }
+.sess-nm { color: var(--ink); }
+.q-read { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: var(--sunken); }
+.q-read .q-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; font-size: 16px; }
+.q-read .q-opts { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--text-2); }
+.q-read .q-opts em { font-style: normal; font-weight: 600; margin-right: 4px; color: var(--ink); }
+.q-done { display: flex; justify-content: flex-end; margin-top: 8px; }
+.miss-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: -6px 0 16px; font-size: 14px; color: var(--text-2); }
+.miss-line span { padding: 3px 10px; border-radius: 999px; background: var(--sunken); color: var(--ink); font-size: 13px; }
+.q-box { padding: 14px 16px; border-radius: 16px; background: var(--sunken); margin-bottom: 16px; }
+.cb-cls.on { background: var(--lime-subtle); } /* 按「501 29/30」開名單與加分；開著時底色亮起（2026-11-03 乙練） */ /* 派任務跟鎖定一樣只放圖示（2026-11-03 乙練：要更簡潔） */
+.cb-task:hover { background: var(--sunken); }
+.cb-task .badge { position: absolute; top: -1px; right: -1px; width: 10px; height: 10px; border-radius: 999px; background: var(--danger); box-shadow: 0 0 0 2px var(--raised); } /* 紅點貼在圓鈕右上角外緣，不壓到圖示（2026-11-03） */
+.class-bar.under .cb-cls { padding: 0 12px 0 14px; }
+.class-bar.under .cb-sep { margin: 0 2px; }
+.class-bar.under .cb-lock { width: 40px; height: 40px; }
+.cb-lock:disabled { opacity: .35; cursor: default; } /* 學生作答中不能鎖定 */
+.end-tile { background: var(--ink) !important; color: #FAFAFA !important; }
+.end-tile:hover { background: var(--ink-hover) !important; } /* 頁數緊接在「設定」下面（2026-11-03 乙練：不是推到最底） */
+.opt-wrap .ghost.on { background: var(--sunken); }
+.opt-pop { position: absolute; z-index: 90; right: 0; top: calc(100% + 8px); width: 220px; padding: 8px; border-radius: 16px; background: var(--page); box-shadow: var(--popover); display: flex; flex-direction: column; }
+.opt-pop p { margin: 8px 8px 4px; font-size: 12px; color: var(--text-3); }
+.opt-pop button { text-align: left; height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; font-size: 14px; cursor: pointer; }
+.opt-pop button:hover { background: var(--sunken); }
+.opt-pop button[aria-pressed="true"] { background: var(--lime-subtle); box-shadow: inset 0 0 0 1.5px var(--olive-selected); font-weight: 500; }
+.hpager { display: flex; align-items: center; gap: 2px; height: 44px; padding: 0 4px; }
+.hpager button { width: 36px; height: 36px; border: 0; border-radius: 999px; background: transparent; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
+.hpager button:hover:not(:disabled) { background: var(--sunken); }
+.hpager button:disabled { color: var(--disabled); cursor: default; }
+.hpager b { min-width: 28px; text-align: center; font-family: Lexend, var(--font); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cb-sep { width: 1px; height: 24px; background: var(--line-subtle); margin: 0 2px; }
+.cb-min { width: 32px; height: 44px; border: 0; border-radius: 999px; background: transparent; color: var(--text-3); display: grid; place-items: center; cursor: pointer; }
+.cb-min:hover { color: var(--ink); background: var(--sunken); }
+.class-bar.cb-mini { padding: 4px; }
+.class-bar.cb-mini .cb-cls { height: 40px; padding: 0 10px 0 14px; }
 .cb-grip { display: grid; grid-template-columns: repeat(2, 4px); gap: 4px; padding: 0 8px 0 10px; cursor: grab; touch-action: none; }
 .cb-grip:active { cursor: grabbing; }
 .cb-grip i { width: 4px; height: 4px; border-radius: 50%; background: var(--disabled); }
@@ -1386,6 +1570,32 @@ button.pt:hover { box-shadow: inset 0 0 0 1px var(--line); }
 .grp-acts .btn { gap: 6px; }
 
 /* 結束作答後先點正確答案，再長出各選項人數 */
+.review .collect { flex: 1; min-height: 0; display: flex; flex-direction: column; } /* 作答中大彈窗：內容在中間放大，「結束作答」固定在右下（2026-11-03 乙練：面板很奇怪） */
+.review .collect .col-ring { margin-top: auto; }
+.col-ring { display: flex; justify-content: center; margin-bottom: 22px; }
+.col-ring .tm-ring circle:last-of-type { stroke: #99A428; }
+.col-ring.hurry .tm-ring circle:last-of-type { stroke: var(--danger); }
+.col-ring .tm-in { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cr-n { font-size: 84px; line-height: 1; font-weight: 600; color: var(--olive); font-variant-numeric: tabular-nums; }
+.cr-of { font-size: 16px; color: var(--text-2); }
+.cr-tm { margin-top: 6px; display: flex; align-items: center; gap: 4px; font-size: 18px; font-variant-numeric: tabular-nums; }
+.cr-tm b { font-weight: 600; min-width: 58px; text-align: center; }
+.cr-tm.el { font-size: 14px; color: var(--text-3); }
+.col-ring.hurry .cr-tm b { color: var(--danger); }
+.cr-tm button { width: 28px; height: 28px; border: 0; border-radius: 999px; background: transparent; color: var(--text-3); font-size: 20px; line-height: 1; cursor: pointer; } /* 輕量：沒有外框，滑過才出現淡底（2026-11-03 乙練） */
+.cr-tm button:hover:not(:disabled) { background: var(--sunken); color: var(--ink); }
+.cr-tm button:disabled { opacity: .3; cursor: default; }
+.review .collect .seat-dots { margin-bottom: auto; }
+.review .collect .ch-foot { margin-top: 0; }
+.review .collect .big-count b { font-size: 112px; }
+.review .collect .big-count span { font-size: 24px; }
+.review .collect .col-el { font-size: 16px; }
+.pop.review .seat-dots { grid-template-columns: repeat(15, 64px) !important; gap: 10px !important; justify-content: center; }
+.pop.review .seat-dots i { font-size: 16px; }
+.review .prog { width: 100%; max-width: 1100px; margin: 22px auto 24px; height: 10px; }
+.review .pick-opts { margin: auto; width: min(760px, 100%); grid-template-columns: 1fr 1fr; gap: 16px; }
+.review .pick-opts .popt { height: 150px; font-size: 48px; border-radius: 24px; }
+.review .pick-opts .popt:nth-child(3):last-child { grid-column: 1 / -1; } /* 三個選項：C 撐滿下面一列 */
 .pick-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 12px; margin: 18px 0 8px; }
 .pick-opts.two { grid-template-columns: 1fr 1fr; }
 .popt { height: 120px; border: 0; border-radius: 18px; background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--line); font: inherit; font-size: 40px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: box-shadow .12s, transform .15s var(--ease); }
@@ -1469,6 +1679,9 @@ button.pt:hover { box-shadow: inset 0 0 0 1px var(--line); }
 textarea.note-t::placeholder { color: #757575; }
 .note-del { top: 8px; right: 8px; color: var(--ink); }
 .note-del:hover { background: rgba(26,25,23,.06); color: var(--ink); }
+/* 還沒輸入字的便利貼：正方形，看得出是一張便利貼，不是一條黃色長條（2026-11-03 乙練） */
+.note.empty { width: 160px; min-width: 0; height: 160px; }
+.note.empty .note-t { height: 100%; }
 
 /* 滑過不要跟停用一樣是灰底（乙練 2026-10-30）：滑過＝白底、框深一階、淡陰影；停用才是灰底灰字 */
 .tile:hover:not(:disabled) { background: var(--raised); box-shadow: 0 2px 8px rgba(26,25,23,.08); }
@@ -1534,7 +1747,9 @@ a.btn { text-decoration: none; }
 .paper-seg button { height: 36px; font-size: 14px; padding: 0 12px; }
 
 /* 公布答案後長條圖縮矮，名單（抽籤要看的）放大、往上靠 */
-.bars.compact { height: 140px; }
+.bars.compact { height: 200px; }
+/* 公布答案、檢討的大彈窗：底邊停在上課膠囊上方，不被膠囊蓋住（2026-11-03） */
+.reader.cb-open .pop-layer.center > .pop.review { bottom: calc(100% - var(--cb-top, 830px) + 10px) !important; }
 .ch-pop .who-chose { font-size: 15px; gap: 6px 14px; }
 .ch-pop .who-chose span { padding: 2px 8px; border-radius: 999px; transition: background .08s; }
 .ch-pop .who-chose .drawn { font-size: 17px; }
@@ -1657,6 +1872,13 @@ a.btn { text-decoration: none; }
 .review .detail-top .spacer { flex: 1; }
 .review .who-row { margin: 0; display: inline-flex; align-items: center; gap: 8px; }
 .fit-work { flex: 1; min-height: 0; display: grid; place-items: center; }
+.dt-stage { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.dt-tools { position: absolute; bottom: 12px; right: 12px; z-index: 3; box-shadow: var(--shadow-pop); background: var(--raised); } /* 批註工具放作品右下（2026-11-03 乙練） */
+/* 返回（白底按鈕＋←）和換人（灰底膠囊裡的 ‹ ›）長得不一樣，才不會搞混 */
+.review .dt-back { gap: 6px; height: 40px; padding: 0 16px 0 12px; font-size: 15px; }
+.review .detail-top .who-nav { padding: 2px 4px 2px 2px; border-radius: 999px; background: var(--muted); gap: 8px; margin-left: 8px; }
+.review .detail-top .who-nav > button:not(.btn):hover:not(:disabled) { background: var(--raised); }
+.review .who-nav .btn.who-plus { height: 40px; min-width: 64px; padding: 0 18px; font-size: 16px; font-weight: 600; margin-left: 6px; border-radius: 999px; }
 .fit-work .big-work { box-shadow: inset 0 0 0 1px var(--line-subtle); }
 .rv-tools { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--muted); }
 .rv-t { width: 36px; height: 32px; border: 0; border-radius: 999px; background: transparent; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
@@ -1830,6 +2052,47 @@ a.btn { text-decoration: none; }
 .review .who-chose.names-big .nm-chip:hover { background: #F6FF99; }
 .review .who-chose.names-big .nm-chip.drawn, .review .who-chose.names-big .nm-chip.hop { background: var(--raised) !important; box-shadow: inset 0 0 0 3px #99A428 !important; }
 .review .who-chose.names-big .nm-chip .pl { font-size: 18px; }
+/* 公布答案、檢討的名單（2026-11-03 乙練：大膠囊很醜）：改成跟加分紀錄一樣的清單，底線分隔、沒有底色；
+   座號小灰字＋名字，右邊是這題加的分；滑過出現「+1」；抽中的整列亮起 */
+.who-chose, .who-chose.names-big, .review .who-chose.names-big { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 20px; row-gap: 0; padding: 0; margin-top: 8px; background: transparent; border-radius: 0; line-height: 1.4; }
+.who-chose .nm-chip, .review .who-chose.names-big .nm-chip, .ch-pop .who-chose .nm-chip { height: 44px; padding: 0 6px; border-radius: 0; border-bottom: 1px solid var(--line-subtle); background: transparent !important; box-shadow: none !important; font-size: 16px; color: var(--ink); justify-content: flex-start; }
+.who-chose .nm-chip:hover { background: var(--sunken) !important; }
+.who-chose .nm-chip .pl { margin-left: auto; font-size: 13px !important; padding: 2px 8px; }
+.who-chose .nm-chip.got .pl { background: var(--lime-subtle); box-shadow: none; color: var(--olive); }
+.who-chose .nm-chip.drawn, .who-chose .nm-chip.hop { background: var(--lime-subtle) !important; }
+.who-chose .nm-chip.drawn.final { background: var(--ink) !important; color: #FAFAFA; }
+/* 2026-11-03 乙練：列要圓角（抽中、滑過都是圓角底色，不畫方框）；+1 做成一顆看得出能按的鈕，加過分就變成同一顆的「+N」亮黃 */
+.who-chose .nm-chip { border-radius: 12px !important; border-bottom: 0 !important; box-shadow: none !important; }
+.who-chose .nm-chip.drawn, .who-chose .nm-chip.hop { box-shadow: none !important; }
+.pop .who-chose .nm-chip .pl.pl { margin-left: auto !important; display: inline-flex !important; align-items: center; justify-content: center; min-width: 40px; height: 28px; padding: 0 10px !important; border-radius: 999px; background: var(--raised) !important; box-shadow: inset 0 0 0 1px var(--line) !important; color: var(--text-2) !important; font-weight: 600; }
+.pop .who-chose .nm-chip:hover .pl.pl { box-shadow: inset 0 0 0 1px var(--ink) !important; color: var(--ink) !important; }
+.pop .who-chose .nm-chip.got .pl.pl { background: var(--lime) !important; box-shadow: none !important; color: var(--ink) !important; }
+.who-chose { row-gap: 4px !important; }
+.pop .who-chose .nm-chip .pl.pl { opacity: 1 !important; visibility: visible !important; }
+/* 2026-11-03 乙練：+1 小鈕太複雜 → 跟全班名單的加分一樣：座號圓圈＋名字，點一下就 +1，加過的分數掛在圓圈右上角 */
+.pop .who-chose { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)) !important; row-gap: 12px !important; column-gap: 8px !important; }
+.pop .who-chose .nm-chip.sk { height: auto !important; flex-direction: column; align-items: center; gap: 6px; padding: 6px 0 !important; border-radius: 14px !important; background: transparent !important; }
+.pop .who-chose .nm-chip.sk:hover { background: var(--sunken) !important; }
+.sk-dot { position: relative; width: 52px; height: 52px; border-radius: 999px; background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--line); display: grid; place-items: center; font-size: 17px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.nm-chip.got .sk-dot { background: var(--lime-subtle); box-shadow: inset 0 0 0 1.5px var(--olive-selected); }
+.sk-sc { position: absolute; top: -6px; right: -10px; min-width: 28px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--lime); font-size: 12px; font-weight: 600; display: grid; place-items: center; animation: scbump .9s var(--ease); }
+.sk-nm { font-size: 13px; color: var(--text-2); }
+/* 聲音題：點座號就 +1，加過的分數掛在座號右上角，跟全班名單同一套（2026-11-03 乙練） */
+.sk-seat { position: relative; border: 0; cursor: pointer; font: inherit; }
+.sk-seat:hover { box-shadow: 0 0 0 3px var(--lime-tint); }
+.sk-seat.got { background: var(--olive); }
+.sk-seat .sk-sc { top: -10px; right: -16px; }
+.vt-h .sk-seat { width: 36px; height: 36px; min-width: 36px; font-size: 14px; margin-right: 16px; overflow: visible; }
+.vt, .vt-h { overflow: visible; }
+.review .voice-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; max-height: none; padding-top: 10px; }
+.review .vt { padding: 16px 18px; }
+.review .vt-h { font-size: 16px; }
+.pop .who-chose .nm-chip.sk, .pop .who-chose, .pop .who-chose .nm-chip.sk > span { overflow: visible !important; }
+.pop .who-chose .nm-chip.sk .sk-sc { display: grid !important; font-size: 12px !important; min-width: 28px !important; height: 22px !important; line-height: 1; color: var(--ink) !important; transform: none; z-index: 2; }
+.pop .who-chose .nm-chip.sk.drawn .sk-dot, .pop .who-chose .nm-chip.sk.hop .sk-dot { box-shadow: inset 0 0 0 3px var(--olive-selected); }
+.pop .who-chose .nm-chip.sk.drawn.final { background: transparent !important; color: inherit; }
+.pop .who-chose .nm-chip.sk.drawn.final .sk-dot { background: var(--ink); color: #fff; box-shadow: none; }
+.who-chose .nm-chip { width: 100%; }
 /* 手寫題：只列有交的，一次看完 30 份；座號大大地壓在縮圖左上角 */
 .subs-all { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 .shot-t { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer; border-radius: 12px; }
@@ -1866,7 +2129,74 @@ a.btn { text-decoration: none; }
 .review .grp.grp-bot .grp-acts { gap: 10px; }
 .review .grp.grp-bot .btn { height: 48px; padding: 0 24px; font-size: 18px; }
 .review .grp.grp-bot .btn:has(.dice-spin) { min-width: 96px; }
+/* 檢討的分數徽章跟名單頭像同一套：平常黃底黑字、剛加黑底黃字、扣分紅（2026-11-03 乙練：+1 要看得到字） */
+.sk-sc, .pop .who-chose .nm-chip.sk .sk-sc { color: var(--ink) !important; font-weight: 700; background: var(--lime); animation: none; z-index: 3; }
+.sk-sc.down { background: var(--danger-surface) !important; color: var(--danger) !important; }
+.sk-sc.bump, .pop .who-chose .nm-chip.sk .sk-sc.bump { animation: scbump .9s var(--ease) !important; background: var(--ink) !important; color: var(--lime) !important; } /* 之前被 animation: none 蓋掉，看起來卡住 */
+.sk-sc.bump.minus, .pop .who-chose .nm-chip.sk .sk-sc.bump.minus { background: var(--danger) !important; color: #fff !important; animation: scshake .8s var(--ease) !important; }
+.sk-seat.lost, .nm-chip.lost .sk-dot { background: var(--danger-surface) !important; color: var(--danger) !important; box-shadow: none !important; }
+.sk-seat.m:hover, .nm-chip.m:hover .sk-dot { box-shadow: 0 0 0 3px var(--danger-surface) !important; }
+.tcard .who2 .sk-seat { width: 30px; height: 30px; min-width: 30px; font-size: 12px; overflow: visible; }
+.tcard, .tcard .who2, .shot-t { overflow: visible; }
+.shot-t .shot-no.sk-seat { cursor: pointer; z-index: 2; }
+.shot-t .shot-no.sk-seat.got { background: var(--olive); }
+.shot-t .shot-no .sk-sc { top: -8px; right: -14px; font-size: 12px; }
+.review .grp.grp-bot .rv-mode { height: 48px; padding: 4px; border: 0; background: var(--muted); }
+.review .grp.grp-bot .rv-mode button { height: 40px; padding: 0 18px; font-size: 17px; }
+.review .grp.grp-bot .grp-seg button { height: 40px; padding: 0 20px; font-size: 17px; }
+.review .grp.grp-bot .rv-draw { margin-left: 4px; }
+.rv-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.rv-tabs { display: flex; gap: 28px; border-bottom: 1px solid var(--line-subtle); }
+.rv-tabs button { position: relative; padding: 10px 2px 12px; border: 0; background: transparent; font: inherit; font-size: 17px; color: var(--text-2); cursor: pointer; font-variant-numeric: tabular-nums; }
+.rv-tabs button:hover { color: var(--ink); }
+.rv-tabs button.on { color: var(--olive); font-weight: 600; }
+.rv-tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--olive); }
+.rv-head .rv-mode { height: 44px; padding: 4px; border: 0; background: var(--muted); }
+.rv-head .rv-mode button { height: 36px; padding: 0 18px; font-size: 16px; }
+.btn.red { background: var(--danger-surface); color: var(--danger); box-shadow: none; } /* 沒作答 −1：跟名單的「全班 −1」同色（2026-11-03 乙練） */
+.btn.red:hover:not(:disabled) { background: var(--danger); color: #fff; }
+.rv-foot { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 16px; }
+.rv-foot > .btn { margin: 0; }
+.rv-score { display: inline-flex; align-items: center; gap: 10px; }
+.rv-score .btn { height: 44px; padding: 0 20px; font-size: 16px; margin: 0; }
+/* 選擇題檢討：名單區固定三排高，切分頁時彈窗不會忽高忽低，按鈕位置固定（2026-11-03 乙練）；超過三排在裡面捲 */
+.pop .who-chose.fixed { flex: 1; min-height: 0; overflow-y: auto !important; align-content: start; padding-top: 10px; margin-top: 0; }
+/* 公布答案後上下各一半：上面長條圖，下面分頁＋名單＋按鈕；切分頁時版面不動（2026-11-03 乙練） */
+.ch-flat { display: contents; }
+.ch-half { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+.ch-half .bars.compact { flex: 1 1 auto; min-height: 0; height: auto; }
+.ch-half.bot { padding-top: 14px; }
+.ch-half.bot .rv-foot { margin-top: auto; padding-top: 12px; }
+.review > .pop-b:has(.rv-foot) { padding-bottom: 16px; } /* 按鈕靠下緣（2026-11-03 乙練） */
+.rv-foot { margin-top: auto; padding-top: 12px; }
+.rv-tabs button:focus { outline: none; box-shadow: none; }
+/* 檢討裡被加減過分的人：座號圈換成形狀夥伴，跟名單同一套 */
+.sk-dot.has-kid, .sk-seat.has-kid, .nm-chip.got .sk-dot.has-kid, .nm-chip.lost .sk-dot.has-kid, .pop .who-chose .nm-chip.sk.drawn.final .sk-dot.has-kid { background: transparent !important; box-shadow: none !important; }
+.shot-t .shot-no.sk-seat.has-kid { background: transparent !important; box-shadow: none !important; padding: 0; }
+.kid-in { display: grid; place-items: center; animation: reveal .5s cubic-bezier(.3, 1.6, .5, 1) both; }
+.has-kid .comp.sink { animation: sink .9s var(--ease); }
+.pop .who-chose .nm-chip.sk.drawn.final .sk-dot.has-kid .kid-in { filter: drop-shadow(0 0 0 #99A428) drop-shadow(0 0 3px #99A428); }
+/* 被抽到：座號圈維持白色，只加粗橄欖綠外圈，不另外框整格（2026-11-03 乙練：白色比黑色好） */
+.pop .who-chose .nm-chip.sk.drawn.final, .ch-pop .who-chose .nm-chip.sk.drawn.final { background: transparent !important; box-shadow: none !important; }
+.pop .who-chose .nm-chip.sk.drawn.final .sk-dot { background: var(--raised) !important; color: var(--ink) !important; box-shadow: inset 0 0 0 4px #99A428 !important; }
+.pop .who-chose .nm-chip.sk.drawn.final .sk-nm { color: var(--ink); font-weight: 600; }
+.rv-tabs button:focus-visible { outline: 2px solid var(--olive-selected); outline-offset: 2px; border-radius: 6px; } /* 兩顆 .sec 相鄰時會吃到區塊用的 .sec + .sec 上邊距 */
+.review .rv-foot .btn { height: 48px; padding: 0 24px; font-size: 18px; }
+.review .rv-foot .btn:has(.dice-spin) { min-width: 96px; }
+.who-nav { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; }
+.who-nav > button { width: 36px; height: 36px; border: 0; border-radius: 999px; background: transparent; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
+.who-nav > button:hover:not(:disabled) { background: var(--sunken); }
+.who-nav > button:disabled { color: var(--disabled); cursor: default; }
+.who-nav .sk-seat { width: 34px; height: 34px; min-width: 34px; font-size: 13px; overflow: visible; }
+.who-nav b { font-weight: 600; }
+.who-nav small { font-size: 13px; color: var(--text-3); font-variant-numeric: tabular-nums; }
 .grp > button.on:hover { background: var(--ink); color: #FAFAFA; }
+/* 答對／答錯／沒作答：同一套 .seg 分段膠囊（2026-11-03 乙練選 A）；百分比改寫在長條與標題 */
+.grp-seg button { height: 34px; padding: 0 16px; font-size: 14px; }
+.pop-h .hd-n { margin-left: 14px; font-size: 18px; font-weight: 400; color: var(--text-2); }
+.review .pop-h h4 { font-size: 22px; }
+.review .cbar span { font-size: 16px; font-weight: 600; }
+.pop-h .hd-n b { font-size: 24px; color: var(--olive); }
 
 /* 文字檢討：字自動放大到撐滿；+1 用系統的綠色小膠囊 */
 .tb-full .text-big { font-size: clamp(32px, 4.2vw, 64px); }
@@ -1876,6 +2206,10 @@ a.btn { text-decoration: none; }
 .col-top { display: flex; align-items: center; justify-content: center; gap: 40px; margin: 6px 0 14px; }
 .col-n { display: flex; flex-direction: column; align-items: center; }
 .col-n .big-count { margin: 0; }
+.col-left { display: flex; align-items: center; gap: 6px; }
+.col-left b { font-size: 16px; color: var(--ink); font-weight: 600; }
+.col-left.hurry, .col-left.hurry b { color: var(--danger); }
+.col-left .ghost { margin-left: 6px; padding: 4px 12px; }
 .col-el { margin-top: 6px; font-size: 14px; color: var(--text-3); font-variant-numeric: tabular-nums; }
 .col-tm { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .col-tm .tm-t { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -1885,7 +2219,8 @@ a.btn { text-decoration: none; }
 
 /* 計時器的 −／＋：滑過變深底白字、放大一點，按下縮回 */
 .tm-adj button { transition: background .12s, color .12s, border-color .12s, transform .12s; }
-.tm-adj button:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); color: #fff; transform: scale(1.12); }
+.tm-adj button:hover:not(:disabled) { background: var(--sunken); color: var(--ink); transform: none; }
+.tm-adj button { border: 0; background: transparent; } /* −／＋ 不要外框，滑過才有淡底（2026-11-03 乙練） */
 .tm-adj button:active:not(:disabled) { transform: scale(.94); }
 
 /* 計時器的時間可以點來改：滑過出現淡底，點了變成輸入框 */

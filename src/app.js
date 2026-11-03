@@ -2,8 +2,8 @@ import { h, render } from 'preact';
 import { useState, useEffect, useRef, useLayoutEffect } from 'preact/hooks';
 import htm from 'htm';
 import qrcode from 'qrcode-generator';
-window.qrcode = qrcode;
 import './style.css';
+window.qrcode = qrcode;
 
 const ICONS={"arrow-left":"<path d=\"m12 19-7-7 7-7\" /> <path d=\"M19 12H5\" />","blocks":"<path d=\"M10 22V7a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5a1 1 0 0 0-1-1H2\" /> <rect x=\"14\" y=\"2\" width=\"8\" height=\"8\" rx=\"1\" />","chevron-up": "<path d=\"m18 15-6-6-6 6\" />", "chevron-down": "<path d=\"m6 9 6 6 6-6\" />", "chevron-left": "<path d=\"m15 18-6-6 6-6\" />", "chevron-right": "<path d=\"m9 18 6-6-6-6\" />", "pencil": "<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />", "highlighter": "<path d=\"m9 11-6 6v3h9l3-3\" /> <path d=\"m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4\" />", "eraser": "<path d=\"m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21\" /> <path d=\"M22 21H7\" /> <path d=\"m5 11 9 9\" />", "trash": "<path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />", "corner-up-left": "<path d=\"M9 14 4 9l5-5\" /> <path d=\"M20 20v-7a4 4 0 0 0-4-4H4\" />", "corner-up-right": "<path d=\"m15 14 5-5-5-5\" /> <path d=\"M4 20v-7a4 4 0 0 1 4-4h12\" />", "archive": "<rect width=\"20\" height=\"5\" x=\"2\" y=\"3\" rx=\"1\" /> <path d=\"M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8\" /> <path d=\"M10 12h4\" />", "send": "<path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\" /> <path d=\"m21.854 2.147-10.94 10.939\" />", "menu": "<path d=\"M4 5h16\" /> <path d=\"M4 12h16\" /> <path d=\"M4 19h16\" />", "x": "<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "arrow-up-right": "<path d=\"M7 7h10v10\" /> <path d=\"M7 17 17 7\" />", "arrow-right": "<path d=\"M5 12h14\" /> <path d=\"m12 5 7 7-7 7\" />", "book": "<path d=\"M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20\" />", "globe": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\" /> <path d=\"M2 12h20\" />", "settings": "<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />", "sticky-note": "<path d=\"M16 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V9Z\" /> <path d=\"M15 3v4a2 2 0 0 0 2 2h4\" />", "presentation": "<path d=\"M2 3h20\" /> <path d=\"M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3\" /> <path d=\"m7 21 5-5 5 5\" />", "sticker": "<path d=\"M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z\" /> <path d=\"M14 3v4a2 2 0 0 0 2 2h4\" /> <path d=\"M8 13h.01\" /> <path d=\"M16 13h.01\" /> <path d=\"M10 16s.8 1 2 1c1.3 0 2-1 2-1\" />", "list-checks": "<path d=\"m3 17 2 2 4-4\" /> <path d=\"m3 7 2 2 4-4\" /> <path d=\"M13 6h8\" /> <path d=\"M13 12h8\" /> <path d=\"M13 18h8\" />", "compass": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z\" />", "orbit": "<circle cx=\"12\" cy=\"12\" r=\"3\" /> <circle cx=\"19\" cy=\"5\" r=\"2\" /> <circle cx=\"5\" cy=\"19\" r=\"2\" /> <path d=\"M10.4 21.9a10 10 0 0 0 9.941-15.416\" /> <path d=\"M13.5 2.1a10 10 0 0 0-9.841 15.416\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "eye": "<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />", "sparkles": "<path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\" /> <path d=\"M20 3v4\" /> <path d=\"M22 5h-4\" /> <path d=\"M4 17v2\" /> <path d=\"M5 18H3\" />", "zoom-in": "<circle cx=\"11\" cy=\"11\" r=\"8\" /> <line x1=\"21\" x2=\"16.65\" y1=\"21\" y2=\"16.65\" /> <line x1=\"11\" x2=\"11\" y1=\"8\" y2=\"14\" /> <line x1=\"8\" x2=\"14\" y1=\"11\" y2=\"11\" />", "lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /><path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /><circle cx=\"9\" cy=\"7\" r=\"4\" /><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /><path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />", "star": "<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />", "cast": "<path d=\"M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6\" /><path d=\"M2 12a9 9 0 0 1 8 8\" /><path d=\"M2 16a5 5 0 0 1 4 4\" /><line x1=\"2\" x2=\"2.01\" y1=\"20\" y2=\"20\" />", "rotate-ccw": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /><path d=\"M3 3v5h5\" />", "panel-right": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /><path d=\"M15 3v18\" />", "party": "<path d=\"M5.8 11.3 2 22l10.7-3.79\" /><path d=\"M4 3h.01\" /><path d=\"M22 8h.01\" /><path d=\"M15 2h.01\" /><path d=\"M22 20h.01\" /><path d=\"m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10\" /><path d=\"m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17\" /><path d=\"m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7\" /><path d=\"M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z\" />", "play": "<polygon points=\"6 3 20 12 6 21 6 3\" />"};
 Object.assign(ICONS, {
@@ -229,9 +229,9 @@ function seedTexts(seed) {
 
 /* ───────── 狀態 ───────── */
 const TOOLS = [
-  { k: 'toc', label: '目次', icon: 'menu' },
   { k: 'pen', label: '畫筆', icon: 'pencil' },
   { k: 'highlighter', label: '螢光筆', icon: 'highlighter' },
+  { k: 'laser', label: '雷射筆', icon: 'sun' },
   { k: 'eraser', label: '橡皮擦', icon: 'eraser' },
   { k: 'undo', label: '復原／取消復原', icon: 'corner-up-left' },
   { k: 'clear', label: '清除', icon: 'trash' },
@@ -239,7 +239,6 @@ const TOOLS = [
   { k: 'compass', label: '圓規', icon: 'drafting-compass' },
   { k: 'protractor', label: '量角器', icon: 'angle' },
   { k: 'sticky', label: '便利貼', icon: 'sticky-note' },
-  { k: 'dict', label: '字典', icon: 'book-a' },
 ];
 const TOOL_CAP = 6;
 /* 畫筆用教室和書寫的深色；螢光筆、雷射筆用 Lime 和較亮的淺色。粗細 1–10 px，預設 4 */
@@ -255,10 +254,10 @@ function ColorWheel({ onPick }) {
 const HI_C = ['#F0FF62', '#66E497', '#82E6F8', '#CEA8FF', '#FFB6D3', '#FFC2A5']; // 品牌淺色那一排（Figma 色彩與形狀 7:2） // 照色相排：黃綠→綠→藍→紫→粉→橘
 const brushDef = () => ({ pen: { c: PEN_C[0], w: 4 }, highlighter: { c: HI_C[0], w: 4 }, laser: { c: HI_C[0], w: 4 } });
 const BRUSHES = ['pen', 'highlighter', 'laser'];
-const RAIL_RM = ['toc', 'pen', 'highlighter', 'eraser', 'clear', 'undo', 'back', 'task', 'supp', 'settings']; // 復原／取消復原算一組（undo）
+const RAIL_RM = ['laser', 'pen', 'highlighter', 'eraser', 'clear', 'undo', 'back', 'task', 'sync', 'supp', 'settings']; // 復原／取消復原算一組（undo）
 /* 左欄分隔線下面那一段：返回編輯、派任務、補充資源、設定（工具箱固定在最前面，不能拿掉）。都可以收進工具箱再放回來 */
-const RAIL_BOTTOM = ['back', 'task', 'supp', 'settings'];
-const RAIL_ORDER = ['toc', 'pen', 'highlighter', 'eraser', 'clear', 'undo', 'back', 'task', 'supp', 'settings']; // 計時器只放工具箱，一點就開，不放進左欄（乙練 2026-10-30） // 打開工具箱時可以從左欄拿掉、也可以從工具箱加回來
+const RAIL_BOTTOM = ['back', 'task', 'sync', 'supp', 'settings'];
+const RAIL_ORDER = ['pen', 'highlighter', 'laser', 'eraser', 'clear', 'undo', 'back', 'task', 'sync', 'supp', 'settings']; // 計時器只放工具箱，一點就開，不放進左欄（乙練 2026-10-30） // 打開工具箱時可以從左欄拿掉、也可以從工具箱加回來
 const toolOf = (k) => TOOLS.find((t) => t.k === k);
 function fresh(prevView) {
   const now = new Date();
@@ -267,7 +266,7 @@ function fresh(prevView) {
     admin: {
       shelfTab: 'hall', tab: 'schools', madeSchool: false, madeTeacher: false, made501: false, mode: 'multi', modal: null, filter: '全部', menu: null, q: { schools: '', teachers: '', students: '' },
       pw: '12345678', deleted: [], off: {}, single: { name: '', cls: '', seat: '', acct: '', pw: '' }, // 501 示範學生被刪除、停用的記在這；單筆建立的草稿
-      // 上線版只留兩組假資料，其他讓測試的人自己新建（2026-11-03 乙練：資料要假的，不要半真半假）
+      // 假資料：只留兩組，其他讓測試的人自己新建（2026-11-03 乙練：資料要假的）
       schools: [
         { name: '月光示範國中', stage: '國中', type: '學校', students: 0, teachers: 1 },
         { name: '出版社測試帳號', stage: '不限', type: '測試推廣', students: 0, teachers: 1 },
@@ -279,7 +278,7 @@ function fresh(prevView) {
       others: [],
       draft: { cls: '501', count: 30, prefix: 'xg501', pwMode: 'same', pw: '' }, // 預設全班相同（2026-11-03 乙練定）
     },
-    t: { screen: 'shelf', shelfTab: 'hall', menu: false, classes: [], classView: null, page: 0, tool: null, ink: { p108: [], p110: [] }, redo: [], rail: ['toc', 'pen', 'highlighter', 'eraser', 'clear', 'undo', 'back', 'task', 'supp', 'settings'], brush: brushDef(), inkPop: false, inkY: 260, notes: { p108: [], p110: [] }, stickers: { p108: [], p110: [] }, sticker: 'star', stickerPop: false, editNote: null, board: null, pop: null, modal: null, scoreMode: 'plus' },
+    t: { screen: 'shelf', shelfTab: 'hall', menu: false, classes: [], classView: null, page: 0, tool: null, ink: { p108: [], p110: [] }, redo: [], rail: ['pen', 'highlighter', 'eraser', 'clear', 'undo', 'back', 'task', 'sync', 'supp', 'settings'], brush: brushDef(), inkPop: false, inkY: 260, notes: { p108: [], p110: [] }, stickers: { p108: [], p110: [] }, sticker: 'star', stickerPop: false, editNote: null, board: null, pop: null, modal: null, scoreMode: 'plus' },
     cls: { live: false, everLive: false, cid: '501', subj: '自然', mode: 'free', joined: [], modeChanged: false, startAt: 0 },
     s: { screen: 'login', pickStep: 1, draft: { shape: null, eye: 'big' }, avatar: null, page: 0, follow: false, toggled: false, inClass: false, invite: false, tool: null, ink: { p108: [], p110: [] }, redo: [], rail: ['pen', 'highlighter', 'eraser', 'clear', 'undo', 'supp', 'settings'], brush: brushDef(), inkPop: false, inkY: 260, notes: { p108: [], p110: [] }, stickers: { p108: [], p110: [] }, sticker: 'star', stickerPop: false, editNote: null, board: null, pop: null, modal: null, notice: null, menu: false },
     removed: [],
@@ -289,9 +288,9 @@ function fresh(prevView) {
     anonShare: false, // 分享時顯示座號姓名（乙練 2026-10-30）
     sessions: [
       { id: 's4', date: '10/7（三）', time: '10:12', name: '第3課 星星的世界', scores: seedScores(4) },
-      { id: 's3', date: '10/5（一）', time: '08:05', name: '', scores: seedScores(3) },
+      { id: 's3', date: '10/5（一）', time: '08:05', name: '', sec: '認識四季星空', secs: ['認識四季星空', '夏季大三角'], scores: seedScores(3) },
       { id: 's2', date: '10/3（五）', time: '13:20', name: '預習 單元一', scores: seedScores(2) },
-      { id: 's1', date: '9/30（二）', time: '10:15', name: '', scores: seedScores(1) },
+      { id: 's1', date: '9/30（二）', time: '10:15', name: '', sec: '夜空裡的星座', scores: seedScores(1) },
     ],
     session: null, flash: {}, cheer: null, focus: null, bonusPop: null, profile: null,
     taskLog: [
@@ -364,7 +363,7 @@ function make501() {
   toast('admin', '已建立 501 的 30 個學生帳號', 'check');
 }
 function joinClass(c, subj) {
-  if (S.t.classes.some((x) => x.c === c && x.subj === subj)) return toast('teacher', `你已經是 ${c} · ${subj} 的任課老師`);
+  if (S.t.classes.some((x) => x.c === c && x.subj === subj)) return toast('teacher', `已在 ${c} · ${subj}`);
   S.t.classes.push({ c, subj }); S.t.modal = null;
   toast('teacher', `已新增 ${c} · ${subj}`, 'check');
 }
@@ -386,8 +385,8 @@ function openBook() { S.t.screen = 'reader'; S.t.page = 0; S.flags.opened = true
 function startClass({ cid, subj, mode }) {
   if (S.t.screen !== 'reader') openBook();
   Object.assign(S.cls, { live: true, everLive: true, cid, subj, mode, joined: [], startAt: Date.now() });
-  S.t.modal = null; S.t.pop = null;
-  S.session = { id: 'now', date: S.today, time: clock(), name: '', scores: {}, live: true, hist: [], seen: {} };
+  S.t.modal = null; S.t.barOpen = true; S.t.pop = BAR === 'toolbox' ? 'roster' : null; S.t.scoreMode = 'plus'; // 一開課就展開上課膠囊，名單也預設打開，看得到學生一個個加入（2026-11-03 乙練）
+  S.session = { id: 'now', date: S.today, time: clock(), name: '', sec: PAGES[S.t.page].title, scores: {}, live: true, hist: [], seen: {} };
   S.sessions.unshift(S.session);
   toast('teacher', `${cid} · ${subj} 開始上課`);
   present().map((s) => s.seat).filter((n) => n !== ME && n !== LATE).forEach((seat, i) => later(250 + i * 85 + Math.random() * 120, () => { if (S.cls.live && !S.cls.joined.includes(seat)) S.cls.joined.push(seat); }));
@@ -396,7 +395,7 @@ function startClass({ cid, subj, mode }) {
 function joinStudent() {
   if (!S.cls.live) return;
   S.s.screen = 'reader'; S.s.inClass = true; S.s.invite = false; S.s.follow = true; S.s.page = S.t.page; S.s.pop = null;
-  S.s.rail = [...studentTools().filter((k) => k !== 'sticky'), 'supp', 'settings'];
+  S.s.rail = [...studentTools(), 'supp', 'settings'];
   if (!S.cls.joined.includes(ME)) S.cls.joined.push(ME);
   toast('student', '已加入課堂', 'check');
 }
@@ -411,6 +410,7 @@ function finishPick() {
   say(TALK[S.s.avatar.shape].meet, 'celebrating', 3400);
 }
 function setMode(m) {
+  if (m === 'lock' && liveT()) return; // 學生作答中不能鎖定
   if (S.cls.mode === m) return;
   S.cls.mode = m; S.cls.modeChanged = true;
   toast('teacher', m === 'lock' ? '已鎖定螢幕' : '已切換自由閱讀');
@@ -445,9 +445,9 @@ function endToShelf() {
 function endClass() {
   const stats = endStats();
   if (S.task && S.task.status !== 'stopped') S.task.status = 'stopped';
-  S.cls.live = false; S.shared = null; S.t.pop = null; S.timer = null; S.focus = null; S.flags.ended = true;
+  S.cls.live = false; S.shared = null; S.t.pop = null; S.t.barOpen = false; S.timer = null; S.focus = null; S.flags.ended = true;
   if (S.session) { S.session.live = false; S.session = null; }
-  toast('teacher', '已結束上課，這堂課的加分紀錄已存檔');
+  toast('teacher', '已下課');
   S.s.invite = false;
   // 學生畫面整頁換成下課回饋（Rong 原型的「下課囉！」）
   if (S.s.inClass) { S.s.inClass = false; S.s.follow = false; S.s.page = S.t.page; S.s.notice = null; S.s.modal = null; toEnd(stats); }
@@ -466,7 +466,7 @@ function turn(side, d) {
   const P = side === 'teacher' ? S.t : S.s;
   if (side === 'student' && following()) { if (locked()) return; S.s.page = S.t.page; S.s.follow = false; S.s.toggled = true; toast('student', '已停止跟隨'); }
   P.page = Math.max(0, Math.min(PAGES.length - 1, P.page + d)); P.redo = [];
-  if (side === 'teacher') S.focus = null;
+  if (side === 'teacher') { S.focus = null; if (S.session && S.cls.live) { const sec = PAGES[P.page].title; S.session.secs = S.session.secs || [S.session.sec]; if (!S.session.secs.includes(sec)) S.session.secs.push(sec); } }
 }
 
 /* 計時器 */
@@ -486,7 +486,8 @@ function tickTimer() {
     const k = S.task;
     if (T.taskId && k && k.id === T.taskId && k.status === 'collecting') {
       if (k.type === 'choice') closeAnswer(); else stopTask();
-      toast('teacher', '時間到，已自動結束作答');
+      S.t.pop = 'task'; S.t.tool = null; // 時間到直接打開任務彈窗看結果（2026-11-03 乙練）
+      toast('teacher', '時間到');
     }
   }
 }
@@ -602,7 +603,7 @@ function sendTask(type, draft = {}) {
     id: 't' + Date.now(), when: `${d.getMonth() + 1}/${d.getDate()} ${clock()}`, type, q: draft.q || '', status: 'collecting', at: Date.now(), view: null,
     bg: type === 'shot' ? draft.bg || 'page' : undefined, withPage: type === 'shot' && (draft.bg || 'page') !== 'page' && draft.withPage !== false, voices: {}, tf: !!draft.tf, n: draft.tf ? 2 : draft.n || 4, opts: (draft.opts || ['', '', '', '', '', '']).slice(0, draft.n || 4), correct: null, answers: {}, texts: {}, subs: {}, mine: [], page: S.t.page, plusDone: false, live: true,
   };
-  if (type === 'shot' && S.cls.mode === 'lock') { setMode('free'); toast('teacher', '已切換自由閱讀'); }
+  if (S.cls.mode === 'lock') setMode('free'); // 派任務時學生要能作答：一律解除鎖定（2026-11-03 乙練）
   S.task = task; S.taskLog.unshift(task); S.compose = null; S.t.pop = 'task'; S.drawn = null;
   // 時限＝計時器：同一時間只有一個倒數。有時限就開計時器並綁這一題；沒時限時，上一題留下的倒數收掉
   task.limit = draft.limit || 0;
@@ -635,7 +636,7 @@ function closeAnswer() {
   const t = S.task; if (!t || t.status !== 'collecting') return;
   t.status = 'closed'; S.flags.choiceClosed = true;
   if (S.timer && S.timer.taskId === t.id && !S.timer.done) S.timer = null;
-  toast('teacher', '已結束作答，學生不能再送出');
+  toast('teacher', '已結束作答');
   if (S.s.inClass && S.s.modal === 'choice') S.s.modal = null;
 }
 function reveal(letter) {
@@ -645,14 +646,53 @@ function reveal(letter) {
   if (S.s.inClass) { S.s.modal = 'result'; S.s.notice = null; }
 }
 /* 公布答案後，給目前這組（答對／答錯／沒作答）每人 +1；每組只能加一次 */
-function plusGroup(t, key, seats) {
+function plusGroup(t, key, seats, d = 1) {
   if (!t.plused) t.plused = {};
   if (!seats.length) return; // 可以加很多次
-  seats.forEach((seat) => bonus(seat, 1));
+  seats.forEach((seat) => bonus(seat, d, false));
+  S.session && S.session.hist.push(seats.map((x) => [x, d]));
   t.plused[key] = (t.plused[key] || 0) + 1;
-  t.gave = { ...(t.gave || {}) }; seats.forEach((x) => { t.gave[x] = (t.gave[x] || 0) + 1; }); // 這一題每個人被加了幾分（含整組加分）
-  if (key === 'right') { t.plusDone = seats.length; S.flags.plusRight = true; }
-  toast('teacher', `已幫${{ right: '答對', wrong: '答錯', none: '沒作答', answered: '有作答' }[key]}的 ${seats.length} 人各加 1 分`);
+  t.gave = { ...(t.gave || {}) }; seats.forEach((x) => { t.gave[x] = (t.gave[x] || 0) + d; }); // 這一題每個人加減了幾分（含整組）
+  if (key === 'right' && d > 0) { t.plusDone = seats.length; S.flags.plusRight = true; }
+  toast('teacher', `${{ right: '答對', wrong: '答錯', none: '沒作答', answered: '有作答' }[key]} ${seats.length} 人 ${d > 0 ? '+1' : '−1'}`);
+}
+/* 檢討時幫一個人加減分：跟名單同一個「加分／扣分」模式（S.t.scoreMode），老師先選模式再點座號（2026-11-03 乙練） */
+function rvScore(t, seat, el, force) {
+  const d = force || (S.t.scoreMode === 'minus' ? -1 : 1);
+  if (d > 0) burst(el);
+  bonus(seat, d); t.gave = { ...(t.gave || {}), [seat]: ((t.gave || {})[seat] || 0) + d };
+}
+/* 座號圓圈＋這一題的分數徽章，徽章樣式跟名單的頭像一樣（平常黃底黑字、剛加黑底黃字、扣分紅） */
+function SeatSc({ t, seat }) {
+  const n = (t.gave || {})[seat] || 0, f = S.flash[seat], sad = f && f.d < 0;
+  if (!n && !f) return null;
+  return html`<b class=${'sk-sc' + (n < 0 ? ' down' : '') + (f ? ' bump' + (sad ? ' minus' : '') : '')} key=${f ? 'f' + f.id : 'n'}>${f ? (sad ? '−1' : '+1') : n > 0 ? '+' + n : '−' + -n}</b>`;
+}
+/* 被加減過分就露出形狀夥伴（跟名單一樣）：加分跳一下、扣分沉一下 */
+const kidCls = (t, seat) => (((t.gave || {})[seat] || 0) !== 0 ? ' has-kid' : '');
+function SeatFace({ t, seat, box }) {
+  if (!kidCls(t, seat)) return pad(seat);
+  const f = S.flash[seat], sad = f && f.d < 0, n = (t.gave || {})[seat] || 0;
+  return html`<span class="kid-in" key="kid"><${Kid} seat=${seat} box=${box} cls=${f ? (sad ? 'sink' : 'jump') : ''} mood=${sad || n < 0 ? 'sad' : undefined} key=${f ? 'k' + f.id : 'k'} /></span>`;
+}
+const gotCls = (t, seat) => { const n = (t.gave || {})[seat] || 0; return n > 0 ? ' got' : n < 0 ? ' lost' : ''; };
+/* 可以點的座號：點了照目前模式加減一分（放在卡片裡時不打開作品） */
+function SeatBtn({ t, seat, cls = 'seat' }) {
+  return html`<span role="button" tabindex="0" class=${cls + ' sk-seat' + gotCls(t, seat) + kidCls(t, seat) + (S.t.scoreMode === 'minus' ? ' m' : '')} title=${`幫 ${nameOf(seat)} ${S.t.scoreMode === 'minus' ? '扣' : '加'} 1 分`} onClick=${act((e) => { e.stopPropagation(); rvScore(t, seat, e.currentTarget); })}><${SeatFace} t=${t} seat=${seat} box=${cls === 'shot-no' ? 42 : 36} /><${SeatSc} t=${t} seat=${seat} /></span>`;
+}
+/* 加分／扣分切換：名單和檢討共用同一顆 */
+function ScoreMode() {
+  const hint = useHint(), minus = S.t.scoreMode === 'minus';
+  return html`<div class="pill-seg rv-mode" role="group" aria-label="加分或扣分">
+    <button class=${(!minus ? 'on ' : '') + hint('t-plus')} aria-pressed=${!minus} onClick=${act(() => { S.t.scoreMode = 'plus'; })}>加分</button>
+    <button class=${(minus ? 'on ' : '') + hint('t-minus')} aria-pressed=${minus} onClick=${act(() => { S.t.scoreMode = 'minus'; })}>扣分</button></div>`;
+}
+/* 放大看一份作答時的「這是誰」：‹ 座號 名字 3/3 › 合成一顆，座號點了就加減分（2026-11-03 乙練：這條要更簡潔） */
+function WhoNav({ t, seat, idx, n, go, score = true }) {
+  return html`<span class="who-nav"><button aria-label="上一位" disabled=${idx <= 0} onClick=${act(() => go(idx - 1))}><${Icon} n="chevron-left" s=${18} /></button>
+    ${score ? html`<${SeatBtn} t=${t} seat=${seat} />` : html`<span class="seat">${pad(seat)}</span>`}<b>${nameOf(seat)}</b><small>${idx + 1}/${n}</small>
+    <button aria-label="下一位" disabled=${idx >= n - 1} onClick=${act(() => go(idx + 1))}><${Icon} n="chevron-right" s=${18} /></button>
+    ${score && html`<button class="btn xs lime who-plus" aria-label=${`幫 ${nameOf(seat)} 加 1 分`} onClick=${act((e) => rvScore(t, seat, e.currentTarget, 1))}>+1</button>`}</span>`; // 放大看時直接一顆 +1（2026-11-03 乙練：要看得出能加分）
 }
 function plusRight() {
   const t = S.task; if (!t || t.plusDone) return;
@@ -660,7 +700,7 @@ function plusRight() {
   right.forEach((seat) => bonus(seat, 1));
   t.gave = { ...(t.gave || {}) }; right.forEach((x) => { t.gave[x] = (t.gave[x] || 0) + 1; });
   t.plusDone = right.length; S.flags.plusRight = true;
-  toast('teacher', `已幫答對的 ${right.length} 人各加 1 分`);
+  toast('teacher', `答對 ${right.length} 人 +1`);
 }
 function submitText(txt) {
   const t = S.task; if (!t || t.type !== 'text' || t.status !== 'collecting') return;
@@ -696,7 +736,7 @@ function stopTask() {
   const t = S.task; if (!t) return;
   t.status = 'stopped'; S.shared = null; S.flags[t.type + 'Stopped'] = true;
   if (S.timer && S.timer.taskId === t.id && !S.timer.done) S.timer = null;
-  toast('teacher', '已結束作答，學生不能再送出');
+  toast('teacher', '已結束作答');
   if (S.s.inClass) {
     S.s.modal = null;
     S.s.notice = null; // 作答結束、有回饋都只顯示在上方任務列，不跳通知
@@ -706,7 +746,7 @@ function endTask() { if (S.task && S.task.status !== 'stopped') S.task.status = 
 function openDetail(seat) { if (!S.task) return; S.task.view = seat; S.flags.detailSeen = true; S.t.tool = null; }
 function share(seat) {
   S.shared = { seat, anon: S.anonShare }; S.flags.sharedOnce = true;
-  toast('teacher', `全班正在看 ${pad(seat)} ${nameOf(seat)} 的作品`);
+  toast('teacher', '已分享畫面');
 }
 function unshare() { S.shared = null; toast('teacher', '已停止分享'); }
 /* 抽籤：先在名單上快速跳幾下、越跳越慢，停下來那位彈一下、亮 Lime（像輪盤） */
@@ -812,7 +852,7 @@ function Note({ n, P, list }) {
   const down = (e) => { if (editing) return; e.preventDefault(); const sh = e.currentTarget.closest('.sheet').getBoundingClientRect(); drag.current = { sx: e.clientX, sy: e.clientY, x: n.x, y: n.y, k: 1000 / sh.width, moved: false }; e.currentTarget.setPointerCapture(e.pointerId); };
   const move = (e) => { const d = drag.current; if (!d) return; const dx = e.clientX - d.sx, dy = e.clientY - d.sy; if (Math.abs(dx) + Math.abs(dy) > 4) d.moved = true; if (d.moved) { n.x = Math.max(0, d.x + dx * d.k); n.y = Math.max(0, d.y + dy * d.k); refresh(); } };
   const up = () => { const d = drag.current; drag.current = null; if (d && !d.moved) { P.editNote = n.id; refresh(); } };
-  return html`<div class=${'note' + (editing ? ' editing' : '')} style=${{ left: n.x / 10 + '%', top: `calc(var(--sw) * ${n.y / 1000})` }} onPointerDown=${down} onPointerMove=${move} onPointerUp=${up}>
+  return html`<div class=${'note' + (editing ? ' editing' : '') + (!(n.text || '').trim() ? ' empty' : '')} style=${{ left: n.x / 10 + '%', top: `calc(var(--sw) * ${n.y / 1000})` }} onPointerDown=${down} onPointerMove=${move} onPointerUp=${up}>
     ${editing && html`<button class="note-del" aria-label="刪除便利貼" onPointerDown=${(e) => e.preventDefault()} onClick=${act(remove)}><${Icon} n="trash" s=${16} /></button>`}
     ${editing ? html`<textarea ref=${ta} class="note-t" placeholder="輸入文字…" aria-label="便利貼內容" value=${n.text} onInput=${(e) => { n.text = e.target.value; }} onBlur=${act(() => { if (P.editNote === n.id) P.editNote = null; })}></textarea>`
       : html`<div class="note-t">${n.text}</div>`}
@@ -933,7 +973,7 @@ function GroupPop() {
   const helper = ok ? `共 ${count} 組，每組約 ${Math.round(N / count)} 人` : '';
   const run = act(() => { g.busy = true; later(700, () => makeGroups(g)); });
   const close = act(() => { t.pop = null; });
-  return html`<div class="pop grp-pop">
+  return html`<div class=${'pop grp-pop' + (g.res ? ' wide' : '')}>
     <div class="pop-h"><h4>分組</h4><button class="x-btn" aria-label="關閉" onClick=${close}><${Icon} n="x" /></button></div>
     <div class="pop-b">
       ${g.res ? html`<div class="grp-res">${g.res.map((r, i) => html`<div><p class="field-l">第${ZH_N[i] || i + 1}組（${r.length} 人）</p><div class="grp-seats">${r.map((x) => html`<span>${x}</span>`)}</div></div>`)}</div>
@@ -1052,10 +1092,10 @@ let HINT = null;
 const useHint = () => (key) => (key && HINT === key ? 'hint' : '');
 
 /* ───────── 左欄 ───────── */
-function Rail({ side }) {
+function Rail({ side, preview, edit }) { // preview：學生工具列設定的預覽，直接畫真的左欄；edit：在預覽上直接 × 拿掉、拖曳排序、空格＋加入（2026-11-03 乙練）
   const teacher = side === 'teacher';
-  const P = teacher ? S.t : S.s;
-  const lock = !teacher && locked();
+  const P = preview ? { ...S.s, pop: null, tool: null, rail: preview } : teacher ? S.t : S.s;
+  const lock = !teacher && !preview && locked();
   const page = teacher ? S.t.page : sPage();
   const hint = useHint();
   const ink = inkOf(side, page);
@@ -1070,30 +1110,25 @@ function Rail({ side }) {
   }, lock, hint((teacher ? 't-' : 's-') + k)); };
   const render1 = (k) => {
     if (k === 'toc') return tile(k, '目次', 'menu', P.pop === 'toc', () => { P.pop = P.pop === 'toc' ? null : 'toc'; }, lock);
-    if (k === 'pen' || k === 'highlighter' || k === 'eraser') return inkTool(k);
+    if (k === 'pen' || k === 'highlighter' || k === 'eraser' || k === 'laser') return inkTool(k);
     if (k === 'timer') return teacher ? html`<button class=${'tile ' + (S.t.pop === 'timer' ? 'sel ' : '') + hint('t-timer')} onClick=${act(() => { S.t.pop = S.t.pop === 'timer' ? null : 'timer'; })}><${Icon} n="timer" /><span>計時器</span>${S.timer && html`<i class="badge"></i>`}</button>` : null;
     if (k === 'clear') return tile(k, '清除', 'trash', false, () => { ink.splice(0); P.redo = []; }, lock || !canUndo);
     if (k === 'undo') return [tile('u1', '復原', 'corner-up-left', false, () => { P.redo.push(ink.pop()); }, lock || !canUndo), tile('u2', '取消復原', 'corner-up-right', false, () => { ink.push(P.redo.pop()); }, lock || !P.redo.length)];
-    const t = toolOf(k); return tile(k, t.label.length > 4 ? t.label.slice(0, 4) : t.label, t.icon, false, () => toast(side, `「${t.label}」這次示範沒有做`), lock);
+    const t = toolOf(k); return tile(k, t.label.length > 4 ? t.label.slice(0, 4) : t.label, t.icon, false, () => toast(side, '示範沒有做'), lock);
   };
   const custom = true; // 學生的左欄也能自己增減（上課時從老師設定的學生工具列開始），邏輯跟老師一樣
-  const list = custom ? P.rail : studentTools();
-  const editing = custom && P.pop === 'toolbox';
-  const wrap = (k, el) => (editing && RAIL_RM.includes(k) ? html`<span class="rail-rm" key=${k}>${el}<button class="rm-x" aria-label=${'從左欄拿掉' + ((toolOf(k) || {}).label || { undo: '復原', back: '返回編輯', task: '派任務', supp: '補充資源', settings: '設定', timer: '計時器' }[k])} onClick=${act(() => { P.rail = P.rail.filter((x) => x !== k); if (P.tool === k) { P.tool = null; P.inkPop = false; } if (teacher) S.flags.railEdited = true; })}><${Icon} n="x" s=${12} /></button></span>` : el);
+  const list = preview || (custom ? P.rail : studentTools());
+  const editing = !preview && custom && P.pop === 'toolbox';
+  const wrap = (k, el) => (!el ? null : editing && RAIL_RM.includes(k) ? html`<span class="rail-rm" key=${k}>${el}<button class="rm-x" aria-label=${'從左欄拿掉' + ((toolOf(k) || {}).label || { undo: '復原', back: '返回編輯', task: '派任務', supp: '補充資源', settings: '設定', timer: '計時器' }[k])} onClick=${act(() => { P.rail = P.rail.filter((x) => x !== k); if (P.tool === k) { P.tool = null; P.inkPop = false; } if (teacher) S.flags.railEdited = true; })}><${Icon} n="x" s=${12} /></button></span>` : el);
   const bottom1 = (k) => {
-    if (k === 'back') return teacher ? html`<button class="tile" onClick=${act(() => toast('teacher', '「返回編輯」回到自編編輯器，這次示範不包含'))}><${Icon} n="arrow-left" /><span>返回編輯</span></button>` : null;
-    if (k === 'task') return teacher && S.cls.live ? html`<button class=${'tile ' + (S.t.pop === 'task' ? 'sel ' : '') + hint('t-task')} onClick=${act(() => { S.t.pop = S.t.pop === 'task' ? null : 'task'; S.t.tool = null; })}><${Icon} n="send" /><span>派任務</span>${S.task && S.task.status !== 'stopped' && html`<i class="badge"></i>`}</button>` : null;
-    if (k === 'supp') return html`<button class=${'tile ' + (P.pop === 'supp' ? 'sel ' : 'boxed ') + hint((teacher ? 't-' : 's-') + 'supp')} aria-pressed=${P.pop === 'supp'} disabled=${lock} onClick=${act(() => { P.pop = P.pop === 'supp' ? null : 'supp'; P.suppScope = 'page'; P.tool = null; P.inkPop = false; })}><${Icon} n="blocks" /><span>補充資源</span><b class="count">${suppItems(page).length}</b></button>`;
+    if (k === 'sync') return null; // 上課同步不在工具中間，放在左欄最下面的同步區（見下方 syncZone）
+    if (k === 'back') return teacher ? html`<button class="tile" onClick=${act(() => toast('teacher', '示範不包含編輯'))}><${Icon} n="arrow-left" /><span>返回編輯</span></button>` : null;
+    if (k === 'task') return teacher && S.cls.live && BAR !== 'toolbox' ? html`<button class=${'tile ' + (S.t.pop === 'task' ? 'sel ' : '') + hint('t-task')} onClick=${act(() => { S.t.pop = S.t.pop === 'task' ? null : 'task'; S.t.tool = null; })}><${Icon} n="send" /><span>派任務</span>${S.task && S.task.status !== 'stopped' && html`<i class="badge"></i>`}</button>` : null;
+    if (k === 'supp') return html`<button class=${'tile ' + (P.pop === 'supp' ? 'sel ' : '') + hint((teacher ? 't-' : 's-') + 'supp')} aria-pressed=${P.pop === 'supp'} disabled=${lock} onClick=${act(() => { P.pop = P.pop === 'supp' ? null : 'supp'; P.suppScope = 'page'; P.tool = null; P.inkPop = false; })}><${Icon} n="blocks" /><span>補充資源</span></button>`; // 跟其他工具一樣素樸：不加框、不顯示數量（2026-11-03 乙練：減少老師負擔）
     if (k === 'settings') return html`<button class=${'tile ' + (P.pop === 'settings' ? 'sel' : '') + (teacher ? '' : ' ' + hint('s-settings'))} aria-expanded=${P.pop === 'settings'} title="閱讀設定" onClick=${act(() => { P.pop = P.pop === 'settings' ? null : 'settings'; })}><${Icon} n="settings" /><span>設定</span></button>`;
     return null;
   };
-  return html`<nav class=${'rail' + (editing ? ' editing' : '')} aria-label="閱讀工具">
-    <button class="pebble-btn" title="回書櫃" onClick=${act(() => {
-      if (teacher && S.cls.live) { S.t.modal = 'leave'; return; } // 上課中回首頁：先問要不要結束上課
-      if (!teacher && S.s.inClass) return toast('student', '上課中，下課後再回書櫃');
-      P.screen = 'shelf'; P.pop = null; P.tool = null;
-    })}><${Pebble} shape="science" size=${56} /></button>
-    <div class="pager">
+  const pagerEl = html`<div class="pager">
       <button aria-label="上一頁" disabled=${lock || page === 0} onClick=${act(() => turn(side, -1))}><${Icon} n="chevron-up" s=${16} /></button>
       <input class="n" key=${'pg' + page} inputmode="numeric" aria-label=${`第 ${PAGES[page].nums[0]} 頁，輸入頁碼跳頁`} disabled=${lock}
         value=${PAGES[page].nums[0]} onFocus=${(e) => e.currentTarget.select()}
@@ -1101,14 +1136,49 @@ function Rail({ side }) {
         onBlur=${act((e) => { const n = parseInt(String(e.currentTarget.value).replace(/[^0-9]/g, ''), 10); const to = PAGES.findIndex((pg) => pg.nums.includes(n));
           if (to < 0) { e.currentTarget.value = PAGES[page].nums[0]; if (Number.isFinite(n)) toast(side, `這本課本沒有 p.${n}`); return; } if (to !== page) turn(side, to - page); })} />
       <button aria-label="下一頁" disabled=${lock || page === PAGES.length - 1} onClick=${act(() => turn(side, 1))}><${Icon} n="chevron-down" s=${16} /></button>
-    </div>
-    ${list.filter((k) => !RAIL_BOTTOM.includes(k)).map((k) => wrap(k, render1(k)))}
+    </div>`;
+  /* 同步區（2026-11-03 乙練選 A）：左欄最下面，上課格＋頁數框成一組，跟上面的工具分開。
+     沒上課＝黑底「開始上課」；上課中＝淡黃底「● 上課中／501」，按了在畫布下方展開名單、鎖定、下課 */
+  const syncTile = html`<button class=${'tile sync-tile' + (S.cls.live ? ' live' : '') + (S.t.barOpen ? ' sel' : '') + ' ' + hint(S.cls.live ? 't-sync' : 't-start')} onClick=${act(() => { if (!S.cls.live) { S.t.modal = 'start'; S.t.draft = { ci: Math.max(0, S.t.classes.findIndex((x) => x.c === '501')), mode: 'free' }; return; } S.t.barOpen = !S.t.barOpen; /* 只有再按這一格才收起；按膠囊裡的功能不會收（2026-11-03 乙練） */ })}>
+    ${S.cls.live ? html`<span class="sync-ic"><${Icon} n="cast" /><i class="live-dot"></i></span><span>上課中</span>` : html`<${Icon} n="cast" /><span>開始上課</span>`}</button>`;
+  return html`<nav class=${'rail' + (editing ? ' editing' : '')} aria-label="閱讀工具">
+    <button class="pebble-btn" title="回書櫃" onClick=${act(() => {
+      if (teacher && S.cls.live) { S.t.modal = 'leave'; return; } // 上課中回首頁：先問要不要結束上課
+      if (!teacher && S.s.inClass) return toast('student', '下課後才能回書櫃');
+      P.screen = 'shelf'; P.pop = null; P.tool = null;
+    })}><${Pebble} shape="science" size=${56} /></button>
+    ${teacher && PAGER_POS === 'top' && pagerEl}
+    ${edit ? list.filter((k) => !RAIL_BOTTOM.includes(k)).map((k) => html`<span class=${'rail-rm rail-drag' + (edit.dragging === k ? ' dragging' : '')} key=${k} draggable="true"
+        onDragStart=${(e) => { e.dataTransfer.effectAllowed = 'move'; edit.setDragging(k); }} onDragEnd=${() => edit.setDragging(null)}
+        onDragOver=${(e) => { e.preventDefault(); if (edit.dragging && edit.dragging !== k) edit.move(edit.dragging, k); }}>
+        ${render1(k)}<button class="rm-x" aria-label=${'拿掉' + ((toolOf(k) || {}).label || '')} onClick=${act(() => edit.remove(k))}><${Icon} n="x" s=${12} /></button></span>`)
+      : list.filter((k) => !RAIL_BOTTOM.includes(k)).map((k) => wrap(k, render1(k)))}
+    ${edit && edit.canAdd && html`<span class="rail-slot"><button class=${'tile add-slot' + (edit.open ? ' on' : '') + ' ' + hint('t-slot')} aria-label="加工具" aria-expanded=${edit.open} onClick=${act(() => edit.toggle())}><${Icon} n="plus" s=${22} /></button>
+</span>`}
     <hr />
-    ${(() => { const bk = (custom ? P.rail.filter((k) => RAIL_BOTTOM.includes(k)) : ['supp', 'settings']).sort((a, b) => RAIL_ORDER.indexOf(a) - RAIL_ORDER.indexOf(b));
+    ${(() => { const bk = (preview ? preview.filter((k) => RAIL_BOTTOM.includes(k)) : custom ? P.rail.filter((k) => RAIL_BOTTOM.includes(k)) : ['supp', 'settings']).sort((a, b) => RAIL_ORDER.indexOf(a) - RAIL_ORDER.indexOf(b));
       // 順序：返回編輯、工具箱、派任務、補充資源、設定（工具箱固定，不能拿掉）
       return [...bk.filter((k) => k === 'back').map((k) => wrap(k, bottom1(k))),
         tile('box', '工具箱', 'archive', P.pop === 'toolbox', () => { P.pop = P.pop === 'toolbox' ? null : 'toolbox'; P.inkPop = false; }, lock, teacher ? hint('t-box') : ''),
-        ...bk.filter((k) => k !== 'back').map((k) => wrap(k, bottom1(k)))]; })()}
+        ...bk.filter((k) => k !== 'back').map((k) => wrap(k, bottom1(k))),
+        teacher && BAR === 'rail' && !preview ? html`<button class=${'tile cls-tile' + (S.t.barOpen ? ' sel' : '') + ' ' + hint(S.cls.live ? 't-roster' : 't-start')} onClick=${act(() => { if (!S.cls.live) { S.t.modal = 'start'; S.t.draft = { ci: Math.max(0, S.t.classes.findIndex((x) => x.c === '501')), mode: 'free' }; return; } S.t.barOpen = !S.t.barOpen; /* 只有再按這一格才收起；按膠囊裡的功能不會收（2026-11-03 乙練） */ })}>
+          ${S.cls.live ? html`<span class="cls-n"><i class="live-dot"></i>${S.cls.cid}</span><span>${S.cls.joined.length}/${present().length}</span>` : html`<${Icon} n="presentation" /><span>開始上課</span>`}</button>` : null]; })()}
+    ${teacher && !preview && (BAR === 'toolbox' || PAGER_POS === 'rail') && html`<div class="sync-zone">${BAR === 'toolbox' && syncTile}${PAGER_POS === 'rail' && pagerEl}</div>`}
+    ${!teacher && html`<div class="spill-wrap">${(() => {
+      // 預覽：點一下切換「跟隨中」和「自己翻頁」兩種樣子給老師看（2026-11-03 乙練）
+      if (preview) return S.tbFollow !== false ? html`<button class="spill on" title="跟隨中（點一下看自己翻頁的樣子）" onClick=${act(() => { S.tbFollow = false; })}><span class="sav">方</span><b>${PAGES[page].nums[0]}</b></button>`
+        : html`<button class="sfollow" title="自己翻頁中（點一下看跟隨的樣子）" onClick=${act(() => { S.tbFollow = true; })}>方</button>${pagerEl}`; // 學生工具列預覽：同步鈕是左欄固定的一格，畫上課中跟隨的樣子（2026-11-03 乙練）
+      const live = S.s.inClass && S.cls.live, lk = live && locked(), on = live && following();
+      /* 鎖定：深色、只有頁碼，不能按 */
+      if (lk) return html`<div class="spill lock" aria-label="老師鎖定中"><span class="sav"><${Icon} n="lock" s=${14} /></span><b>${PAGES[page].nums[0]}</b></div>`;
+      /* 跟隨中：藍色一整顆，沒有箭頭，不會誤觸翻頁；點一下才變回自己翻 */
+      if (on) return html`<button class=${'spill on ' + hint('s-follow')} aria-label="跟隨老師中，點一下改成自己翻頁" onClick=${act(() => setFollow(false))}><span class="sav">方</span><b>${PAGES[page].nums[0]}</b></button>`;
+      /* 自己翻：一般頁數；上課中上方多一顆老師頭像，按了跟回去 */
+      if (!live) return pagerEl;
+      /* 自己翻：同一顆白色膠囊，頂端老師頭像（按了跟回去），下面才是箭頭和頁碼，外框只有一層 */
+      /* 「跟老師」獨立一顆、有字、跟箭頭隔開，避免想翻頁卻按到（2026-11-03 乙練） */
+      return html`<button class=${'sfollow ' + hint('s-follow')} aria-label="跟隨老師" title="跟老師" onClick=${act(() => setFollow(true))}>方</button>${pagerEl}`;
+    })()}</div>`}
   </nav>`;
 }
 /* 下拉選單：同編輯器 Dropdown。欄位款是灰底膠囊，展開時淡白浮層 */
@@ -1160,7 +1230,7 @@ function Toc({ side }) {
 /* 數學小工具：直尺、量角器、圓規、互動學習收在工具箱的「數學」裡，點了打開這一格（樣式同工具箱） */
 function MathPop({ side }) {
   const P = side === 'teacher' ? S.t : S.s;
-  const tl = (icon, label) => html`<button class="tile" onClick=${act(() => toast(side, `「${label}」這次示範沒有做`))}><${Icon} n=${icon} /><span>${label}</span></button>`;
+  const tl = (icon, label) => html`<button class="tile" onClick=${act(() => toast(side, '示範沒有做'))}><${Icon} n=${icon} /><span>${label}</span></button>`;
   return html`<div class="pop tb-pop math-pop" role="dialog" aria-label="數學小工具">
     <div class="pop-h"><h4>數學小工具</h4><button class="x-btn" aria-label="關閉" onClick=${act(() => { P.pop = null; })}><${Icon} n="x" /></button></div>
     <div class="pop-b"><div class="toolgrid" style="margin-bottom:0">${tl('ruler-measure', '直尺')}${tl('angle', '量角器')}${tl('drafting-compass', '圓規')}${tl('shapes', '互動學習')}</div></div>
@@ -1173,6 +1243,7 @@ function LotteryPop() {
   const numRef = useRef(), nameRef = useRef();
   const roll = () => {
     if (L.rolling || !pool.length) return;
+    S.flags.lotterySeen = true;
     const seat = pool[Math.floor(Math.random() * pool.length)];
     L.rolling = true; L.seat = null; L.plus = 0; refresh();
     let t = 0;
@@ -1204,11 +1275,12 @@ function Toolbox({ side }) {
   const custom = true;
   const ink = inkOf(side, page);
   const DO = {
-    back: () => toast(side, '「返回編輯」回到自編編輯器，這次示範不包含'),
+    back: () => toast(side, '示範不包含編輯'),
     task: () => { if (!S.cls.live) return toast('teacher', '開始上課後才能派任務'); S.t.pop = 'task'; S.t.tool = null; },
     supp: () => { P.pop = 'supp'; P.suppScope = 'page'; }, settings: () => { P.pop = 'settings'; },
     lottery: () => { P.pop = 'lottery'; S.lot = null; },
-    toc: () => { P.pop = 'toc'; }, math: () => { P.pop = 'math'; }, note: () => addNote(P, page), board: () => openBoard(P), group: () => { P.pop = 'group'; },
+    toc: () => { P.pop = 'toc'; S.flags.tocSeen = true; }, math: () => { P.pop = 'math'; }, note: () => addNote(P, page), board: () => openBoard(P), group: () => { P.pop = 'group'; },
+    sync: () => { if (!S.cls.live) { S.t.modal = 'start'; S.t.draft = { ci: Math.max(0, S.t.classes.findIndex((x) => x.c === '501')), mode: 'free' }; P.pop = null; } else { S.t.barOpen = true; P.pop = null; } },
     sticker: () => { P.stickerPop = true; P.tool = 'sticker'; P.pop = null; P.inkPop = false; },
     clear: () => { ink.splice(0); P.redo = []; },
     undo: () => { if (ink.length) P.redo.push(ink.pop()); }, redo: () => { if (P.redo.length) ink.push(P.redo.pop()); },
@@ -1220,13 +1292,13 @@ function Toolbox({ side }) {
     const hint = useHint();
     // 已經放在左欄的工具，在工具箱裡是停用的（照 Figma：用左欄那顆就好）
     const inRail = custom && RAIL_RM.includes(rk) && P.rail.includes(rk);
-    return html`<span class="tb-cell"><button class=${'tile' + (k && P.tool === k ? ' on' : '') + (side === 'teacher' && k ? ' ' + hint('t-tb-' + k) : '')} disabled=${inRail || (k === 'clear' && !ink.length)} title=${inRail ? '已經在左欄' : undefined} onClick=${act(() => { if (side === 'teacher' && k === 'laser') S.flags.laserUsed = true; if (DO[k]) DO[k](); else if (k) { P.tool = P.tool === k ? null : k; P.pop = null; P.inkPop = BRUSHES.includes(k) && P.tool === k; P.inkY = 640; } else toast(side, `「${label}」這次示範沒有做`); })}><${Icon} n=${icon} /><span>${label}</span></button>
+    return html`<span class="tb-cell"><button class=${'tile' + (k && P.tool === k ? ' on' : '') + (side === 'teacher' && k ? ' ' + hint('t-tb-' + k) : '')} disabled=${inRail || (k === 'clear' && !ink.length)} title=${inRail ? '已經在左欄' : undefined} onClick=${act(() => { if (side === 'teacher' && k === 'laser') S.flags.laserUsed = true; if (DO[k]) DO[k](); else if (k) { P.tool = P.tool === k ? null : k; P.pop = null; P.inkPop = BRUSHES.includes(k) && P.tool === k; P.inkY = 640; } else toast(side, '示範沒有做'); })}><${Icon} n=${icon} /><span>${label}</span></button>
       ${canAdd && html`<button class="add-x" aria-label=${'把' + label + '放回左欄'} title="放回左欄" onClick=${act(() => { P.rail = RAIL_ORDER.filter((x) => x === k || P.rail.includes(x)); if (side === 'teacher') S.flags.railEdited = true; })}><${Icon} n="plus" s=${12} /></button>`}</span>`;
   };
   return html`<div class="pop tb-pop">
     <div class="pop-h"><h4>工具箱</h4><button class="x-btn" aria-label="關閉" onClick=${act(() => { P.pop = null; })}><${Icon} n="x" /></button></div>
     <div class="pop-b">
-      <p class="grp-label">系統工具</p><div class="toolgrid">${t('menu', '目次', 'toc')}${side === 'teacher' ? t('arrow-left', '返回編輯', 'back') : ''}${t('blocks', '補充資源', 'supp')}${t('settings', '設定', 'settings')}</div>
+      <p class="grp-label">系統工具</p><div class="toolgrid">${t('menu', '目次', 'toc')}${side === 'teacher' ? t('arrow-left', '返回編輯', 'back') : ''}${side === 'teacher' && BAR === 'toolbox' ? t('presentation', '上課同步', 'sync') : ''}${t('blocks', '補充資源', 'supp')}${t('settings', '設定', 'settings')}</div>
       <p class="grp-label">編輯工具</p><div class="toolgrid">${t('pencil', '畫筆', 'pen')}${t('highlighter', '螢光筆', 'highlighter')}${t('eraser', '橡皮擦', 'eraser')}${t('trash', '清除', 'clear')}${t('sun', '雷射筆', 'laser')}${t('sticky-note', '便利貼', 'note')}${t('corner-up-left', '復原', 'undo')}${t('corner-up-right', '取消復原', 'redo')}</div>
       <p class="grp-label">${side === 'teacher' ? '教學工具' : '學習工具'}</p><div class="toolgrid">${side === 'teacher' ? t('send', '派任務', 'task') : ''}${t('whiteboard', '電子白板', 'board')}${side === 'teacher' ? t('sticker2', '貼紙', 'sticker') : ''}${side === 'teacher' ? t('users-round', '分組', 'group') : ''}${side === 'teacher' ? t('n123', '隨機抽籤', 'lottery') : ''}${side === 'teacher' ? t('timer', '計時器', 'timer') : ''}</div>
       <p class="grp-label">科目工具</p><div class="toolgrid" style="margin-bottom:0">${t('list-checks', '考數院')}${t('compass', '探索')}${t('planet', '星際巡航')}${t('plus-minus', '數學', 'math')}</div>
@@ -1257,7 +1329,7 @@ function AvatarMenu({ side }) {
       <div class="mh"><b>${name}</b>${admin ? '' : teacher ? SCHOOL : `${SCHOOL} 501`}</div>
       ${side === 'student' && S.s.avatar && html`<div class="pal-card"><${Companion} shape=${S.s.avatar.shape} eye=${S.s.avatar.eye} box=${52} cls="" /><div><b>${SH[S.s.avatar.shape].name}</b></div></div>`}
       ${side === 'student' && html`<button onClick=${act(() => { P.menu = false; S.s.screen = 'pick'; S.s.pickStep = 1; S.s.draft = { ...(S.s.avatar || { shape: null, eye: 'big' }) }; })}><${Icon} n="sparkles" s=${18} />換學習夥伴</button>`}
-      <button onClick=${act(() => { P.menu = false; S.profile = { side, show: false, pw: null }; })}><${Icon} n="user" s=${18} />個人資料</button>
+      <button onClick=${act(() => { P.menu = false; if (side === 'student') S.flags.profileSeen = true; S.profile = { side, show: false, pw: null }; })}><${Icon} n="user" s=${18} />個人資料</button>
       <button onClick=${act(() => { P.menu = false; toast(side, '示範不登出'); })}><${Icon} n="log-out" s=${18} />登出</button>
     </div>`}
   </button>`;
@@ -1274,14 +1346,14 @@ function Shelf({ side }) {
   const subjects = [...new Set(TEXTBOOKS.map((b) => b.subject))];
   const open = (b) => {
     if (!b.live) return toast(side, `示範只開放《${BOOK_TITLE}》`);
-    if (admin) return toast('admin', '管理員也能閱讀課本，這次示範先不開');
+    if (admin) return toast('admin', '示範不開放');
     if (teacher) openBook(); else { S.s.screen = 'reader'; S.s.page = 0; }
   };
   const card = (b) => html`<article class=${'bk ' + (b.live ? hint(teacher ? 't-open' : '') : '')}>
     <div class="bk-cover" role="button" tabindex="0" aria-label=${`閱讀「${b.title}」`} onClick=${act(() => open(b))} onKeyDown=${(e) => { if (e.key === 'Enter') { open(b); refresh(); } }}>
       ${b.cover ? html`<img src=${b.cover} alt="" draggable="false" />` : html`<${SubjectCover} subject=${b.subject} />`}<span class="bk-scrim"></span>
       <div class="bk-meta2"><small>${b.edition}</small><b>${b.title}</b></div>
-      ${!student && html`<button class="bk-more" aria-label="更多" title="建立自編" onClick=${act((e) => { e.stopPropagation(); toast(side, '建立自編在自編編輯器裡，這次示範不包含'); })}><span>⋯</span></button>`}
+      ${!student && html`<button class="bk-more" aria-label="更多" title="建立自編" onClick=${act((e) => { e.stopPropagation(); toast(side, '示範不包含建立自編'); })}><span>⋯</span></button>`}
     </div>
     <div class="bk-below">${admin && html`<span class="bk-status">已發布</span>`}</div></article>`;
   const tabs = student ? [SHELF_TABS[0]] : SHELF_TABS;
@@ -1299,7 +1371,7 @@ function Shelf({ side }) {
     <section class="shelf-panel">
       ${tab === 'accounts' ? html`<${Accounts} />` : tab === 'classes' ? (S.t.classView ? html`<${ClassPage} />` : html`<${MyClasses} />`) : html`
         ${tabs.length > 1 && html`<div class="tab-row"><div class="tabs" role="tablist" aria-label="教材種類">${tabs.map(([k, l]) => html`<button role="tab" aria-selected=${bt === k} class=${bt === k ? 'on' : ''} onClick=${act(() => { P.bookTab = k; })}>${l}</button>`)}</div>
-          ${admin && bt === 'textbook' && html`<button class="new-btn" onClick=${act(() => toast('admin', '建立教材在自編編輯器裡，這次示範不包含'))}>建立教材<${Icon} n="plus" s=${16} /></button>`}</div>`}
+          ${admin && bt === 'textbook' && html`<button class="new-btn" onClick=${act(() => toast('admin', '示範不包含建立教材'))}><${Icon} n="plus" s=${16} />建立教材</button>`}</div>`}
         ${bt === 'textbook' ? subjects.map((sj) => html`<section class="sec"><div class="sec-h"><${Pebble} shape=${sj} size=${24} dark=${true} /><h2>${sj}</h2></div>
             <div class="bk-grid">${TEXTBOOKS.filter((b) => b.subject === sj).map(card)}</div></section>`)
           : html`<div class="shelf-empty"><span class="ic"><${Icon} n="ghost" s=${40} /></span><p class="t">這裡還沒有${bt === 'shared' ? '共享教材' : '自編教材'}</p>
@@ -1345,7 +1417,7 @@ function MyClasses() {
           <span class="cn">${x.c}</span><${SubjChip} subj=${x.subj} />
           <div class="meta2">${x.c === '501' && html`<span class="faces">${roster().slice(0, 5).map((s) => html`<span class="av-circle" style="width:28px;height:28px;background:var(--raised);box-shadow:0 0 0 2px var(--raised)"><${Kid} seat=${s.seat} box=${22} cls="" /></span>`)}</span>`}${classSize(x.c)} 位學生</div>
           <button class="dots" aria-label="更多" onClick=${act((e) => { e.stopPropagation(); S.t.cardMenu = S.t.cardMenu === i ? null : i; })}>⋯</button>
-          ${S.t.cardMenu === i && html`<div class="mini-menu" style="top:46px" onClick=${(e) => e.stopPropagation()}><button class="danger" onClick=${act(() => { S.t.classes.splice(i, 1); S.t.cardMenu = null; toast('teacher', `已退出 ${x.c} · ${x.subj}，之後可以再加入`); })}>退出班級</button></div>`}
+          ${S.t.cardMenu === i && html`<div class="mini-menu" style="top:46px" onClick=${(e) => e.stopPropagation()}><button class="danger" onClick=${act(() => { S.t.classes.splice(i, 1); S.t.cardMenu = null; toast('teacher', `已退出 ${x.c} · ${x.subj}`); })}>退出班級</button></div>`}
         </div>`)}</div>`}
   </div>`;
 }
@@ -1374,7 +1446,7 @@ function ClassPage() {
   return html`<div>
     <div class="cls-head"><button class="back" onClick=${act(() => { S.t.classView = null; })}><${Icon} n="chevron-left" s=${24} />${v.c}</button><${SubjChip} subj=${v.subj} /></div>
     <div class="ctabs">${tab('students', '學生', classSize(v.c))}${tab('teachers', '老師', 2)}${tab('toolbar', '學生工具列')}${tab('records', '學習紀錄')}
-      ${v.tab === 'students' && html`<button class="ghost end" onClick=${act(() => { S.t.modal = { cards: v.c }; })}><${Icon} n="download" s=${16} />帳號小卡</button>`}</div>
+      ${v.tab === 'students' && html`<button class="ghost end" onClick=${act(() => { S.t.modal = { cards: v.c }; S.flags.cardsSeen = true; })}><${Icon} n="download" s=${16} />帳號小卡</button>`}</div>
     ${v.tab === 'students' && (is501 ? html`<div class="tbl-wrap"><table class="tbl"><thead><tr><th style="width:70px">座號</th><th>姓名</th><th>帳號</th><th></th></tr></thead><tbody>
         ${classRoster(v.c).map((s) => html`<tr><td class="num">${pad(s.seat)}</td><td><span class="namecell"><span class="av-circle" style="width:34px;height:34px"><${Kid} seat=${s.seat} box=${26} cls="" /></span>${s.name}</span></td><td class="num">${s.acct}</td>
           <td class="r"><button class="dots" aria-label="更多" onClick=${act(() => { v.menu = v.menu === s.seat ? null : s.seat; })}>⋯</button>
@@ -1382,7 +1454,7 @@ function ClassPage() {
       </tbody></table></div>`
       : html`<div class="tbl-wrap"><table class="tbl"><thead><tr><th style="width:70px">座號</th><th>姓名</th><th>帳號</th><th></th></tr></thead><tbody>
         ${classRoster(v.c).map((s) => html`<tr><td class="num">${pad(s.seat)}</td><td><span class="namecell"><span class="av-circle" style="width:34px;height:34px"><${Companion} shape=${ORDER[(s.seat * 3 + +v.c) % 8]} eye=${EYES[(s.seat * 7 + +v.c) % 10].id} box=${26} cls="" /></span>${s.name}</span></td><td class="num">${s.acct}</td>
-          <td class="r"><button class="dots" aria-label="更多" onClick=${act(() => toast('teacher', '示範的學生資料編輯在 501'))}>⋯</button></td></tr>`)}
+          <td class="r"><button class="dots" aria-label="更多" onClick=${act(() => toast('teacher', '示範只開放 501'))}>⋯</button></td></tr>`)}
       </tbody></table></div>`)}
     ${v.tab === 'teachers' && html`<table class="tbl"><thead><tr><th>姓名</th><th>帳號（信箱）</th><th>任教科目</th></tr></thead><tbody>
         <tr><td><span class="namecell"><span class="avatar" style="width:32px;height:32px;font-size:13px">方</span>${TEACHER}（你）</span></td><td class="num">fang@star.example</td><td><${SubjChip} subj=${v.subj} /></td></tr>
@@ -1405,7 +1477,7 @@ function StudentEdit() {
           <div class="fld"><label for="e-pw">密碼</label><input class="inp" id="e-pw" value=${d.pw} onInput=${(e) => { d.pw = e.target.value; }} /></div>
           <div class="fld full"><label for="e-cls">班級（要換班請管理員改）</label><input class="inp" id="e-cls" value="501" readonly /></div>
         </div>
-        <div class="dialog-foot"><button class="btn sec sm" onClick=${act(() => { S.t.modal = null; })}>取消</button><button class="btn sm" onClick=${act(() => { Object.assign(STUDENTS[m.edit - 1], { name: d.name.trim() || STUDENTS[m.edit - 1].name, pw: d.pw }); S.t.modal = null; toast('teacher', '已儲存，後台同步更新'); })}>儲存</button></div>
+        <div class="dialog-foot"><button class="btn sec sm" onClick=${act(() => { S.t.modal = null; })}>取消</button><button class="btn sm" onClick=${act(() => { Object.assign(STUDENTS[m.edit - 1], { name: d.name.trim() || STUDENTS[m.edit - 1].name, pw: d.pw }); S.t.modal = null; toast('teacher', '已儲存'); })}>儲存</button></div>
       </div>
     </div>
   </div>`;
@@ -1432,39 +1504,52 @@ function RemoveConfirm() {
     <div class="pop-h"><h4>把 ${pad(seat)} ${nameOf(seat)} 移出 501？</h4></div>
     <div class="pop-b"><p style="margin:0;color:var(--text-2);line-height:1.7">帳號不會刪除，只是拿掉 501 這個班級。後台學生列表裡，他的班級欄會變成空白，管理員填回班級就會加回來。</p>
       <div class="dialog-foot"><button class="btn sec sm" onClick=${act(() => { S.t.modal = null; })}>取消</button><button class="btn sm danger" onClick=${act(() => {
-        if (seat === ME) { S.t.modal = null; return toast('teacher', '12 號是示範學生，先不移出'); }
-        S.removed.push(seat); S.t.modal = null; toast('teacher', `已把 ${nameOf(seat)} 移出 501`);
+        if (seat === ME) { S.t.modal = null; return toast('teacher', '示範學生不能移出'); }
+        S.removed.push(seat); S.t.modal = null; toast('teacher', `已移出 ${nameOf(seat)}`);
       })}>移出班級</button></div></div>
   </div></div>`;
+}
+/* 左欄放得下幾格：學生平板高度扣掉固定的（夥伴、頁數、分隔線、工具箱、補充資源、設定），一格 52＋間距 4。
+   4:3 以 1024×768、16:9 以 1280×720 估（2026-11-03）。復原／取消復原佔兩格 */
+const RAIL_FIXED = 360, TILE_STEP = 56;
+const DEVICE = { '4:3': [1024, 768], '16:9': [1280, 720] };
+const railCap = (r) => Math.floor((DEVICE[r][1] - RAIL_FIXED) / TILE_STEP);
+const slotsOf = (list) => list.reduce((n, k) => n + (k === 'undo' ? 2 : 1), 0);
+/* 學生工具列：預覽就是編輯器（2026-11-03 乙練）。左欄長什麼樣學生就看到什麼樣；× 拿掉、拖曳排序、最後一格空位按＋加入，滿 6 個就沒有空位 */
+/* 按左欄的＋：打開跟閱讀時一樣的工具箱面板，工具分類排；點了就放進左欄，面板不關，可以連續加（2026-11-03 乙練） */
+const TOOL_GROUPS = [['編輯工具', ['pen', 'highlighter', 'laser', 'eraser', 'undo', 'clear', 'sticky']], ['學習工具', ['board']], ['科目工具', ['compass', 'protractor']]];
+function SlotBox({ sel, add, close }) {
+  const full = sel.length >= TOOL_CAP;
+  return html`<div class="pop tb-pop slot-box">
+    <div class="pop-h"><h4>工具箱</h4><button class="x-btn" aria-label="關閉" onClick=${act(close)}><${Icon} n="x" /></button></div>
+    <div class="pop-b">${TOOL_GROUPS.map(([g, ks], gi) => html`<p class="grp-label">${g}</p><div class="toolgrid" style=${gi === TOOL_GROUPS.length - 1 ? { marginBottom: 0 } : null}>${ks.map((k) => { const t = toolOf(k), on = sel.includes(k);
+      return html`<span class="tb-cell"><button class="tile" disabled=${on || full} title=${on ? '已經在左欄' : full ? '左欄滿了' : '放進左欄'} onClick=${act(() => add(k))}><${Icon} n=${t.icon} /><span>${t.label.length > 4 ? t.label.slice(0, 2) : t.label}</span></button>${!on && !full && html`<span class="add-x" aria-hidden="true"><${Icon} n="plus" s=${12} /></span>`}</span>`; })}</div>`)}</div>
+  </div>`;
 }
 function ToolbarSettings() {
   const v = S.t.classView; const hint = useHint();
   if (!S.tbDraft) S.tbDraft = [...(S.toolbar[`${v.c}·${v.subj}`] || S.toolbar['501·自然'])];
-  const sel = S.tbDraft, full = sel.length >= TOOL_CAP;
-  const toggle = (k) => { const i = sel.indexOf(k); if (i >= 0) sel.splice(i, 1); else if (!full) sel.push(k); else toast('teacher', `已達上限 ${TOOL_CAP} 個，先取消一個再勾`); };
-  const ordered = TOOLS.filter((t) => sel.includes(t.k));
+  const sel = S.tbDraft;
+  const open = !!S.tbOpen, setOpen = (x) => { S.tbOpen = x; refresh(); }; const [dragging, setDragging] = useState(null);
   const key = `${v.c}·${v.subj}`;
   if (!S.ratioDraft || S.ratioDraft.key !== key) S.ratioDraft = { key, r: S.ratio[key] || '4:3' };
   const r = S.ratioDraft.r, wide = r === '16:9';
-  /* 預覽：把學生畫面當成真的螢幕（高 620，寬照比例），再縮到右欄寬，看得出 16:9 比較扁、工具列比較擠 */
-  const VH = 620, VW = Math.round(VH * (wide ? 16 / 9 : 4 / 3)), sc = 440 / VW;
-  return html`<div class="tb-layout">
-    <div>
-      <div class="tb-ratio"><b>學生閱讀載具</b><div class="num-seg ratio" role="radiogroup" aria-label="學生閱讀載具">${['4:3', '16:9'].map((x) => html`<button role="radio" aria-checked=${r === x} class=${r === x ? 'on' : ''} onClick=${act(() => { S.ratioDraft.r = x; })}>${x}</button>`)}</div></div>
-      <div class="tb-fixed"><${Icon} n="lock" s=${16} />頁數、工具箱固定顯示</div>
-      <div style="display:flex;align-items:center;gap:10px;margin:0 0 10px">
-        <b style="font-size:16px">學生的${v.subj}科工具列</b><span class=${'cap-chip' + (full ? ' full' : '')}>已選 ${sel.length}／上限 ${TOOL_CAP}</span></div>
-      <div class="tb-list">${TOOLS.map((t) => { const on = sel.includes(t.k), dis = !on && full;
-        return html`<div class=${'tb-row' + (on ? ' on' : '') + (dis ? ' dis' : '') + ' ' + (t.k === 'sticky' ? hint('t-tool-sticky') : '')} role="checkbox" aria-checked=${on} tabindex="0" title=${dis ? `已達上限 ${TOOL_CAP} 個` : ''} onClick=${act(() => toggle(t.k))}><span class="ck">${on && html`<${Icon} n="check" s=${14} />`}</span><span class="ic"><${Icon} n=${t.icon} s=${18} /></span>${t.label}</div>`; })}</div>
-      <div class="tb-actions"><button class="btn sec sm" onClick=${act(() => { S.t.modal = 'apply'; })}>套用到其他班</button><button class=${'btn sm ' + hint('t-toolsave')} onClick=${act(() => { S.toolbar[`${v.c}·${v.subj}`] = [...sel]; S.flags.toolbarSaved = true; S.ratio[key] = r; toast('teacher', '已儲存，學生下次上自然課就會看到'); })}>儲存</button></div>
-    </div>
-    <div><div class="tb-screen" style=${{ height: Math.round(VH * sc) + 'px' }}><div class="tb-preview" style=${{ width: VW + 'px', height: VH + 'px', transform: `scale(${sc})` }}>
-      <div class="mini-rail"><${Pebble} shape="stem" size=${30} /><div class="mt" style="background:var(--sunken)">頁數<b>${PAGES[0].nums[0]}</b></div>
-        ${ordered.flatMap((t) => (t.k === 'undo' ? [{ ...t, label: '復原', icon: 'corner-up-left' }, { ...t, label: '取消復原', icon: 'corner-up-right' }] : [t])).map((t) => html`<div class="mt sel"><${Icon} n=${t.icon} s=${16} />${t.label.slice(0, 4)}</div>`)}
-        <hr /><div class="mt"><${Icon} n="archive" s=${16} />工具箱</div></div>
-      <div class="mini-page"><${MiniPage} page=${0} /></div></div></div>
-      <p class="note-line" style="text-align:center">學生畫面預覽（${r}）</p></div>
-  </div>`;
+  // 預覽撐滿整個內容寬，標題列、按鈕跟著對齊左右兩邊（2026-11-03 乙練：整塊靠左、右邊空一大塊很不協調）
+  const boxRef = useRef(); const [cw, setCw] = useState(840);
+  useLayoutEffect(() => { const el = boxRef.current; if (!el) return; const fit = () => setCw(el.clientWidth); fit(); const ro = new ResizeObserver(fit); ro.observe(el); return () => ro.disconnect(); }, []);
+  const [VW, VH] = DEVICE[r], sc = Math.min(cw / VW, 560 / VH), left = TOOL_CAP - sel.length; // 高度也要放得進一個畫面，不用捲 // 依載具算格數先不做（2026-11-03 乙練：之後實測再說），上限維持 6
+  const edit = { dragging, setDragging, open, canAdd: left >= 1, over: left < 0, options: TOOLS.filter((t) => !sel.includes(t.k)),
+    toggle: () => setOpen(!open),
+    add: (k) => { if (sel.length >= TOOL_CAP || sel.includes(k)) return; sel.push(k); if (k === 'sticky') S.flags.stickyAdded = true; }, // 加完不關，連續加
+    remove: (k) => { sel.splice(sel.indexOf(k), 1); },
+    move: (from, to) => { const i = sel.indexOf(from), j = sel.indexOf(to); if (i < 0 || j < 0) return; sel.splice(i, 1); sel.splice(j, 0, from); refresh(); } };
+  return html`<div class="tb2-out" ref=${boxRef}><div class="tb2" style=${{ width: Math.round(VW * sc) + 'px' }}>
+    <div class="tb2-h"><b>學生看到的樣子</b><div class="seg" role="radiogroup" aria-label="學生閱讀載具">${['4:3', '16:9'].map((x) => html`<button role="radio" aria-pressed=${r === x} onClick=${act(() => { S.ratioDraft.r = x; })}>${x}</button>`)}</div><div class="seg" role="radiogroup" aria-label="預覽跟隨狀態">${[[true, '跟隨老師'], [false, '自己翻頁']].map(([k, l]) => html`<button role="radio" aria-pressed=${(S.tbFollow !== false) === k} onClick=${act(() => { S.tbFollow = k; })}>${l}</button>`)}</div><span class="tb2-sp"></span><button class="btn sec sm" onClick=${act(() => { S.t.modal = 'apply'; })}>套用到其他班</button><button class=${'btn sm ' + hint('t-toolsave')} onClick=${act(() => { S.toolbar[key] = [...sel]; S.ratio[key] = r; S.flags.toolbarSaved = true; toast('teacher', '已儲存'); })}>儲存</button></div>
+    <div class="tb2-screen" style=${{ width: Math.round(VW * sc) + 'px', height: Math.round(VH * sc) + 'px' }}><div class="tb-preview" style=${{ width: VW + 'px', height: VH + 'px', transform: `scale(${sc})` }}>
+      <div class="reader tb-reader"><${Rail} side="student" preview=${[...sel, 'supp', 'settings']} edit=${edit} />
+        ${open && html`<${SlotBox} sel=${sel} add=${edit.add} close=${() => setOpen(false)} />`}
+        <div class="pageframe" inert><${Sheet} page=${sPage()} w=${Math.min(VW - 104 - 24, (VH - 94) * pr(sPage(), S.s.rs))} rs=${S.s.rs} /></div></div></div></div>
+  </div></div>`;
 }
 function ApplyDialog() {
   const v = S.t.classView;
@@ -1479,42 +1564,55 @@ function ApplyDialog() {
 }
 
 /* ───────── 學習紀錄（班級頁的分頁） ───────── */
-const sessName = (s) => s.name || `${s.date} ${s.time}`;
+const secLabel = (s) => (s.sec ? s.sec + ((s.secs || []).length > 1 ? ' 等' : '') : ''); // 上過好幾節：開始那一節＋「等」（2026-11-03 乙練）
+const sessName = (s) => s.name || secLabel(s) || `${s.date} ${s.time}`; // 沒取名就用開課時那一節的名稱（2026-11-03）
 const totalOf = (seat) => S.sessions.reduce((a, s) => a + (s.scores[seat] || 0), 0);
 function Records() {
   const v = S.t.classView, r = v.rec; const hint = useHint();
   const back = (to) => html`<button class=${'back ' + hint('t-rec-back')} onClick=${act(() => { v.rec = to; })}><${Icon} n="chevron-left" s=${18} /></button>`;
   const fmt = (n) => (n > 0 ? '+' + n : String(n));
-  if (r.view === 'index') return html`<div class="rec-list">
-    <button class=${'rec-row ' + hint('t-rec-score')} onClick=${act(() => { v.rec = { view: 'sessions' }; })}><span class="t"><b>加分紀錄</b><small>共 ${S.sessions.length} 次上課</small></span><span class="spacer"></span><${Icon} n="chevron-right" /></button>
-    <button class=${'rec-row ' + hint('t-rec-task')} onClick=${act(() => { v.rec = { view: 'tasks' }; })}><span class="t"><b>任務紀錄</b><small>共 ${S.taskLog.length} 題</small></span><span class="spacer"></span><${Icon} n="chevron-right" /></button></div>`;
+  // 學習紀錄入口：跟班級星艦的班級卡同一套卡片（2026-11-03 乙練：原本的長條列表跟其他頁不協調）
+  if (r.view === 'index') return html`<div class="rec-cards">
+    <button class=${'class-card rec-card ' + hint('t-rec-score')} onClick=${act(() => { v.rec = { view: 'sessions' }; })}><span class="rc-ic"><${Icon} n="star" s=${22} /></span><b>加分紀錄</b><span class="rc-n"><em>${S.sessions.length}</em>次上課</span></button>
+    <button class=${'class-card rec-card ' + hint('t-rec-task')} onClick=${act(() => { v.rec = { view: 'tasks' }; })}><span class="rc-ic"><${Icon} n="send" s=${22} /></span><b>任務紀錄</b><span class="rc-n"><em>${S.taskLog.length}</em>題</span></button></div>`;
   if (r.view === 'sessions') return html`<div>
     <div class="rec-h">${back({ view: 'index' })}<b style="font-size:18px">加分紀錄</b></div>
     <div class="rec-list">
       <button class=${'rec-row total ' + hint('t-rec-total')} onClick=${act(() => { v.rec = { view: 'total' }; })}><span>累計總分（本學期）</span><span class="spacer"></span><small>${S.sessions.length} 次</small><${Icon} n="chevron-right" /></button>
       ${S.sessions.map((s, i) => html`<div class=${'rec-row ' + (i === 0 ? hint('t-rec-session') : '')} role="button" tabindex="0" onClick=${act(() => { v.rec = { view: 'session', id: s.id, sort: 'seat' }; S.flags.sessionSeen = true; })}>
         <span class="when">${s.date} ${s.time}</span>
-        ${r.edit === s.id ? html`<input class="inp" id=${'nm-' + s.id} value=${s.name} placeholder="幫這堂課取個名字" onClick=${(e) => e.stopPropagation()} onInput=${(e) => { s.name = e.target.value; }} onKeyDown=${act((e) => { if (e.key === 'Enter') r.edit = null; })} />`
-          : html`<b>${s.name || ''}</b>`}
+        ${r.edit === s.id ? html`<input class="inp" id=${'nm-' + s.id} value=${s.name} placeholder=${secLabel(s) || '幫這堂課取個名字'} onClick=${(e) => e.stopPropagation()} onInput=${(e) => { s.name = e.target.value; }} onKeyDown=${act((e) => { if (e.key === 'Enter') r.edit = null; })} />`
+          : html`<span class="sess-nm">${s.name || secLabel(s)}</span>`}
         ${s.live && html`<span class="chip">上課中</span>`}
         <span class="spacer"></span>
-        <button class="pencil" aria-label="改名" onClick=${act((e) => { e.stopPropagation(); r.edit = r.edit === s.id ? null : s.id; })}><${Icon} n=${r.edit === s.id ? 'check' : 'pencil2'} s=${16} /></button><${Icon} n="chevron-right" /></div>`)}
+        <button class="pencil" aria-label="改名" onClick=${act((e) => { S.flags.renameSeen = true; e.stopPropagation(); r.edit = r.edit === s.id ? null : s.id; })}><${Icon} n=${r.edit === s.id ? 'check' : 'pencil2'} s=${16} /></button><${Icon} n="chevron-right" /></div>`)}
     </div></div>`;
+  /* 2026-11-03 乙練：30 格一樣重、看不出重點 → 上方一行先講重點；0 分變淡、有分的才有分數膠囊；排序改成兩顆切換 */
+  const scoreRow = (x, n, top, extra = {}) => html`<${extra.onClick ? 'button' : 'div'} class=${'pt2' + (n === 0 ? ' zero' : '') + (extra.sel ? ' sel' : '') + (extra.cls ? ' ' + extra.cls : '')} onClick=${extra.onClick}>
+    <span class="sn">${pad(x.seat)}</span><span class="nm">${x.name}</span>
+    ${n === 0 ? html`<span class="sc0">—</span>` : html`<b class=${'sc' + (n < 0 ? ' neg' : n === top ? ' top' : '')}>${fmt(n)}</b>`}</${extra.onClick ? 'button' : 'div'}>`;
+  const sortSeg = html`<div class="seg" role="radiogroup" aria-label="排序">${[['seat', '座號'], ['score', '分數']].map(([k, l]) => html`<button role="radio" aria-pressed=${(r.sort || 'seat') === k} onClick=${act(() => { r.sort = k; })}>${l}</button>`)}</div>`;
+  const exportBtn = html`<button class="ghost" onClick=${act(() => toast('teacher', '已匯出 Excel'))}><${Icon} n="download" s=${15} />匯出 Excel</button>`;
+  const sorted = (get) => [...roster()].sort((a, b) => (r.sort === 'score' ? get(b.seat) - get(a.seat) || a.seat - b.seat : a.seat - b.seat));
   if (r.view === 'session') {
     const s = S.sessions.find((x) => x.id === r.id) || S.sessions[0];
-    const list = [...roster()].sort((a, b) => (r.sort === 'score' ? (s.scores[b.seat] || 0) - (s.scores[a.seat] || 0) : a.seat - b.seat));
+    const get = (seat) => s.scores[seat] || 0;
+    const got = roster().filter((x) => get(x.seat) > 0), sum = roster().reduce((a, x) => a + get(x.seat), 0);
+    const top = Math.max(0, ...roster().map((x) => get(x.seat))), tops = top > 0 ? roster().filter((x) => get(x.seat) === top) : [];
     return html`<div>
-      <div class="rec-h">${back({ view: 'sessions' })}<b style="font-size:18px">${sessName(s)}</b>${s.name && html`<small>${s.date} ${s.time}</small>`}<span class="spacer"></span>
-        <${Dd} id="sort-1" small=${true} value=${r.sort} options=${[['seat', '依座號排序'], ['score', '依分數排序']]} onChange=${(v) => { r.sort = v; }} />
-        <button class="ghost" onClick=${act(() => toast('teacher', '已匯出 Excel（示範）'))}><${Icon} n="download" s=${15} />匯出 Excel</button></div>
-      <div class="pts-grid">${list.map((x) => { const n = s.scores[x.seat] || 0; return html`<div class="pt"><span class="sn">${pad(x.seat)}</span>${x.name}<b class=${n === 0 ? 'zero' : n < 0 ? 'neg' : ''}>${fmt(n)}分</b></div>`; })}</div></div>`;
+      <div class="rec-h">${back({ view: 'sessions' })}<b style="font-size:18px">${sessName(s)}</b><small>${s.date} ${s.time}</small><span class="spacer"></span>${sortSeg}${exportBtn}</div>
+      <div class="rec-sum"><span><b>${got.length}</b> 人有加分</span><span>共 <b>${sum}</b> 分</span>${tops.length > 0 && html`<span class="tops">最多${tops.map((x) => html`<em>${pad(x.seat)} ${x.name} ${fmt(top)}</em>`)}</span>`}</div>
+      <div class="pts2">${sorted(get).map((x) => scoreRow(x, get(x.seat), top))}</div></div>`;
   }
   if (r.view === 'total') {
     const person = r.person;
+    const top = Math.max(0, ...roster().map((x) => totalOf(x.seat)));
+    const avg = Math.round(roster().reduce((a, x) => a + totalOf(x.seat), 0) / Math.max(1, roster().length) * 10) / 10;
+    const never = roster().filter((x) => !S.sessions.some((ss) => (ss.scores[x.seat] || 0) > 0)).length;
     return html`<div class="rec-wrap">
-      <div class="rec-h">${back({ view: 'sessions' })}<b style="font-size:18px">累計總分（本學期）</b><span class="spacer"></span>
-        <button class="ghost" onClick=${act(() => toast('teacher', '已匯出 Excel（示範）'))}><${Icon} n="download" s=${15} />匯出 Excel</button></div>
-      <div class="pts-grid" style=${{ paddingRight: person ? '340px' : 0 }}>${roster().map((x) => html`<button class=${'pt' + (person === x.seat ? ' sel' : '') + ' ' + (x.seat === ME ? hint('t-rec-person') : '')} onClick=${act(() => { r.person = r.person === x.seat ? null : x.seat; S.flags.personSeen = true; })}><span class="sn">${pad(x.seat)}</span>${x.name}<b>${totalOf(x.seat)}分</b></button>`)}</div>
+      <div class="rec-h">${back({ view: 'sessions' })}<b style="font-size:18px">累計總分（本學期）</b><small>${S.sessions.length} 次上課</small><span class="spacer"></span>${sortSeg}${exportBtn}</div>
+      <div class="rec-sum"><span>全班平均 <b>${avg}</b> 分</span><span>最高 <b>${top}</b> 分</span><span>還沒加過分 <b>${never}</b> 人</span></div>
+      <div class="pts2" style=${{ paddingRight: person ? '340px' : 0 }}>${sorted(totalOf).map((x) => scoreRow(x, totalOf(x.seat), top, { onClick: act(() => { r.person = r.person === x.seat ? null : x.seat; S.flags.personSeen = true; }), sel: person === x.seat, cls: x.seat === ME ? hint('t-rec-person') : '' }))}</div>
       ${person && html`<aside class="side-panel"><div style="display:flex;align-items:center;gap:10px"><span class="av-circle" style="width:44px;height:44px"><${Kid} seat=${person} box=${34} /></span><h4>${pad(person)} ${nameOf(person)}<small>累計 ${totalOf(person)} 分</small></h4>
           <button class="x-btn" style="margin-left:auto" aria-label="收起" onClick=${act(() => { r.person = null; })}><${Icon} n="x" /></button></div>
         <ul>${S.sessions.map((s) => { const n = s.scores[person] || 0; return html`<li><small>${s.date}</small>${s.name || s.time}<b class=${n === 0 ? 'zero' : ''}>${fmt(n)}</b></li>`; })}</ul>
@@ -1525,12 +1623,14 @@ function Records() {
     <div class="rec-h">${back({ view: 'index' })}<b style="font-size:18px">任務紀錄</b></div>
     <table class="tbl"><thead><tr><th>日期時間</th><th>題型</th><th>題目</th><th>作答人數</th><th></th></tr></thead><tbody>
       ${S.taskLog.map((t, i) => html`<tr style="cursor:pointer" class=${i === 0 ? hint('t-rec-taskrow') : ''} onClick=${act(() => { v.rec = { view: 'task', id: t.id }; S.flags.taskRecSeen = true; })}>
-        <td class="num">${t.when}</td><td><span class="type-chip">${typeName(t)}</span></td><td>${t.q || html`<span class="muted">未填題目</span>`}</td><td class="num">${answeredCount(t)}／${present().length}</td><td class="r"><${Icon} n="chevron-right" s=${18} /></td></tr>`)}
+        <td class="num">${t.when}</td><td>${typeName(t)}</td><td>${t.q || html`<span class="muted">未填題目</span>`}</td><td class="num">${answeredCount(t)}／${present().length}</td><td class="r"><${Icon} n="chevron-right" s=${18} /></td></tr>`)}
     </tbody></table></div>`;
   if (r.view === 'task') {
     const t = S.taskLog.find((x) => x.id === r.id) || S.taskLog[0];
     return html`<div>
-      <div class="rec-h">${back({ view: 'tasks' })}<b style="font-size:18px">${t.q || '未填題目'}</b><small>${t.when} · ${typeName(t)}</small></div>
+      <div class="rec-h">${back({ view: 'tasks' })}<b style="font-size:18px">${t.q || '未填題目'}</b><small>${t.when} · ${typeName(t)}</small><span class="spacer"></span>
+        ${!r.editQ && html`<button class="ghost" onClick=${act(() => { r.editQ = true; })}><${Icon} n="pencil2" s=${15} />${t.q ? '編輯題目' : '補上題目'}</button>`}</div>
+      ${r.editQ && html`<${QEdit} t=${t} opts=${t.type === 'choice'} onDone=${act(() => { r.editQ = false; })} />`}
       ${t.type === 'choice' ? html`<${ChoiceResult} t=${t} records=${true} />` : html`<${ReturnResult} t=${t} records=${true} />`}
     </div>`;
   }
@@ -1539,17 +1639,13 @@ function Records() {
 const TYPE_NAME = { choice: '選擇題', text: '文字題', shot: '手寫題', voice: '聲音題' };
 const answeredCount = (t) => Object.keys(t.type === 'choice' ? t.answers : t.type === 'text' ? t.texts : t.type === 'voice' ? t.voices || {} : t.subs).length;
 
-/* 課後補題目：跟出題時同一種觸發。沒題目時是淡灰「＋題目」，點開或已有題目就是輸入欄，打字即存 */
-function QEdit({ t, opts }) {
-  const [open, setOpen] = useState(!!t.q);
-  const [optOpen, setOptOpen] = useState(!!(t.opts || []).some((x) => x));
+/* 課後補題目：平常只讀（題目、選項文字），按「編輯」才變成輸入欄，按「完成」收回（2026-11-03 乙練：不要一打開就能改） */
+function QEdit({ t, opts, onDone }) {
   const letters = optLetters(t);
-  return html`<div class="q-edit">
-    ${open && html`<input class="inp" aria-label="題目" value=${t.q} placeholder="題目" onInput=${act((e) => { t.q = e.target.value; })} />`}
-    ${opts && optOpen && html`<div class="opt-rows cp-field">${letters.map((L, i) => html`<label>${L}<input class="inp" value=${t.opts[i] || ''} placeholder=${'選項 ' + L} onInput=${act((e) => { t.opts[i] = e.target.value; })} /></label>`)}</div>`}
-    ${(!open || (opts && !optOpen)) && html`<div class="q-more">
-      ${!open && html`<button class="cp-more" onClick=${() => setOpen(true)}><${Icon} n="plus" s=${14} />題目</button>`}
-      ${opts && !optOpen && html`<button class="cp-more" onClick=${() => setOptOpen(true)}><${Icon} n="plus" s=${14} />選項文字</button>`}</div>`}
+  return html`<div class="q-edit q-box">
+    <input class="inp" aria-label="題目" value=${t.q} placeholder="輸入題目" ref=${(el) => el && !el.dataset.f && (el.dataset.f = 1, el.focus())} onInput=${act((e) => { t.q = e.target.value; })} />
+    ${opts && html`<div class="opt-rows cp-field">${letters.map((L, i) => html`<label>${L}<input class="inp" value=${(t.opts || [])[i] || ''} placeholder=${'選項 ' + L} onInput=${act((e) => { t.opts = t.opts || []; t.opts[i] = e.target.value; })} /></label>`)}</div>`}
+    <div class="q-done"><button class="btn sm" onClick=${onDone}>完成</button></div>
   </div>`;
 }
 /* 學習紀錄裡的選擇題：跟上課時「已公布答案」同一個畫面，只是不能加分 */
@@ -1565,7 +1661,6 @@ function ChoiceResult({ t }) {
   const none = seats.filter((x) => !t.answers[x]);
   const groups = { right, wrong, none };
   return html`<div class="ch-pop">
-    <${QEdit} t=${t} opts=${true} />
     <div class="bars-h"><b>答對 ${right.length}／${answered} 人</b><span class="muted">${answered ? Math.round(right.length / answered * 100) : 0}%</span></div>
     <div class="bars">${letters.map((L, i) => html`<button class=${'cbar' + (L === t.correct ? ' ok' : '')} disabled><span>${counts[i]} 人</span><i style=${{ height: (counts[i] / max) * 180 + 'px' }}></i></button>`)}</div>
     <div class="bar-l">${letters.map((L, i) => html`<span class=${L === t.correct ? 'ok' : ''}>${L === t.correct ? '✓ ' : ''}${L}${t.opts[i] ? html`<small>${t.opts[i]}</small>` : ''}</span>`)}</div>
@@ -1578,13 +1673,13 @@ function ReturnResult({ t, records }) {
   const seats = present().map((s) => s.seat);
   if (big) return html`<${TextBig} t=${t} seat=${big} onBack=${() => setBig(null)} records=${records} />`;
   return html`<div>
-    <${QEdit} t=${t} />
-    <div class="t-count"><b>${answeredCount(t)}</b>／${seats.length} 人已回傳</div>
+    <div class="rec-sum"><span><b>${answeredCount(t)}</b>／${seats.length} 回傳</span>${Object.keys(t.gave || {}).length > 0 && html`<span><b>${Object.keys(t.gave).length}</b> 人有加分</span>`}</div>
+    ${t.type !== 'voice' && (() => { const miss = seats.filter((x) => !(t.type === 'text' ? t.texts[x] : t.subs[x])); return miss.length > 0 && html`<div class="miss-line">沒交 ${miss.length} 人：${miss.map((x) => html`<span>${pad(x)} ${nameOf(x)}</span>`)}</div>`; })()}
     ${t.type === 'voice' ? html`<div class="voice-grid">${seats.filter((x) => (t.voices || {})[x]).map((seat) => html`<${VoiceTile} t=${t} seat=${seat} live=${false} />`)}</div>
       ${seats.some((x) => !(t.voices || {})[x]) && html`<div class="v-none"><b>未作答</b>${seats.filter((x) => !(t.voices || {})[x]).map((x) => html`<span>${pad(x)} ${nameOf(x)}</span>`)}</div>`}`
       : t.type === 'text'
-      ? html`<div class="text-cards">${seats.map((seat) => t.texts[seat] ? html`<button class="tcard" onClick=${() => setBig(seat)}><span class="who2"><span class="seat">${pad(seat)}</span>${nameOf(seat)}</span>${t.texts[seat]}</button>` : html`<div class="tcard empty"><span class="who2"><span class="seat off">${pad(seat)}</span>${nameOf(seat)}</span>未作答</div>`)}</div>`
-      : html`<div class="subs">${seats.map((seat) => { const sub = t.subs[seat]; return sub ? html`<div class="sub"><div class="box"><${MiniWork} t=${t} layers=${[sub.ink, sub.notes]} /></div><div class="nm"><span class="seat">${pad(seat)}</span>${nameOf(seat)}</div></div>` : html`<div class="sub empty"><div class="box">未作答</div><div class="nm"><span class="seat off">${pad(seat)}</span>${nameOf(seat)}</div></div>`; })}</div>`}
+      ? html`<div class="text-cards">${seats.map((seat) => t.texts[seat] ? html`<button class="tcard" onClick=${() => setBig(seat)}><span class="who2"><span class="seat">${pad(seat)}</span>${nameOf(seat)}</span>${t.texts[seat]}</button>` : '')}</div>`
+      : html`<div class="subs">${seats.map((seat) => { const sub = t.subs[seat]; return sub ? html`<div class="sub"><div class="box"><${MiniWork} t=${t} layers=${[sub.ink, sub.notes]} /></div><div class="nm"><span class="seat">${pad(seat)}</span>${nameOf(seat)}</div></div>` : ''; })}</div>`}
   </div>`;
 }
 function TextBig({ t, seat, onBack, records }) {
@@ -1598,12 +1693,10 @@ function TextBig({ t, seat, onBack, records }) {
   return html`<div class="tb-full">
     <div class="text-big">${t.texts[cur]}</div>
     <div class="detail-top">
-      <button class=${'back ' + hint('t-detail-back')} onClick=${act(back)}><${Icon} n="chevron-left" s=${18} />返回</button>
-      <span class="who-row"><span class="seat">${pad(cur)}</span>${nameOf(cur)}
-        ${!records && html`${got > 0 && html`<span class="vt-score up" key=${'g' + got}>+${got}</span>`}<button class="vt-plus big" aria-label=${`幫 ${nameOf(cur)} 加 1 分`} onClick=${act((e) => { burst(e.currentTarget); bonus(cur, 1); t.gave = { ...(t.gave || {}), [cur]: got + 1 }; })}>+1</button>`}</span>
+      <button class=${'btn sm sec dt-back ' + hint('t-detail-back')} onClick=${act(back)}><${Icon} n="arrow-left" s=${18} />返回</button>
+      <${WhoNav} t=${t} seat=${cur} idx=${idx} n=${seats.length} go=${(i) => setCur(seats[i])} score=${!records} />
       <span class="spacer"></span>
-      ${!records && (shared ? html`<button class="btn sm sec" onClick=${act(unshare)}>停止分享</button>` : html`<button class="btn sm" onClick=${act(() => { S.shared = { seat: cur, type: 'text', anon: false }; toast('teacher', `全班正在看 ${pad(cur)} ${nameOf(cur)} 的回答`); })}><${Icon} n="cast" s=${16} />分享給全班</button>`)}
-      <div class="mini-pager"><button aria-label="上一位" disabled=${idx <= 0} onClick=${act(() => setCur(seats[idx - 1]))}><${Icon} n="chevron-left" s=${16} /></button><span style="padding:0 4px">${idx + 1} / ${seats.length}</span><button aria-label="下一位" disabled=${idx >= seats.length - 1} onClick=${act(() => setCur(seats[idx + 1]))}><${Icon} n="chevron-right" s=${16} /></button></div>
+      ${!records && (shared ? html`<button class="btn sm sec" onClick=${act(unshare)}>停止分享</button>` : html`<button class="btn sm" onClick=${act(() => { S.shared = { seat: cur, type: 'text', anon: false }; toast('teacher', '已分享畫面'); })}><${Icon} n="cast" s=${16} />分享畫面</button>`)}
     </div>
   </div>`;
 }
@@ -1660,10 +1753,12 @@ function TeacherApp() {
   const w = fitW(page, t.rs);
   const assigning = t.pop === 'task' && S.compose === 'shot' && (!S.draft || (S.draft.bg || 'page') === 'page');
   const left = timeLeft();
-  return html`<div class=${'reader' + (live && BAR !== 'top' ? ' bar-' + BAR : '')}>
+  const openStart = () => { t.modal = 'start'; t.draft = { ci: Math.max(0, t.classes.findIndex((x) => x.c === '501')), mode: 'free' }; t.pop = null; };
+  return html`<div class=${'reader' + (BAR !== 'top' ? ' bar-' + BAR : '') + (BAR === 'toolbox' && live && t.barOpen ? ' cb-open' : '')}>
     <${Rail} side="teacher" />
-    ${live && BAR !== 'top' ? html`<${ClassBar} />` : ''}
-    <div class="topbar" style=${live && BAR !== 'top' ? { display: 'none' } : null}>
+    ${BAR === 'toolbox' || BAR === 'rail' ? (live && S.t.barOpen && html`<${ClassBar} />`) : BAR !== 'top' && (live ? html`<${ClassBar} />` : html`<div class=${'class-bar ' + BAR}>${PAGER_POS === 'capsule' && html`<${HPager} /><span class="cb-sep"></span>`}<button class=${'btn ' + hint('t-start')} onClick=${act(openStart)}>開始上課</button></div>`)}
+    ${BAR !== 'top' && S.timer && t.pop !== 'timer' && html`<div class="timer-pin"><${TimerPop} pinned /></div>`}
+    <div class="topbar" style=${BAR !== 'top' ? { display: 'none' } : null}>
       ${live ? html`<span class="title">${S.cls.cid}</span>
         <button class=${'pill ' + hint('t-roster')} style="cursor:pointer;border:0" onClick=${act(() => { t.pop = t.pop === 'roster' ? null : 'roster'; t.scoreMode = 'plus'; S.flags.rosterSeen = true; S.flags.scoreOpened = true; })}><i class="live-dot"></i>上課中<span style="color:var(--line)">｜</span><${Icon} n="users" s=${16} /><b style="font-variant-numeric:tabular-nums">${S.cls.joined.length}</b><span style="color:var(--text-2)">/ ${present().length + ABSENT.length}</span><${Icon} n="chevron-down" s=${14} /></button>
         ${S.timer && html`<button class=${'pill timer-pill' + (S.timer.done ? ' done' : '')} onClick=${act(() => { t.pop = 'timer'; })}><${Icon} n="timer" s=${16} />${S.timer.done ? '時間到' : (S.timer.paused ? '暫停 ' : '') + mmss(timeLeft())}</button>`}`
@@ -1672,10 +1767,10 @@ function TeacherApp() {
       ${live ? html`
         <div class=${'seg ' + hint('t-mode')} role="group" aria-label="同步模式">
           <button aria-pressed=${S.cls.mode === 'free'} onClick=${act(() => setMode('free'))}>自由閱讀</button>
-          <button aria-pressed=${S.cls.mode === 'lock'} onClick=${act(() => setMode('lock'))}><${Icon} n="lock" s=${15} />鎖定螢幕</button>
+          <button aria-pressed=${S.cls.mode === 'lock'} disabled=${liveT()} onClick=${act(() => setMode('lock'))}><${Icon} n="lock" s=${15} />鎖定螢幕</button>
         </div>
-        <button class=${'btn sec ' + hint('t-end')} onClick=${act(endClass)}>結束上課</button>`
-        : html`<button class=${'btn ' + hint('t-start')} onClick=${act(() => { t.modal = 'start'; t.draft = { ci: Math.max(0, t.classes.findIndex((x) => x.c === '501')), mode: 'free' }; t.pop = null; })}>開始上課</button>`}
+        <button class=${'btn sec ' + hint('t-end')} onClick=${act(endClass)}>下課</button>`
+        : BAR === 'top' ? html`<button class=${'btn ' + hint('t-start')} onClick=${act(openStart)}>開始上課</button>` : ''}
     </div>
     <div class="pageframe">
       ${S.shared && S.t.pop !== 'task' && html`<div class="page-flag lime"><${Icon} n="cast" />全班正在看${S.shared.anon ? '一位同學' : ` ${pad(S.shared.seat)} ${nameOf(S.shared.seat)} `}的作品</div>`}
@@ -1691,7 +1786,7 @@ function TeacherApp() {
     ${t.inkPop && BRUSHES.includes(t.tool) && html`<${InkPop} side="teacher" />`}
     ${t.pop === 'supp' && html`<${SuppPanel} side="teacher" />`}
     ${t.supp && html`<${SuppView} side="teacher" />`}
-    ${t.pop && t.pop !== 'supp' && html`<${Layer} P=${t} center=${t.pop !== 'settings' && t.pop !== 'toc'}>
+    ${t.pop && t.pop !== 'supp' && html`<${Layer} P=${t} center=${t.pop !== 'settings' && t.pop !== 'toc' && !(BAR === 'toolbox' && t.barOpen && ((t.pop === 'task' && !S.task) || t.pop === 'roster'))}>
       ${t.pop === 'toc' && html`<${Toc} side="teacher" />`}
       ${t.pop === 'toolbox' && html`<${Toolbox} side="teacher" />`}
       ${t.pop === 'settings' && html`<${ReadSettings} side="teacher" />`}
@@ -1711,18 +1806,23 @@ function LeaveDialog() {
   const t = S.t;
   const stay = act(() => { t.modal = null; });
   return html`<div class="scrim" onClick=${(e) => { if (e.target === e.currentTarget) stay(); }}>
-    <div class="dialog" role="alertdialog" aria-label="要結束上課嗎？" style="width:440px">
-      <div class="pop-h"><h4>要結束上課嗎？</h4></div>
+    <div class="dialog" role="alertdialog" aria-label="要下課嗎？" style="width:440px">
+      <div class="pop-h"><h4>要下課嗎？</h4></div>
       <div class="pop-b">
-        <p style="margin:0;line-height:1.7;color:var(--text-2)">${S.cls.cid} · ${S.cls.subj}還在上課中。結束後學生解除跟隨，這堂課的加分存成一筆紀錄。</p>
-        <div class="dialog-foot"><button class="btn sec sm" onClick=${stay}>繼續上課</button><button class="btn sm" onClick=${act(() => { t.modal = null; endClass(); t.screen = 'shelf'; t.pop = null; t.tool = null; })}>結束上課</button></div>
+        <div class="dialog-foot"><button class="btn sec sm" onClick=${stay}>繼續上課</button><button class="btn sm" onClick=${act(() => { t.modal = null; endClass(); t.screen = 'shelf'; t.pop = null; t.tool = null; })}>下課</button></div>
       </div>
     </div>
   </div>`;
 }
 /* 上課控制列（2026-11-03 乙練要比較）：BAR = 'top' 原本上方一列｜'dock' 固定在下緣正中間｜'float' 浮動、可拖曳
    三樣東西：班級＋到課人數（點開名單）、鎖定開關（預設自由閱讀，按下去變鎖定）、結束上課 */
-let BAR = 'dock', BARPOS = null;
+let BAR = 'toolbox', BARPOS = null; // 預設收進工具箱（2026-11-03 乙練：比較喜歡收到工具箱）
+let OPTS_OPEN = false;
+let PAGER_POS = 'rail'; // 老師頁數：'top' 左欄上方｜'rail' 左欄最下面、設定底下（2026-11-03 乙練要試）｜'capsule' 左下膠囊最前面
+function HPager() {
+  const page = S.t.page;
+  return html`<span class="hpager"><button aria-label="上一頁" disabled=${page === 0} onClick=${act(() => turn('teacher', -1))}><${Icon} n="chevron-left" s=${18} /></button><b>${PAGES[page].nums[0]}</b><button aria-label="下一頁" disabled=${page === PAGES.length - 1} onClick=${act(() => turn('teacher', 1))}><${Icon} n="chevron-right" s=${18} /></button></span>`;
+}
 function ClassBar() {
   const t = S.t; const hint = useHint(); const lock = S.cls.mode === 'lock';
   const drag = (e) => {
@@ -1733,13 +1833,18 @@ function ClassBar() {
     const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); };
     window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
   };
+  // 左欄「上課同步」展開的膠囊：中線對齊那一格（2026-11-03）
+  if (BAR === 'toolbox') { return html`<div class="class-bar under" ref=${(el) => { if (!el) return; const r = el.closest('.reader'), sh = r && r.querySelector('.pageframe .sheet'); if (!sh) return; const top = Math.min(sh.getBoundingClientRect().bottom - r.getBoundingClientRect().top, r.getBoundingClientRect().height) / (r.getBoundingClientRect().height / r.offsetHeight) + 10; const y = Math.min(top, r.offsetHeight - el.offsetHeight - 12); el.style.top = y + 'px'; el.style.bottom = 'auto'; r.style.setProperty('--cb-top', y + 'px'); }}>${PAGER_POS === 'capsule' && html`<${HPager} /><span class="cb-sep"></span>`}<button class=${'cb-cls' + (t.pop === 'roster' ? ' on' : '') + ' ' + hint('t-roster')} aria-label="名單與加分" onClick=${act(() => { t.pop = t.pop === 'roster' ? null : 'roster'; t.scoreMode = 'plus'; S.flags.rosterSeen = true; S.flags.scoreOpened = true; })}>${S.cls.cid}<span class="n">${S.cls.joined.length}/${present().length}</span><${Icon} n="chevron-up" s=${15} /></button><span class="cb-sep"></span><button class=${'cb-lock cb-task' + (t.pop === 'task' ? ' on' : '') + ' ' + hint('t-task')} aria-pressed=${t.pop === 'task'} aria-label="派任務" title="派任務" onClick=${act(() => { t.pop = t.pop === 'task' ? null : 'task'; t.tool = null; })}><${Icon} n="send" s=${18} />${S.task && S.task.status !== 'stopped' && html`<i class="badge"></i>`}</button><button class=${'cb-lock' + (S.cls.mode === 'lock' ? ' on' : '') + ' ' + hint('t-mode')} aria-pressed=${S.cls.mode === 'lock'} aria-label=${S.cls.mode === 'lock' ? '解除鎖定' : '鎖定螢幕'} title=${liveT() ? '學生作答中，不能鎖定' : undefined} disabled=${liveT() && S.cls.mode !== 'lock'} onClick=${act(() => setMode(S.cls.mode === 'lock' ? 'free' : 'lock'))}><${Icon} n="lock" s=${18} /></button><button class=${'btn sec ' + hint('t-end')} onClick=${act(() => { endClass(); })}>下課</button></div>`; }
   const pos = BAR === 'float' && BARPOS ? { left: BARPOS.x + 'px', top: BARPOS.y + 'px', bottom: 'auto', transform: 'none' } : null;
-  return html`<div class=${'class-bar ' + BAR} style=${pos}>
+  if (S.t.barMin && BAR !== 'rail' && BAR !== 'toolbox') return html`<div class=${'class-bar cb-mini ' + BAR} style=${pos}>${PAGER_POS === 'capsule' && html`<${HPager} /><span class="cb-sep"></span>`}<button class=${'cb-cls ' + hint('t-roster')} aria-label="展開上課控制" onClick=${act(() => { S.t.barMin = false; })}><i class="live-dot"></i>${S.cls.cid}<${Icon} n="chevron-right" s=${16} /></button></div>`;
+  return html`<div class=${'class-bar ' + (BAR === 'rail' || BAR === 'toolbox' ? 'inrail' : BAR)} style=${pos}>
+    ${PAGER_POS === 'capsule' && html`<${HPager} /><span class="cb-sep"></span>`}
     ${BAR === 'float' && html`<span class="cb-grip" aria-label="拖曳移動" title="拖曳移動" onPointerDown=${drag}><i></i><i></i><i></i><i></i><i></i><i></i></span>`}
     <button class=${'cb-cls ' + hint('t-roster')} onClick=${act(() => { t.pop = t.pop === 'roster' ? null : 'roster'; t.scoreMode = 'plus'; S.flags.rosterSeen = true; S.flags.scoreOpened = true; })}><i class="live-dot"></i>${S.cls.cid}<span class="n">${S.cls.joined.length}/${present().length}</span><${Icon} n="chevron-down" s=${16} /></button>
     ${S.timer && html`<button class=${'cb-cls' + (S.timer.done ? ' done' : '')} onClick=${act(() => { t.pop = 'timer'; })}><${Icon} n="timer" s=${16} />${S.timer.done ? '時間到' : mmss(timeLeft())}</button>`}
     <button class=${'cb-lock' + (lock ? ' on' : '') + ' ' + hint('t-mode')} aria-pressed=${lock} aria-label=${lock ? '解除鎖定' : '鎖定螢幕'} title=${lock ? '解除鎖定' : '鎖定螢幕'} onClick=${act(() => setMode(lock ? 'free' : 'lock'))}><${Icon} n="lock" s=${18} /></button>
-    <button class=${'btn ' + hint('t-end')} onClick=${act(endClass)}>結束上課</button>
+    <button class=${'btn sec ' + hint('t-end')} onClick=${act(endClass)}>下課</button>
+    ${BAR !== 'rail' && BAR !== 'toolbox' && html`<button class="cb-min" aria-label="收起" title="收起" onClick=${act(() => { S.t.barMin = true; S.t.pop = S.t.pop === 'roster' ? null : S.t.pop; })}><${Icon} n="chevron-left" s=${18} /></button>`}
   </div>`;
 }
 function StartDialog() {
@@ -1758,7 +1863,7 @@ function StartDialog() {
             <button class=${'opt' + (d.mode === 'free' ? ' on' : '')} aria-pressed=${d.mode === 'free'} onClick=${act(() => { d.mode = 'free'; })}><b>自由閱讀</b><span>學生可以自己翻頁、畫記</span></button>
             <button class=${'opt' + (d.mode === 'lock' ? ' on' : '')} aria-pressed=${d.mode === 'lock'} onClick=${act(() => { d.mode = 'lock'; })}><b>鎖定螢幕</b><span>學生跟著老師翻頁，不能畫記</span></button>
           </div></div>
-        <div class="dialog-foot"><button class="btn sec sm" onClick=${act(() => { t.modal = null; })}>取消</button><button class=${'btn sm ' + hint('t-start-go')} onClick=${act(() => { if (cs[d.ci].c !== '501') return toast('teacher', '示範學生陳小宇在 501，這次請選 501 上課'); startClass({ cid: cs[d.ci].c, subj: cs[d.ci].subj, mode: d.mode }); })}>開始上課</button></div>`}
+        <div class="dialog-foot"><button class="btn sec sm" onClick=${act(() => { t.modal = null; })}>取消</button><button class=${'btn sm ' + hint('t-start-go')} onClick=${act(() => { if (cs[d.ci].c !== '501') return toast('teacher', '示範請選 501'); startClass({ cid: cs[d.ci].c, subj: cs[d.ci].subj, mode: d.mode }); })}>開始上課</button></div>`}
       </div>
     </div>
   </div>`;
@@ -1803,13 +1908,12 @@ function taskClock(t) {
 function Collecting({ t, answered, tot, seats, has, onStop, stopHint }) {
   const T = S.timer, linked = T && T.taskId === t.id && !T.done, left = linked ? timeLeft() : 0;
   return html`<div class="collect">
-    <div class="col-top">
-      <div class="col-n"><div class="big-count"><b>${answered}</b><span>／${tot} 人已作答</span></div>
-        ${!linked && html`<div class="col-el">已過 ${mmss(Math.floor((Date.now() - t.at) / 1000))}</div>`}</div>
-      ${linked && html`<div class=${'col-tm' + (left <= 10 ? ' hurry' : '')}><${Ring} size=${116} frac=${left / T.total}><b class="tm-t">${mmss(left)}</b></${Ring}>
-        <button class="btn xs sec" onClick=${act(() => bumpTimer(60))}>＋1 分鐘</button></div>`}
-    </div>
-    <div class="prog"><i style=${{ width: (answered / tot * 100) + '%' }}></i></div>
+    <!-- 倒數和作答人數合成一個圓環（2026-11-03 乙練選 B）：有時限＝外圈是剩下的時間；沒時限＝外圈是作答進度 -->
+    <div class=${'col-ring' + (linked && left <= 10 ? ' hurry' : '')}><${Ring} size=${260} frac=${linked ? left / T.total : answered / Math.max(1, tot)}>
+      <b class="cr-n">${answered}</b><span class="cr-of">／${tot} 人已作答</span>
+      ${linked ? html`<span class="cr-tm"><button aria-label="少 1 分鐘" disabled=${left <= 60} onClick=${act(() => bumpTimer(-60))}>−</button><b>${mmss(left)}</b><button aria-label="多 1 分鐘" onClick=${act(() => bumpTimer(60))}>＋</button></span>`
+        : html`<span class="cr-tm el">已過 ${mmss(Math.floor((Date.now() - t.at) / 1000))}</span>`}
+    </${Ring}></div>
     <div class="seat-dots">${seats.map((x) => html`<i class=${has(x) ? 'on' : ''}>${pad(x)}</i>`)}</div>
     <div class="ch-foot"><span class="spacer"></span><button class=${'btn sm ' + (stopHint || '')} onClick=${act(onStop)}>結束作答</button></div>
   </div>`;
@@ -1821,7 +1925,9 @@ function parseTime(v) {
   if (v.includes(':')) { const [m, sec] = v.split(':'); const n = (+m || 0) * 60 + (+sec || 0); return Number.isFinite(n) ? n : null; }
   const n = +v; return Number.isFinite(n) ? n : null;
 }
-function TimerPop() {
+/* 計時器：設定好按開始，就釘在畫面左上角倒數（取代右上角的時間膠囊，2026-11-03 乙練）；釘住時不放 ×，按停止才消失 */
+// 派任務帶的時限：只能 −／＋ 時間，跟作答彈窗同一個計時，不能暫停或停止（2026-11-03 乙練）
+function TimerPop({ pinned }) {
   const T = S.timer; const hint = useHint(); const t = S.t;
   if (t.timerSec == null) t.timerSec = (t.timerMin || 5) * 60;
   const [edit, setEdit] = useState(false);
@@ -1836,21 +1942,21 @@ function TimerPop() {
     else if (T.paused) { T.left = n; T.total = Math.max(T.total, n); }
     else if (!T.done) { T.endAt = Date.now() + n * 1000; T.total = Math.max(T.total, n); }
     refresh(); };
-  return html`<div class="pop timer-pop">
-    <div class="pop-h"><h4>計時器</h4><button class="x-btn" aria-label="關閉" onClick=${close}><${Icon} n="x" /></button></div>
+  return html`<div class=${'pop timer-pop' + (pinned ? ' pinned' : '')}>
+    ${!pinned && html`<div class="pop-h"><h4>計時器</h4><button class="x-btn" aria-label="關閉" onClick=${close}><${Icon} n="x" /></button></div>`}
     <div class="pop-b">
-      <${Ring} size=${184} frac=${frac} done=${T && T.done}>
+      <${Ring} size=${pinned ? 150 : 184} frac=${frac} done=${T && T.done}>
         ${edit ? html`<input class="tm-in-edit" aria-label="設定時間" value=${mmss(left)} ref=${(el) => el && document.activeElement !== el && (el.focus(), el.select())}
             onKeyDown=${(e) => { if (e.key === 'Enter') commit(e.currentTarget.value); if (e.key === 'Escape') setEdit(false); }} onBlur=${(e) => commit(e.currentTarget.value)} />`
           : html`<button class="tm-t tm-edit" aria-label="點一下改時間" disabled=${T && T.done} onClick=${() => setEdit(true)}>${mmss(left)}</button>`}
         ${!(T && T.done) && html`<span class="tm-adj"><button aria-label="少 1 分鐘" disabled=${T ? left <= 60 : t.timerSec <= 60} onClick=${bump(-1)}><${Icon} n="minus" s=${14} /></button>1 分鐘<button aria-label="多 1 分鐘" onClick=${bump(1)}><${Icon} n="plus" s=${14} /></button></span>`}
       </${Ring}>
-      <div class="tm-acts">
-        ${!T ? html`<button class=${'btn sm tm-go ' + hint('t-timer-go')} onClick=${act(() => startTimer(t.timerSec))}>開始計時</button>`
+      ${!(T && T.taskId) && html`<div class="tm-acts">
+        ${!T ? html`<button class=${'btn sm tm-go ' + hint('t-timer-go')} onClick=${act(() => { startTimer(t.timerSec); t.pop = null; })}>開始計時</button>`
         : T.done ? html`<button class="btn sm sec tm-go" onClick=${act(stopTimer)}>停止</button>`
         : html`<button class="tm-c gray" aria-label=${T.paused ? '繼續' : '暫停'} onClick=${act(pauseTimer)}><${Icon} n=${T.paused ? 'play' : 'pause'} s=${20} /></button>
                <button class="tm-c" aria-label="停止" onClick=${act(stopTimer)}><${Icon} n="square" s=${18} /></button>`}
-      </div>
+      </div>`}
     </div>
   </div>`;
 }
@@ -1864,10 +1970,7 @@ function ClassPanel() {
     <div class="pop-h"><div><h4>${S.cls.cid} ${S.cls.subj}</h4>
         <div class="att-line"><b>${joined.length}</b> 已加入<i></i><b>${waiting}</b> 還沒登入</div></div>
       <div class="score-top">
-        <div class="pill-seg" role="group" aria-label="加分或扣分">
-          <button class=${(mode === 'plus' ? 'on ' : '') + hint('t-plus')} aria-pressed=${mode === 'plus'} onClick=${act(() => { t.scoreMode = 'plus'; })}>加分</button>
-          <button class=${(minus ? 'on ' : '') + hint('t-minus')} aria-pressed=${minus} onClick=${act(() => { t.scoreMode = 'minus'; })}>扣分</button>
-        </div>
+        <${ScoreMode} />
         <button class=${'btn xs class-btn ' + (minus ? 'minus-btn ' + hint('t-class-minus') : mode ? 'lime ' + hint('t-class') : 'sec')} disabled=${!mode} onClick=${act(() => classBonus(minus ? -1 : 1))}>${minus ? '全班 −1' : '全班 +1'}</button>
         <span class="vsep"></span>
         <button class=${'x-btn ' + hint('t-undo')} aria-label="上一步" title="上一步" disabled=${!(S.session && S.session.hist.length)} onClick=${act(undoScore)}><${Icon} n="corner-up-left" /></button>
@@ -1877,10 +1980,9 @@ function ClassPanel() {
       <div class="kid-grid">${roster().map((s) => {
         const n = scoreOf(s.seat), f = S.flash[s.seat], ab = ABSENT.includes(s.seat), on = joined.includes(s.seat);
         const shown = on && n !== 0, sad = f && f.d < 0;
-        return html`<button class=${'kid' + (on ? '' : ' away') + (sad ? ' down' : '') + (s.seat === ME ? ' ' + hint('t-me') : '')} style=${{ '--i': s.seat % 8 }} disabled=${!on} aria-disabled=${!mode} onClick=${act(() => { if (mode) bonus(s.seat, minus ? -1 : 1); })}>
-          ${shown ? html`<span class="face morph" key=${'m' + s.seat}><${Kid} seat=${s.seat} box=${56} cls=${f ? (sad ? 'sink' : 'jump') : ''} mood=${sad ? 'sad' : undefined} key=${'k' + s.seat} /><span class=${'sc ' + (n > 0 ? 'up' : 'down')}>${n > 0 ? n : '−' + -n}</span>
-              ${f && html`<span class=${'flash' + (sad ? ' minus' : '')} key=${f.id}><b>${sad ? '−1' : '+1'}</b></span>`}</span>`
-            : html`<span class="face" key=${'d' + s.seat}><span class="seat-dot">${pad(s.seat)}</span>${f && html`<span class=${'flash' + (sad ? ' minus' : '')} key=${f.id}><b>${sad ? '−1' : '+1'}</b></span>`}</span>`}
+        return html`<button class=${'kid' + (on ? '' : ' away') + (sad ? ' down' : '') + (s.seat === ME ? ' ' + hint('t-me') : '')} style=${{ '--i': s.seat % 8 }} disabled=${!on} aria-disabled=${!mode} onClick=${act((e) => { if (!mode) return; if (!minus) burst(e.currentTarget.querySelector('.face') || e.currentTarget); bonus(s.seat, minus ? -1 : 1); })}>
+          ${shown ? html`<span class="face morph" key=${'m' + s.seat}><${Kid} seat=${s.seat} box=${56} cls=${f ? (sad ? 'sink' : 'jump') : ''} mood=${sad ? 'sad' : undefined} key=${'k' + s.seat} /><span class=${'sc ' + (n > 0 ? 'up' : 'down') + (f ? ' bump' + (sad ? ' minus' : '') : '')} key=${f ? 'f' + f.id : 'sc'}>${f ? (sad ? '−1' : '+1') : n > 0 ? n : '−' + -n}</span></span>`
+            : html`<span class="face" key=${'d' + s.seat}><span class="seat-dot">${pad(s.seat)}</span>${f && html`<span class=${'sc bump' + (sad ? ' minus' : '')} key=${'f' + f.id}>${sad ? '−1' : '+1'}</span>`}</span>`}
           <span class="nm2">${s.name}</span>${!on && html`<em class="att">還沒加入</em>`}</button>`; })}</div>
     </div>
   </div>`;
@@ -1892,6 +1994,8 @@ function ClassPanel() {
 function ChoiceLive({ t }) {
   const hint = useHint();
   const [grp, setGrp] = useState('right');
+  const barsRef = useRef(); const [bh, setBh] = useState(150); // 公布後長條圖佔上半，最高那條照實際高度畫
+  useLayoutEffect(() => { const el = barsRef.current; if (!el || t.status !== 'revealed') return; const fit = () => setBh(Math.max(60, el.clientHeight - 34)); fit(); const ro = new ResizeObserver(fit); ro.observe(el); return () => ro.disconnect(); }, [t.status]);
   const close = act(() => { S.t.pop = null; });
   const st = t.status, letters = optLetters(t);
   const seats = present().map((x) => x.seat), tot = seats.length;
@@ -1904,8 +2008,8 @@ function ChoiceLive({ t }) {
   const att = S.cls.live ? seats.filter((x) => S.cls.joined.includes(x)) : seats; // 比率以出席人數為分母
   const none = att.filter((x) => !t.answers[x]);
   const groups = { right, wrong, none };
-  const nm = typeName(t), title = { collecting: nm + '・作答中', closed: nm + '・公布答案', revealed: nm }[st] || nm;
-  return html`<div class=${'pop ch-pop task-pop' + (st === 'revealed' ? ' review' : '')}>
+  const nm = typeName(t), rateOf = { right: '答對率', wrong: '答錯率', none: '沒作答' }, title = st === 'closed' ? nm + '・公布答案' : st === 'revealed' ? html`${nm}<span class="hd-n">${rateOf[grp]} <b>${(() => { const d = grp === 'none' ? att.length : right.length + wrong.length; return d ? Math.round(groups[grp].length / d * 100) : 0; })()}%</b></span>` : nm; // 比率跟著分頁換；答對／答錯以作答人數為分母，跟長條一致（2026-11-03 乙練）
+  return html`<div class=${'pop ch-pop task-pop review'}>
     <div class="pop-h"><h4>${title}</h4><button class="x-btn" aria-label="收合" onClick=${close}><${Icon} n="x" /></button></div>
     <div class="pop-b">
       ${t.q && html`<div class="qline">${t.q}</div>`}
@@ -1917,18 +2021,15 @@ function ChoiceLive({ t }) {
         `
       : html`
         ${st === 'closed' && html`<div class="bars-h"><b>正確答案：${t.pick}</b></div>`}
-        <div class=${'bars' + (st === 'closed' ? ' pickable' : '') + (st === 'revealed' ? ' compact' : '')}>${letters.map((L, i) => html`<button class=${'cbar' + (L === mark ? ' ok' : '') + (st === 'closed' && L === 'B' ? ' ' + hint('t-correct') : '')} disabled=${st !== 'closed'} aria-pressed=${L === mark} onClick=${act(() => { t.pick = L; })}><span>${counts[i]} 人</span><i style=${{ height: st === 'revealed' ? `calc((100% - 34px) * ${counts[i] / max})` : (counts[i] / max) * 180 + 'px' }}></i></button>`)}</div>
-        <div class="bar-l">${letters.map((L, i) => html`<span class=${L === mark ? 'ok' : ''}>${L === mark ? '✓ ' : ''}${L}${t.opts[i] ? html`<small>${t.opts[i]}</small>` : ''}</span>`)}</div>
+        <div class=${st === 'revealed' ? 'ch-half' : 'ch-flat'}>
+        <div ref=${barsRef} class=${'bars' + (st === 'closed' ? ' pickable' : '') + (st === 'revealed' ? ' compact' : '')}>${letters.map((L, i) => html`<button class=${'cbar' + (L === mark ? ' ok' : '') + (st === 'closed' && L === 'B' ? ' ' + hint('t-correct') : '')} disabled=${st !== 'closed'} aria-pressed=${L === mark} onClick=${act(() => { t.pick = L; })}><span>${st === 'revealed' && answered ? Math.round(counts[i] / answered * 100) + '%' : counts[i] + ' 人'}</span><i style=${{ height: (counts[i] / max) * (st === 'revealed' ? bh : 180) + 'px' }}></i></button>`)}</div>
+        <div class="bar-l">${letters.map((L, i) => html`<span class=${L === mark ? 'ok' : ''}>${L === mark ? '✓ ' : ''}${L}${t.opts[i] ? html`<small>${t.opts[i]}</small>` : ''}</span>`)}</div></div>
         ${st === 'closed' ? html`<div class="ch-foot"><span class="muted"></span><button class=${'btn sm ' + hint('t-reveal')} disabled=${!t.pick} onClick=${act(() => reveal(t.pick))}>公布答案</button></div>`
           : html`
-            <div class="who-chose">${groups[grp].map((x) => { const got = (t.gave || {})[x] || 0;
-              return html`<button data-seat=${x} class=${'nm-chip' + drawnCls(x) + (got ? ' got' : '')} aria-label=${`${nameOf(x)}，點一下加 1 分`} onClick=${act((e) => { burst(e.currentTarget); bonus(x, 1); t.gave = { ...(t.gave || {}), [x]: got + 1 }; })}><span>${pad(x)} ${nameOf(x)}</span><i class="pl" key=${'g' + got}>+${got || 1}</i></button>`; })}${!groups[grp].length && '沒有人'}</div>
-            <div class="grp grp-bot">
-              ${[['right', '答對'], ['wrong', '答錯'], ['none', '沒作答']].map(([k, l]) => html`<button class=${grp === k ? 'on' : ''} onClick=${() => setGrp(k)}>${l} ${groups[k].length}<small>${att.length ? Math.round(groups[k].length / att.length * 100) : 0}%</small></button>`)}
-              <span class="grp-acts">
-                <button class="btn xs sec" disabled=${!groups[grp].length} onClick=${act(() => draw(groups[grp]))}>${S.drawing ? html`<span class="dice-spin"><${Icon} n="dice" s=${16} /></span>` : '抽籤'}</button>
-                ${grp !== 'right' ? '' : html`<button class=${'btn xs sec ' + hint('t-plusright')} disabled=${!groups[grp].length} onClick=${act(() => { plusGroup(t, grp, groups[grp]); burstSeats(groups[grp]); })}>答對 +1 分</button>`}
-              </span><button class=${'btn xs sec ' + hint('t-next-task')} onClick=${act(endTask)}>再派一題</button></div>`}`}`}
+            <div class="ch-half bot"><${RvHead} tabs=${[['right', '答對', groups.right.length], ['wrong', '答錯', groups.wrong.length], ['none', '沒作答', groups.none.length]]} cur=${grp} onTab=${(k) => setGrp(k)} list=${groups[grp]} label=${{ right: '答對', wrong: '答錯', none: '沒作答' }[grp]} d=${{ right: 1, wrong: 0, none: -1 }[grp]} plusHint=${hint('t-plusright')} onPlus=${(d) => plusGroup(t, grp, groups[grp], d)} />
+            <div class="who-chose fixed">${groups[grp].map((x) => { const got = (t.gave || {})[x] || 0;
+              return html`<button data-seat=${x} class=${'nm-chip sk' + drawnCls(x) + gotCls(t, x) + (S.t.scoreMode === 'minus' ? ' m' : '')} aria-label=${`${nameOf(x)}，點一下${S.t.scoreMode === 'minus' ? '扣' : '加'} 1 分`} onClick=${act((e) => rvScore(t, x, e.currentTarget.querySelector('.sk-dot')))}><span class=${'sk-dot' + kidCls(t, x)}><${SeatFace} t=${t} seat=${x} box=${52} /><${SeatSc} t=${t} seat=${x} /></span><span class="sk-nm">${nameOf(x)}</span></button>`; })}${!groups[grp].length && '沒有人'}</div>
+            <${RvFoot} list=${groups[grp]} label=${{ right: '答對', wrong: '答錯', none: '沒作答' }[grp]} d=${{ right: 1, wrong: 0, none: -1 }[grp]} plusHint=${hint('t-plusright')} onPlus=${(d) => plusGroup(t, grp, groups[grp], d)} /></div>`}`}`}
     </div></div>`;
 }
 function TaskPanel() {
@@ -1977,18 +2078,18 @@ function TaskPanel() {
   if (task.type === 'shot' && task.view) return html`<${Detail} />`;
   const body = () => {
     if (tab === 'none') return html`<${NameChips} t=${task} list=${noneL} />`;
-    if (task.type === 'text') return html`<div class="text-cards">${doneL.map((seat) => html`<button data-seat=${seat} class=${'tcard' + drawnCls(seat) + (seat === ME ? ' ' + hint('t-textcard') : '')} onClick=${act(() => { task.view = seat; S.flags.textViewed = true; })}><span class="who2"><span class="seat">${pad(seat)}</span>${nameOf(seat)}</span><span class="tc-t">${task.texts[seat]}</span></button>`)}</div>`;
+    if (task.type === 'text') return html`<div class="text-cards">${doneL.map((seat) => html`<button data-seat=${seat} class=${'tcard' + drawnCls(seat) + (seat === ME ? ' ' + hint('t-textcard') : '')} onClick=${act(() => { task.view = seat; S.flags.textViewed = true; })}><span class="who2"><${SeatBtn} t=${task} seat=${seat} />${nameOf(seat)}</span><span class="tc-t">${task.texts[seat]}</span></button>`)}</div>`;
     if (task.type === 'voice') return html`<div class="voice-grid">${doneL.map((seat) => html`<${VoiceTile} t=${task} seat=${seat} />`)}</div>`;
     return html`<div class="subs subs-all">${doneL.map((seat) => { const sub = task.subs[seat];
       return html`<button data-seat=${seat} class=${'shot-t' + drawnCls(seat) + ' ' + (seat === ME ? hint('t-detail') : '')} aria-label=${`放大看 ${nameOf(seat)} 的作品`} onClick=${act(() => openDetail(seat))}>
-        <span class="box"><${MiniWork} t=${task} layers=${[sub.ink, sub.notes]} /></span><span class="shot-no">${pad(seat)}</span><span class="shot-nm">${nameOf(seat)}</span></button>`; })}</div>`;
+        <span class="box"><${MiniWork} t=${task} layers=${[sub.ink, sub.notes]} /></span><${SeatBtn} t=${task} seat=${seat} cls="shot-no" /><span class="shot-nm">${nameOf(seat)}</span></button>`; })}</div>`;
   };
-  return html`<div class=${'pop task-pop' + (live ? '' : ' review')}>
-    ${head(live ? `${name}・作答中` : html`${name}<span class="hd-n"><b>${doneL.length}</b>／${att.length}</span>`)}
+  return html`<div class=${'pop task-pop review'}>
+    ${head(live ? name : html`${name}<span class="hd-n"><b>${doneL.length}</b>／${att.length}</span>`)}
     <div class="pop-b">
       ${task.q && html`<div class="qline">${task.q}</div>`}
       ${live ? html`<${Collecting} t=${task} answered=${doneL.length} tot=${att.length} seats=${att} has=${has} onStop=${stopTask} stopHint=${hint(task.type === 'shot' ? 't-stop' : task.type === 'text' ? 't-stop-text' : 't-stop-voice')} />`
-        : html`<div class="rv-body">${body()}</div><${ReviewBar} t=${task} done=${doneL} none=${noneL} />`}
+        : html`<${RvHead} tabs=${[['done', '有作答', doneL.length], ['none', '沒作答', noneL.length]]} cur=${tab} onTab=${(k) => { task.tab = k; }} list=${tab === 'done' ? doneL : noneL} label=${tab === 'done' ? '有作答' : '沒作答'} d=${tab === 'done' ? 1 : -1} onPlus=${(d) => plusGroup(task, tab === 'done' ? 'answered' : 'none', tab === 'done' ? doneL : noneL, d)} /><div class="rv-body">${body()}</div><${RvFoot} list=${tab === 'done' ? doneL : noneL} label=${tab === 'done' ? '有作答' : '沒作答'} d=${tab === 'done' ? 1 : -1} onPlus=${(d) => plusGroup(task, tab === 'done' ? 'answered' : 'none', tab === 'done' ? doneL : noneL, d)} />`}
     </div>
   </div>`;
 }
@@ -2010,21 +2111,21 @@ function Detail() {
   return html`<div class="pop task-pop review">
     <div class="pop-b">
       <div class="detail-top">
-        <button class=${'back ' + hint('t-detail-back')} onClick=${act(() => { task.view = null; if (S.shared) unshare(); })}><${Icon} n="chevron-left" s=${18} />返回</button>
-        <span class="who-row"><span class="seat">${pad(seat)}</span>${nameOf(seat)}
-          <button class="btn xs sec" onClick=${act((e) => { burst(e.currentTarget); bonus(seat, 1); toast('teacher', `${nameOf(seat)} +1`); })}>+1 分</button></span>
+        <button class=${'btn sm sec dt-back ' + hint('t-detail-back')} onClick=${act(() => { task.view = null; if (S.shared) unshare(); })}><${Icon} n="arrow-left" s=${18} />返回</button>
+        <${WhoNav} t=${task} seat=${seat} idx=${idx} n=${seats.length} go=${(i) => { task.view = seats[i]; if (isShared) S.shared = { ...S.shared, seat: task.view }; }} />
         <span class="spacer"></span>
-        <div class="rv-tools" role="group" aria-label="批註工具">
+        ${isShared ? html`<button class="btn sm sec" onClick=${act(unshare)}>停止分享</button>` : html`<button class=${'btn sm ' + hint('t-share')} onClick=${act(() => share(seat))}><${Icon} n="cast" s=${16} />分享畫面</button>`}
+      </div>
+      <div class="dt-stage">
+      <${FitWork} t=${task} layers=${[sub.ink, sub.notes]}
+        draw=${html`<${DrawLayer} page=${task.page} vbh=${onPaper(task) ? BOARD_H : undefined} tool=${tool} brush=${{ c: COLORS.note, w: 4 }} color=${COLORS.note}
+          onStroke=${act((st) => { sub.notes.push(st); })} onErase=${act((pt) => eraseAt(sub.notes, pt))} onEraseRect=${act((r) => eraseRect(sub.notes, r))} />`} />
+        <div class="rv-tools dt-tools" role="group" aria-label="批註工具">
           <button class=${'rv-t' + (tool === 'pen' ? ' on' : '')} aria-pressed=${tool === 'pen'} title="畫筆" onClick=${() => setTool('pen')}><${Icon} n="pencil" s=${18} /></button>
           <button class=${'rv-t' + (tool === 'eraser' ? ' on' : '')} aria-pressed=${tool === 'eraser'} title="橡皮擦" onClick=${() => setTool('eraser')}><${Icon} n="eraser" s=${18} /></button>
           <button class="rv-t" title="清除批註" disabled=${!sub.notes.length} onClick=${act(() => { sub.notes.splice(0); })}><${Icon} n="trash" s=${18} /></button>
         </div>
-        ${isShared ? html`<button class="btn sm sec" onClick=${act(unshare)}>停止分享</button>` : html`<button class=${'btn sm ' + hint('t-share')} onClick=${act(() => share(seat))}><${Icon} n="cast" s=${16} />分享給全班</button>`}
-        <div class="mini-pager"><button aria-label="上一位" disabled=${idx <= 0} onClick=${act(() => { task.view = seats[idx - 1]; if (isShared) S.shared = { ...S.shared, seat: task.view }; })}><${Icon} n="chevron-left" s=${16} /></button><span style="padding:0 4px">${idx + 1} / ${seats.length}</span><button aria-label="下一位" disabled=${idx >= seats.length - 1} onClick=${act(() => { task.view = seats[idx + 1]; if (isShared) S.shared = { ...S.shared, seat: task.view }; })}><${Icon} n="chevron-right" s=${16} /></button></div>
       </div>
-      <${FitWork} t=${task} layers=${[sub.ink, sub.notes]}
-        draw=${html`<${DrawLayer} page=${task.page} vbh=${onPaper(task) ? BOARD_H : undefined} tool=${tool} brush=${{ c: COLORS.note, w: 4 }} color=${COLORS.note}
-          onStroke=${act((st) => { sub.notes.push(st); })} onErase=${act((pt) => eraseAt(sub.notes, pt))} onEraseRect=${act((r) => eraseRect(sub.notes, r))} />`} />
     </div>
   </div>`;
 }
@@ -2103,6 +2204,7 @@ function ShelfBuddy() {
 }
 /* 下課：老師按「結束上課」後學生畫面整頁換成這裡（Rong 原型）。心情只能選一次，點夥伴換一句下課的話 */
 const END_CF = Array.from({ length: 18 }, (_, i) => ({ left: (i * 37) % 100, d: (i % 6) * .35, x: ((i * 53) % 160) - 80, r: (i * 97) % 540, s: 10 + (i % 4) * 5, c: ['#F0FF62', '#FF87C7', '#03C5E9', '#00A36E', '#FF854A', '#7F6CDF', '#F3C11B'][i % 7], k: ['c', 'sq', 'tri', 'peb'][i % 4] }));
+/* 下課畫面精簡（2026-11-03）：拿掉英文小標、心情選項上的小夥伴、沒有內容時的鼓勵句，夥伴的話已經在泡泡裡 */
 function EndScreen() {
   const s = S.s, a = s.avatar || { shape: 'pink', eye: 'happy' }, e = s.end || { marks: 0, right: 0, sent: 0, bonus: 0, msgI: 0 }; const hint = useHint();
   const md = s.mood && MOODS.find((m) => m.id === s.mood), R = RTALK[a.shape], B = TALK[a.shape].brk;
@@ -2111,13 +2213,12 @@ function EndScreen() {
   return html`<div class="endscr" style=${{ '--sc': SH[a.shape].color }}>
     <div class="end-cf" aria-hidden="true">${END_CF.map((c) => html`<i class=${'cf ' + c.k} style=${{ left: c.left + '%', '--x': c.x + 'px', '--r': c.r + 'deg', '--d': c.d + 's', '--s': c.s + 'px', '--c': c.c }}></i>`)}</div>
     <div class="end-in">
-      <span class="end-k">CLASS DISMISSED</span>
       <h1>下課囉！</h1>
       <div class="end-say" key=${msg}>${msg}</div>
       <button class="end-pal" title="點我換一句" onClick=${act(() => { e.msgI = (e.msgI || 0) + 1; })}><${Companion} shape=${a.shape} eye=${md ? md.eye : a.eye} box=${190} cls="jump" key=${(s.mood || '') + e.msgI} /></button>
       <p class="end-q">今天上課的心情是？</p>
-      <div class="moods" role="radiogroup" aria-label="今天上課的心情">${MOODS.map((m) => html`<button role="radio" aria-checked=${s.mood === m.id} class=${'mood' + (s.mood === m.id ? ' on' : '') + ' ' + (m.id === 'learned' ? hint('s-mood') : '')} disabled=${!!s.mood && s.mood !== m.id} onClick=${act(() => { if (!s.mood) { s.mood = m.id; e.msgI = 0; } })}><${Companion} shape=${a.shape} eye=${m.eye} box=${26} cls="" />${m.label}</button>`)}</div>
-      <p class="end-sum">${parts.length ? '今天你' + parts.join('、') + '。' : '今天也辛苦了，你很棒！'}</p>
+      <div class="moods" role="radiogroup" aria-label="今天上課的心情">${MOODS.map((m) => html`<button role="radio" aria-checked=${s.mood === m.id} class=${'mood' + (s.mood === m.id ? ' on' : '') + ' ' + (m.id === 'learned' ? hint('s-mood') : '')} disabled=${!!s.mood && s.mood !== m.id} onClick=${act(() => { if (!s.mood) { s.mood = m.id; e.msgI = 0; } })}>${m.label}</button>`)}</div>
+      ${parts.length ? html`<p class="end-sum">今天你${parts.join('、')}。</p>` : ''}
       <button class=${'btn ' + hint('s-end-shelf')} onClick=${act(endToShelf)}>回書櫃<${Icon} n="arrow-right" s=${18} /></button>
     </div>
   </div>`;
@@ -2146,13 +2247,13 @@ function FollowScroll({ f }) {
   }, [key]);
   return html`<span ref=${ref} hidden></span>`;
 }
-function TeacherChip() {
+function TeacherChip({ tile }) {
   const hint = useHint();
   const lock = locked(), on = following();
   const tp = PAGES[S.t.page].nums[0];
-  return html`<button class=${'tchip' + (on ? ' on' : '') + (lock ? ' locked' : '') + ' ' + hint('s-follow')} aria-pressed=${on} disabled=${lock}
+  return html`<button class=${(tile ? 'tile tchip-tile' : 'tchip') + (on ? ' on' : '') + (lock ? ' locked' : '') + ' ' + hint('s-follow')} aria-pressed=${on} disabled=${lock} aria-label=${lock ? '老師鎖定中' : on ? '跟隨老師中' : '跟隨老師'}
     title=${lock ? '老師鎖定螢幕中，畫面一定跟著老師' : on ? '再點一次，或自己翻頁，就停止跟隨' : `點一下，跟著${TS}翻頁`} onClick=${act(() => setFollow(!on))}>
-    <span class="tav">方</span>${lock ? '老師鎖定中' : on ? '跟隨老師中' : '跟隨老師'}<span class="pgn">p.${tp}</span></button>`;
+    <span class="tav">${lock ? html`<${Icon} n="lock" s=${14} />` : '方'}</span><span class="pgn">p.${tp}</span></button>`; // 只留頭像＋頁碼：藍底＝跟隨中、白底＝沒跟、深色鎖頭＝鎖定（2026-11-03）
 }
 function StudentApp() {
   const s = S.s;
@@ -2175,7 +2276,6 @@ function StudentApp() {
         : ''}
       ${live && html`<${TaskBar} />`}
       <span class="spacer"></span>
-      ${live && html`<${TeacherChip} />`}
     </div>
     <div class="pageframe">
       <${FollowScroll} f=${following() ? focusOn(page) : null} />
@@ -2193,7 +2293,7 @@ function StudentApp() {
       <${Ring} size=${104} frac=${S.timer.done ? 0 : timeLeft() / S.timer.total} done=${S.timer.done}>
         <b class="tm-t sm">${S.timer.done ? '時間到' : mmss(timeLeft())}</b>${S.timer.paused && html`<small>暫停中</small>`}
       </${Ring}></div>`}
-    ${S.bonusPop && live && html`<div class="bonus-pop" key=${S.bonusPop.id}><${Kid} seat=${ME} box=${52} cls="jump" /><span>${TS}幫你加分了！</span></div>`}
+    ${'' /* 加分提示只留右下角夥伴說話，右上角的卡片拿掉（2026-11-03 乙練） */}
     ${s.avatar && html`<${Buddy} />`}
     ${s.pop === 'supp' && !lock && html`<${SuppPanel} side="student" />`}
     ${s.supp && html`<${SuppView} side="student" />`}
@@ -2309,26 +2409,26 @@ function TextDialog() {
 /* 檢討時的名字膠囊（沒作答那一頁等）：點一下就 +1，右邊顯示 +N，跟選擇題同一款 */
 function NameChips({ t, list }) {
   return html`<div class="who-chose names-big">${list.map((x) => { const got = (t.gave || {})[x] || 0;
-    return html`<button data-seat=${x} class=${'nm-chip' + drawnCls(x) + (got ? ' got' : '')} aria-label=${`${nameOf(x)}，點一下加 1 分`} onClick=${act((e) => { burst(e.currentTarget); bonus(x, 1); t.gave = { ...(t.gave || {}), [x]: got + 1 }; })}><span>${pad(x)} ${nameOf(x)}</span><i class="pl" key=${'g' + got}>+${got || 1}</i></button>`; })}${!list.length && html`<span class="muted">沒有人</span>`}</div>`;
+    return html`<button data-seat=${x} class=${'nm-chip sk' + drawnCls(x) + gotCls(t, x) + (S.t.scoreMode === 'minus' ? ' m' : '')} aria-label=${`${nameOf(x)}，點一下${S.t.scoreMode === 'minus' ? '扣' : '加'} 1 分`} onClick=${act((e) => rvScore(t, x, e.currentTarget.querySelector('.sk-dot')))}><span class=${'sk-dot' + kidCls(t, x)}><${SeatFace} t=${t} seat=${x} box=${52} /><${SeatSc} t=${t} seat=${x} /></span><span class="sk-nm">${nameOf(x)}</span></button>`; })}${!list.length && html`<span class="muted">沒有人</span>`}</div>`;
 }
 /* 檢討的最下面一列（大屏上老師好按）：有作答／沒作答分頁、抽籤、有作答 +1、再派一題 */
-function ReviewBar({ t, done, none }) {
-  const hint = useHint(); const tab = t.tab || 'done', list = tab === 'done' ? done : none;
-  return html`<div class="grp grp-bot">
-    ${[['done', '有作答', done.length], ['none', '沒作答', none.length]].map(([k, l, n]) => html`<button class=${tab === k ? 'on' : ''} onClick=${act(() => { t.tab = k; S.drawn = null; })}>${l} ${n}</button>`)}
-    <span class="grp-acts">
-      <button class="btn xs sec" disabled=${!list.length} onClick=${act(() => draw(list))}>${S.drawing ? html`<span class="dice-spin"><${Icon} n="dice" s=${16} /></span>` : '抽籤'}</button>
-      ${tab === 'done' && html`<button class="btn xs sec" disabled=${!done.length} onClick=${act(() => { plusGroup(t, 'answered', done); burstSeats(done); })}>有作答 +1 分</button>`}
-      <button class=${'btn xs sec ' + hint('t-next-task')} onClick=${act(endTask)}>再派一題</button></span></div>`;
+/* 檢討：名單上方一排「看哪群人」（底線分頁）＋右邊加分／扣分（管點名字）；最下面一排只放動作（2026-11-03 乙練選 C） */
+function RvHead({ tabs, cur, onTab, list, label, plusHint = '', onPlus, d = 1 }) { // 加減分都在這一排右邊：模式切換＋整組 ±1（2026-11-03 乙練）；d = 0：這組沒有整組加減分（答錯）
+  return html`<div class="rv-head"><div class="rv-tabs" role="tablist">${tabs.map(([k, l, n]) => html`<button role="tab" aria-selected=${cur === k} class=${cur === k ? 'on' : ''} onClick=${act(() => { onTab(k); S.drawn = null; })}>${l} ${n}</button>`)}</div>
+    <span class="rv-score"><${ScoreMode} />${d !== 0 && html`<button class=${'btn xs ' + (d > 0 ? 'lime ' + plusHint : 'red')} disabled=${!list.length} onClick=${act(() => { onPlus(d); if (d > 0) burstSeats(list); })}>${label} ${d > 0 ? '+1' : '−1'}</button>`}</span></div>`;
+}
+function RvFoot({ list }) {
+  const hint = useHint();
+  return html`<div class="rv-foot">
+    <button class="btn xs sec" disabled=${!list.length} onClick=${act(() => draw(list))}>${S.drawing ? html`<span class="dice-spin"><${Icon} n="dice" s=${16} /></span>` : '抽籤'}</button>
+    <button class=${'btn xs sec ' + hint('t-next-task')} onClick=${act(endTask)}>再派一題</button></div>`;
 }
 /* 聲音題的一份回答：一格一位，上面座號名字，中間播放鍵和長度，右上角 +1（點了直接加分） */
 function VoiceTile({ t, seat, live }) {
   const v = (t.voices || {})[seat], key = 'v' + t.id + seat, on = S.playingVoice === key, got = (t.gave || {})[seat] || 0; const hint = useHint();
   if (!v) return html`<div class="vt empty"><div class="vt-h"><span class="seat off">${pad(seat)}</span>${nameOf(seat)}</div><span class="vt-none">未作答</span></div>`;
   return html`<div data-seat=${seat} class=${'vt' + drawnCls(seat) + (on ? ' on' : '')}>
-    <div class="vt-h"><span class="seat">${pad(seat)}</span>${nameOf(seat)}
-      ${live !== false && got > 0 && html`<span class="vt-score up" key=${'sc' + got}>+${got}</span>`}
-      ${live !== false && html`<button class=${'vt-plus' + (got ? ' got' : '')} title=${`幫 ${nameOf(seat)} 加 1 分`} onClick=${act((e) => { burst(e.currentTarget); bonus(seat, 1); t.gave = { ...(t.gave || {}), [seat]: got + 1 }; toast('teacher', `${pad(seat)} ${nameOf(seat)} +1`); })}>+1</button>`}</div>
+    <div class="vt-h">${live !== false ? html`<${SeatBtn} t=${t} seat=${seat} />` : html`<span class="seat">${pad(seat)}</span>`}${nameOf(seat)}</div>
     <button class=${'vt-play ' + (seat === ME ? hint('t-voice-play') : '')} aria-label=${(on ? '暫停 ' : '播放 ') + nameOf(seat)} onClick=${act(() => { playVoice(key); S.flags.voicePlayed = true; })}>
       <span class="vplay"><${Icon} n=${on ? 'pause' : 'play'} s=${14} /></span><span class="vt-wave" aria-hidden="true">${[6, 10, 14, 9, 12, 7, 11, 8].map((h) => html`<i style=${{ height: h + 'px' }}></i>`)}</span><span class="vsec">${mmss(v.sec)}</span></button>
   </div>`;
@@ -2412,7 +2512,7 @@ function AdminApp() { return html`<${Shelf} side="admin" />`; }
 const hit = (q, ...xs) => !q.trim() || xs.some((x) => String(x || '').toLowerCase().includes(q.trim().toLowerCase()));
 function Accounts() {
   const A = S.admin; const hint = useHint();
-  const tab = (k, label, n) => html`<button class=${(A.tab === k ? 'on ' : '') + hint('a-tab-' + k)} onClick=${act(() => { A.tab = k; A.menu = null; })}>${label} <span class="muted" style="font-weight:400">${n}</span></button>`;
+  const tab = (k, label, n) => html`<button class=${(A.tab === k ? 'on ' : '') + hint('a-tab-' + k)} onClick=${act(() => { A.tab = k; A.rowMenu = null; })}>${label} <span class="muted" style="font-weight:400">${n}</span></button>`;
   const studentCount = (A.made501 ? STUDENTS.length : 0) + A.others.length;
   const add = { schools: ['新增學校', () => { A.modal = { school: { name: A.madeSchool ? '' : SCHOOL, type: '學校', stage: '國小' } }; }], teachers: ['新增老師', () => { A.modal = { teacher: A.madeTeacher ? { school: A.madeSchool ? SCHOOL : A.schools[0].name, email: '', pw: genPw(), last: '', first: '' } : { school: A.madeSchool ? SCHOOL : A.schools[0].name, email: 'fang@star.example', pw: genPw(), last: '方', first: '小明' } }; }], students: ['新增學生', () => { A.modal = { student: true }; A.justMade = false; }] }[A.tab];
   const ph = { schools: '搜尋學校', teachers: '搜尋教師', students: '搜尋學生' }[A.tab];
@@ -2442,8 +2542,12 @@ function ScrollArea({ cls, children }) {
 const Empty = ({ cols }) => html`<tr><td colspan=${cols} style="text-align:center;padding:40px 0;color:var(--text-3)">找不到符合的資料</td></tr>`;
 /* 列選單（2026-11-03）：「編輯資料」一個入口（基本資料、班級、重設密碼都在裡面），分隔線下面才是停用、刪除。
    items：[文字, 動作, 是否紅字] 或 '-' 分隔線 */
-const rowMenu = (A, id, items) => html`<td class="r"><button class="dots" aria-label="更多" aria-expanded=${A.menu === id} onClick=${act((e) => { e.stopPropagation(); A.menu = A.menu === id ? null : id; })}>⋯</button>
-  ${A.menu === id && html`<div class="mini-menu" onClick=${(e) => e.stopPropagation()}>${items.map((it) => (it === '-' ? html`<i class="sep"></i>` : html`<button class=${it[2] ? 'danger' : ''} onClick=${act(() => { A.menu = null; it[1](); })}>${it[0]}</button>`))}</div>`}</td>`;
+/* 列的「⋯」選單：用自己的 rowMenu，不跟右上角頭像選單（A.menu）共用，按了才不會連頭像選單一起跳出來；
+   靠近清單底部就往上開，不被捲動區切掉（2026-11-03 乙練抓到） */
+const rowMenu = (A, id, items) => html`<td class="r"><button class="dots" aria-label="更多" aria-expanded=${A.rowMenu === id} onClick=${act((e) => { e.stopPropagation(); A.menu = false;
+    const box = e.currentTarget.closest('.acc-list'), r = e.currentTarget.getBoundingClientRect(), br = box ? box.getBoundingClientRect() : null;
+    A.rowUp = !!br && br.bottom - r.bottom < 200; A.rowMenu = A.rowMenu === id ? null : id; })}>⋯</button>
+  ${A.rowMenu === id && html`<div class=${'mini-menu' + (A.rowUp ? ' up' : '')} onClick=${(e) => e.stopPropagation()}>${items.map((it) => (it === '-' ? html`<i class="sep"></i>` : html`<button class=${it[2] ? 'danger' : ''} onClick=${act(() => { A.rowMenu = null; it[1](); })}>${it[0]}</button>`))}</div>`}</td>`;
 const OFF = () => html` <span class="chip gray">已停用</span>`;
 /* 臨時密碼：8 碼、去掉容易看錯的 0 o 1 l */
 const genPw = () => mkPw(Math.random);
@@ -2473,9 +2577,9 @@ function AdminSchools() {
     ['編輯資料', () => { A.modal = { editSchool: s, d: { name: s.name, type: s.type, stage: s.stage } }; }],
     ['下載帳密清單', () => { const rows = schoolAccountRows(s.name); if (!rows.length) return toast('admin', `${s.name}還沒有任何帳號`); downloadCsv('admin', `${s.name}_帳密清單.csv`, ACCT_HEADER, rows, `已下載 ${s.name} 的帳密清單（${rows.filter((r) => r[0] === '老師').length} 位老師、${rows.filter((r) => r[0] === '學生').length} 位學生）`); }],
     '-',
-    [s.off ? '啟用' : '停用', () => { s.off = !s.off; toast('admin', s.off ? `已停用 ${s.name}，這所學校的師生暫時不能登入` : `已啟用 ${s.name}`, s.off ? undefined : 'check'); }],
-    ['刪除', () => { A.modal = s.students + s.teachers ? { notice: { title: `還不能刪除 ${s.name}`, body: `這所學校還有 ${s.teachers} 位老師、${s.students} 位學生。先把這些帳號刪除或轉到其他學校，或改用「停用學校」讓他們暫時不能登入。` } }
-      : { confirm: { title: `刪除 ${s.name}？`, body: '學校資料會刪除，之後要用得重新建立。', label: '刪除學校', onOk: () => { A.schools.splice(A.schools.indexOf(s), 1); toast('admin', `已刪除 ${s.name}`); } } }; }, true],
+    [s.off ? '啟用' : '停用', () => { s.off = !s.off; toast('admin', s.off ? `已停用 ${s.name}` : `已啟用 ${s.name}`, s.off ? undefined : 'check'); }],
+    ['刪除', () => { A.modal = s.students + s.teachers ? { notice: { title: `還不能刪除 ${s.name}`, body: `還有 ${s.teachers} 位老師、${s.students} 位學生。先刪除或轉走帳號，或改用「停用」。` } }
+      : { confirm: { title: `刪除 ${s.name}？`, body: '刪除後無法復原。', label: '刪除學校', onOk: () => { A.schools.splice(A.schools.indexOf(s), 1); toast('admin', `已刪除 ${s.name}`); } } }; }, true],
   ];
   return html`<table class="tbl"><thead><tr><th>學校名稱</th><th>學制</th><th>類型</th><th>學生</th><th>老師</th><th></th></tr></thead><tbody>
     ${!rows.length && html`<${Empty} cols=${6} />`}${rows.map((s, i) => html`<tr class=${(s.fresh ? 'fresh' : '') + (s.off ? ' off' : '')}><td>${s.name}${s.off && OFF()}</td><td>${s.stage}</td><td><span class=${'chip' + (s.type === '學校' ? '' : ' gray')}>${s.type}</span></td><td class="num">${s.students}</td><td class="num">${s.teachers}</td>${rowMenu(A, 'sc' + i, menu(s))}</tr>`)}
@@ -2486,11 +2590,11 @@ function AdminTeachers() {
   /* 關鍵字對姓名、信箱、學校、班級、科目都找（2026-11-03） */
   const rows = A.teachers.filter((t) => { const cs = teacherClasses(t); return hit(A.q.teachers, t.name, t.email, t.school, ...cs.map((x) => x.c), ...cs.map((x) => x.subj)); });
   const menu = (t) => [
-    ['編輯資料', () => { A.modal = { editTeacher: t, d: { name: t.name, email: t.email, school: t.school, classes: teacherClasses(t), pw: null } }; }],
+    ['編輯資料', () => { S.flags.editTeacherSeen = true; A.modal = { editTeacher: t, d: { name: t.name, email: t.email, school: t.school, classes: teacherClasses(t), pw: null } }; }],
     '-',
-    [t.off ? '啟用' : '停用', () => { if (t.me) return toast('admin', `${TEACHER}是示範老師，先不停用`); t.off = !t.off; toast('admin', t.off ? `已停用 ${t.name} 的帳號，班級設定保留` : `已啟用 ${t.name} 的帳號`, t.off ? undefined : 'check'); }],
-    ['刪除', () => { if (t.me) return toast('admin', `${TEACHER}是示範老師，先不刪除`); const cs = teacherClasses(t);
-      A.modal = { confirm: { title: `刪除 ${t.name} 的帳號？`, body: `${cs.length ? `會一起解除 ${cs.map((x) => `${x.c} · ${x.subj}`).join('、')} 的任教設定，` : ''}這位老師之後不能登入。要暫時擋住登入的話，用「停用帳號」就好。`, label: '刪除帳號', onOk: () => { A.teachers.splice(A.teachers.indexOf(t), 1); const sc = schoolOf(t.school); if (sc) sc.teachers = Math.max(0, sc.teachers - 1); toast('admin', `已刪除 ${t.name} 的帳號`); } } }; }, true],
+    [t.off ? '啟用' : '停用', () => { if (t.me) return toast('admin', '示範老師不能停用'); t.off = !t.off; toast('admin', t.off ? `已停用 ${t.name}` : `已啟用 ${t.name}`, t.off ? undefined : 'check'); }],
+    ['刪除', () => { if (t.me) return toast('admin', '示範老師不能刪除'); const cs = teacherClasses(t);
+      A.modal = { confirm: { title: `刪除 ${t.name} 的帳號？`, body: `${cs.length ? `會一起解除 ${cs.map((x) => `${x.c} · ${x.subj}`).join('、')}。` : ''}暫時不用請改用「停用」。`, label: '刪除帳號', onOk: () => { A.teachers.splice(A.teachers.indexOf(t), 1); const sc = schoolOf(t.school); if (sc) sc.teachers = Math.max(0, sc.teachers - 1); toast('admin', `已刪除 ${t.name} 的帳號`); } } }; }, true],
   ];
   return html`<table class="tbl"><thead><tr><th>學校</th><th>姓名</th><th>帳號（信箱）</th><th>班級</th><th>科目</th><th></th></tr></thead><tbody>
     ${!rows.length && html`<${Empty} cols=${6} />`}${rows.map((t, i) => { const cs = teacherClasses(t); const none = html`<span class="muted">—</span>`;
@@ -2504,12 +2608,12 @@ function AdminStudents() {
     ...A.others.map((o) => ({ ...o, k: 'o' + o.id, school: SCHOOL, src: o, other: true })), // 單筆建的在最上面，剛建好的看得到
     ...(A.made501 ? STUDENTS.filter((s) => !A.deleted.includes(s.seat)).map((s) => ({ k: 's' + s.seat, cls: S.removed.includes(s.seat) ? '' : '501', seat: s.seat, name: s.name, acct: s.acct, school: SCHOOL, off: !!A.off[s.seat], fresh: A.justMade, src: s })) : []),
   ].filter((r) => (A.filter === '全部' || (A.filter === '未分班' ? !r.cls : r.cls === A.filter)) && hit(A.q.students, r.school, r.cls || '未分班', r.name, r.acct)); // 沒有班級的打「未分班」也找得到
-  const demo = (r) => (!r.other && r.seat === ME ? (toast('admin', '12 號陳小宇是示範學生，先不動他'), true) : false);
+  const demo = (r) => (!r.other && r.seat === ME ? (toast('admin', '示範學生不能改'), true) : false);
   const menu = (r) => [
     ['編輯資料', () => { A.modal = { editStudent: r, d: { name: r.name, seat: r.other ? String(r.seat) : pad(r.seat), cls: r.cls, pw: null } }; }],
     '-',
-    [r.off ? '啟用' : '停用', () => { if (demo(r)) return; const v = !r.off; if (r.other) r.src.off = v; else A.off[r.seat] = v; toast('admin', v ? `已停用 ${r.name} 的帳號，資料和紀錄都保留` : `已啟用 ${r.name} 的帳號`, v ? undefined : 'check'); }],
-    ['刪除', () => { if (demo(r)) return; A.modal = { confirm: { title: `刪除 ${r.name}（${r.acct}）？`, body: '帳號和這位學生的學習紀錄都會刪除。只是轉學或暫時不用，建議用「停用帳號」或把班級改成「未分班」。', label: '刪除帳號', onOk: () => { if (r.other) A.others.splice(A.others.indexOf(r.src), 1); else A.deleted.push(r.seat); const sc = schoolOf(SCHOOL); if (sc) sc.students = Math.max(0, sc.students - 1); toast('admin', `已刪除 ${r.name} 的帳號`); } } }; }, true],
+    [r.off ? '啟用' : '停用', () => { if (demo(r)) return; const v = !r.off; if (r.other) r.src.off = v; else A.off[r.seat] = v; toast('admin', v ? `已停用 ${r.name}` : `已啟用 ${r.name}`, v ? undefined : 'check'); }],
+    ['刪除', () => { if (demo(r)) return; A.modal = { confirm: { title: `刪除 ${r.name}（${r.acct}）？`, body: '學習紀錄會一起刪除。暫時不用請改用「停用」。', label: '刪除帳號', onOk: () => { if (r.other) A.others.splice(A.others.indexOf(r.src), 1); else A.deleted.push(r.seat); const sc = schoolOf(SCHOOL); if (sc) sc.students = Math.max(0, sc.students - 1); toast('admin', `已刪除 ${r.name} 的帳號`); } } }; }, true],
   ];
   return html`<div>
     <table class="tbl"><thead><tr><th>學校</th><th>班級</th><th>座號</th><th>姓名</th><th>帳號</th><th></th></tr></thead><tbody>
@@ -2568,7 +2672,7 @@ function AdminModals() {
       if (r.other) Object.assign(r.src, { name: nm, seat: +d.seat || r.seat, cls: d.cls });
       else { r.src.name = nm; const i = S.removed.indexOf(r.seat); if (d.cls === '' && i < 0) S.removed.push(r.seat); if (d.cls && i >= 0) S.removed.splice(i, 1); }
       if (d.pw) r.src.pw = d.pw;
-      toast('admin', d.pw ? '已儲存，密碼已重設' : '已儲存，老師端同步更新', 'check'); }, false, !d.name.trim() || (!fixed && !d.seat))}</div>`, act(close), 'submit-dlg'); }
+      toast('admin', d.pw ? '已儲存，密碼已重設' : '已儲存', 'check'); }, false, !d.name.trim() || (!fixed && !d.seat))}</div>`, act(close), 'submit-dlg'); }
   if (m.confirm) { const c = m.confirm;
     return html`<div class="scrim" onClick=${act((e) => { if (e.target === e.currentTarget) close(); })}><div class="dialog" role="alertdialog" aria-label=${c.title}>
       <div class="pop-h"><h4>${c.title}</h4></div><div class="pop-b"><p class="dlg-p">${c.body}</p>${foot(c.label, c.onOk, true)}</div></div></div>`; }
@@ -2600,13 +2704,10 @@ function StudentCreateDialog() {
 function AdminCreate() {
   const A = S.admin, d = A.draft; const hint = useHint();
   const mode = A.mode;
-  const cancel = html`<button class="btn sec" onClick=${act(() => { A.modal = null; A.justMade = false; })}>取消</button>`; // 取消放下面，不放右上角 ×（2026-11-03）
-  if (A.made501 && A.justMade) return html`<div>
-    <div class="done-card"><${Icon} n="check" s=${24} /><b>已建立 501 的 30 個學生帳號</b><span class="spacer"></span><button class="btn sm sec" onClick=${act(() => { downloadCsv('admin', '501_帳密清單.csv', ACCT_HEADER, schoolAccountRows(SCHOOL).filter((r) => r[0] === '學生' && r[2] === '501'), '已下載 501 的帳密清單'); })}><${Icon} n="download" s=${16} />下載帳密清單</button></div>
-    <div class="dialog-foot" style="margin-top:20px"><button class="btn" onClick=${act(() => { A.modal = null; A.justMade = false; })}>完成</button></div>
-  </div>`;
+  const cancel = html`<button class="btn sec" onClick=${act(() => { A.modal = null; A.justMade = false; })}>${A.made501 && A.justMade ? '完成' : '取消'}</button>`; // 取消放下面，不放右上角 ×（2026-11-03）
   return html`<div>
-    <div class="seg" role="group" aria-label="建立方式">${[['single', '單筆'], ['multi', '多筆'], ['excel', 'Excel 匯入']].map(([k, l]) => html`<button aria-pressed=${mode === k} onClick=${act(() => { A.mode = k; })}>${l}</button>`)}</div>
+    ${A.made501 && A.justMade && html`<div class="done-card"><${Icon} n="check" s=${24} /><b>已建立 501 的 30 個學生帳號</b><span class="spacer"></span><button class="btn sm sec" onClick=${act(() => { downloadCsv('admin', '501_帳密清單.csv', ACCT_HEADER, schoolAccountRows(SCHOOL).filter((r) => r[0] === '學生' && r[2] === '501'), '已下載 501 的帳密清單'); })}><${Icon} n="download" s=${16} />下載帳密清單</button></div>`}
+    <div class="seg" role="group" aria-label="建立方式">${[['single', '單筆'], ['multi', '多筆'], ['excel', 'Excel 匯入']].map(([k, l]) => html`<button aria-pressed=${mode === k} onClick=${act(() => { A.mode = k; if (k === 'excel') S.flags.excelSeen = true; })}>${l}</button>`)}</div>
     ${mode === 'excel' && html`<div class="form-grid" style="margin-bottom:18px"><div class="fld"><label for="ac-school">學校</label><${Combo} id="ac-school" value=${A.madeSchool ? SCHOOL : S.admin.schools[0].name} options=${S.admin.schools.map((x) => x.name)} onChange=${(v) => { if (v !== SCHOOL) toast('admin', `示範只開放${SCHOOL}`); }} placeholder="輸入或展開搜尋" /></div></div>`}
     ${mode === 'multi' && html`<div class="form-grid">
       <div class="fld"><label for="ac-school">學校</label><${Combo} id="ac-school" value=${A.madeSchool ? SCHOOL : S.admin.schools[0].name} options=${S.admin.schools.map((x) => x.name)} onChange=${(v) => { if (v !== SCHOOL) toast('admin', `示範只開放${SCHOOL}`); }} placeholder="輸入或展開搜尋" /></div>
@@ -2684,10 +2785,10 @@ const goTeacherReaderLive = () => { ensureLive(); S.t.screen = 'reader'; };
 const CHAPTERS = [
   { n: 1, title: '帳號與班級', lede: '管理員在內部後台依序建學校、老師、學生的帳號，老師登入後自己加入任教的班級，在班級頁管理學生和學生的工具列。學生第一次登入先選一位形狀夥伴：個性跟著形狀走，眼睛只決定長相。' },
   { n: 2, title: '開課與同步', lede: '老師選班級開始上課，學生進課堂就自動跟隨老師：跟頁碼，也跟老師聚焦的段落和句子，不帶老師的畫記。能不能取消跟隨、自己翻頁，看老師選自由閱讀還是鎖定螢幕。' },
-  { n: 3, title: '到課與加分', lede: '點上方「已加入」打開全班名單：一開始大家都是 0 分，只看到座號，看得出誰還沒登入。預設是加分模式，被加分或扣分的人才變成自己的形狀夥伴。週期是「開始上課」到「結束上課」。' },
+  { n: 3, title: '到課與加分', lede: '按左欄最下面的「上課中」，點「501 29/30」打開全班名單：一開始大家都是 0 分，只看到座號，看得出誰還沒登入。預設是加分模式，被加分或扣分的人才變成自己的形狀夥伴。週期是「開始上課」到「下課」。' },
   { n: 4, title: '教學工具', lede: '畫筆和螢光筆可以選顏色、粗細，橡皮擦拉框清除，雷射筆畫完就淡掉。計時器同步到學生畫面。分組、白板、便利貼、貼紙收在工具箱，左欄的工具可以自己增減。' },
   { n: 5, title: '任務', lede: '題目用口頭說，老師選題型就派出。選擇題作答時只顯示幾人答完，結束作答後看分布、點出正確答案再公布，一鍵幫答對的人加分；文字題、手寫題、聲音題即時回收；手寫題可以畫在課本上，也可以畫在白紙、方格、四線格。' },
-  { n: 6, title: '下課', lede: '老師按「結束上課」，這堂課的加分自動存成一筆紀錄。學生畫面整頁換成下課回饋，形狀夥伴陪學生收尾。下課的畫面和夥伴說的話取自 Rong 的形狀夥伴原型。' },
+  { n: 6, title: '下課', lede: '老師按「下課」，這堂課的加分自動存成一筆紀錄。學生畫面整頁換成下課回饋，形狀夥伴陪學生收尾。下課的畫面和夥伴說的話取自 Rong 的形狀夥伴原型。' },
   { n: 7, title: '學習紀錄', lede: '每次上課的加分、派過的任務都留在班級頁的「學習紀錄」。老師課後回看、補題目，只看得到自己科目的紀錄。' },
   { n: 8, title: '書櫃互動', lede: '學生的書櫃上，形狀夥伴會依情境出現、說話。取自 Rong 的形狀夥伴原型。' },
 ];
@@ -2712,17 +2813,20 @@ const STEPS = {
       if (S.t.shelfTab !== 'classes') { S.t.shelfTab = 'classes'; return; }
       if (S.t.modal !== 'join') { S.t.modal = 'join'; S.t.joinDraft = { c: '501', subj: '自然' }; return; }
       joinClass('501', '自然'); } },
-    { side: 'teacher', hint: 't-classcard', text: '點開 501 班級卡：學生依座號排列，「⋯」可以改學生資料、移出班級', done: () => !!S.flags.classSeen, run: () => { ensureTeacher(); openClass('501', '自然'); } },
-    { side: 'teacher', hint: () => (S.t.classView && S.t.classView.tab === 'toolbar' ? (S.tbDraft && S.tbDraft.includes('sticky') ? 't-toolsave' : 't-tool-sticky') : 't-tooltab'), text: '到「學生工具列」勾學生左欄要放的工具（最多 6 個），存起來', done: () => !!S.flags.toolbarSaved, run: () => { ensureTeacher(); openClass('501', '自然', 'toolbar'); S.tbDraft = ['pen', 'highlighter', 'eraser', 'undo', 'sticky']; S.toolbar['501·自然'] = [...S.tbDraft]; S.flags.toolbarSaved = true; toast('teacher', '已儲存：把「清除」換成「便利貼」'); } },
-    { side: 'student', hint: () => (S.s.screen === 'login' ? 's-login' : S.s.pickStep === 1 ? (S.s.draft.shape ? 's-shape-next' : 's-shape') : S.s.draft.eye === 'happy' ? 's-pick-done' : 's-eye'), text: '學生第一次登入，先選一位形狀夥伴（每個形狀有自己的個性和口頭禪），再幫它選一雙眼睛', done: () => !!S.s.avatar, run: () => { if (S.s.screen === 'login') studentLogin(); S.s.draft = { shape: 'pink', eye: 'happy' }; finishPick(); } },
+    { side: 'teacher', hint: 't-classcard', text: '點開 501 班級卡：學生依座號排列，「⋯」可以改學生資料、移出班級', done: () => !!S.flags.classSeen, run: () => { ensureTeacher(); openClass('501', '自然'); later(900, () => { if (S.t.classView) S.t.classView.menu = 3; }); later(2600, () => { if (S.t.classView) S.t.classView.menu = null; S.flags.classSeen = true; }); } },
+    { side: 'teacher', hint: () => (S.t.classView && S.t.classView.tab === 'toolbar' ? (S.tbDraft && S.tbDraft.includes('sticky') ? 't-toolsave' : 't-slot') : 't-tooltab'), text: '到「學生工具列」：預覽的左欄就是學生看到的樣子。按最後一格的＋加入便利貼，拖曳可以換順序、按 × 拿掉，存起來', done: () => !!S.flags.toolbarSaved, run: () => { ensureTeacher(); openClass('501', '自然', 'toolbar'); S.tbDraft = S.tbDraft || [...S.toolbar['501·自然']]; later(700, () => { S.tbOpen = true; }); later(1700, () => { S.tbOpen = false; if (!S.tbDraft.includes('sticky')) S.tbDraft.push('sticky'); }); later(2700, () => { const i = S.tbDraft.indexOf('sticky'); S.tbDraft.splice(i, 1); S.tbDraft.splice(Math.max(0, i - 2), 0, 'sticky'); }); later(3700, () => { S.toolbar['501·自然'] = [...S.tbDraft]; S.flags.toolbarSaved = true; toast('teacher', '已儲存'); }); } },
+    { side: 'student', hint: () => (S.s.screen === 'login' ? 's-login' : S.s.pickStep === 1 ? (S.s.draft.shape ? 's-shape-next' : 's-shape') : S.s.draft.eye === 'happy' ? 's-pick-done' : 's-eye'), text: '學生第一次登入，先選一位形狀夥伴（每個形狀有自己的個性和口頭禪），再幫它選一雙眼睛', done: () => !!S.s.avatar, run: () => { if (S.s.screen === 'login') studentLogin(); S.s.pickStep = 1; later(800, () => { S.s.draft = { shape: 'pink', eye: 'big' }; }); later(1800, () => { S.s.pickStep = 2; }); later(2800, () => { S.s.draft.eye = 'happy'; }); later(3800, () => finishPick()); } },
+    { side: 'admin', hint: null, text: '學生名單也可以用 Excel 一次匯入：「新增學生」切到「Excel 匯入」，下載範本照欄位填好再上傳', done: () => !!S.flags.excelSeen, run: () => { S.view = 'admin'; adminStep('students', { student: true }, () => { S.admin.mode = 'excel'; S.flags.excelSeen = true; }); } },
+    { side: 'admin', hint: null, text: '老師換班、多教一班時，管理員在「教師」那一列按「⋯ → 編輯資料」改任教班級，老師的班級星艦會跟著變', done: () => !!S.flags.editTeacherSeen, run: () => { S.view = 'admin'; const A = S.admin; if (A.shelfTab !== 'accounts') { A.shelfTab = 'accounts'; return; } if (A.tab !== 'teachers') { A.tab = 'teachers'; return; } const t = A.teachers.find((x) => x.me) || A.teachers[0]; A.modal = { editTeacher: t, d: { name: t.name, email: t.email, school: t.school, classes: teacherClasses(t), pw: null } }; S.flags.editTeacherSeen = true; } },
+    { side: 'teacher', hint: null, text: '老師在 501 班級頁按「帳號小卡」，印出每位學生的帳號、密碼和 QR code，剪開發給學生', done: () => !!S.flags.cardsSeen, run: () => { if (S.view === 'admin') S.view = 'split'; ensureTeacher(); openClass('501', '自然'); S.t.modal = { cards: '501' }; S.flags.cardsSeen = true; } },
   ],
   2: [
     { side: 'teacher', hint: () => (S.t.shelfTab === 'hall' ? 't-open' : null), text: `老師回「地球大廳」，打開《${BOOK_TITLE}》`, done: () => S.t.screen === 'reader' || S.cls.everLive, run: () => { S.t.shelfTab = 'hall'; S.t.classView = null; openBook(); } },
-    { side: 'teacher', hint: () => (S.t.modal ? 't-start-go' : 't-start'), text: '按「開始上課」，選 501 · 自然和同步模式，從這一頁開始', done: () => S.cls.everLive, run: () => { if (S.t.screen !== 'reader') openBook(); startClass({ cid: '501', subj: '自然', mode: 'free' }); } },
-    { side: 'student', hint: () => (S.s.screen === 'login' ? 's-login' : 's-join'), text: '學生收到「老師開始上課了」，按加入就自動跟隨老師的頁面', done: () => S.s.inClass, run: () => { if (S.s.screen === 'login') studentLogin(); if (S.s.screen === 'pick') finishPick(); if (!S.s.inClass) joinStudent(); } },
-    { side: 'teacher', hint: 't-mode', text: '切到「鎖定螢幕」：學生跟著老師翻頁，不能畫記', done: () => S.cls.modeChanged, run: () => setMode(S.cls.mode === 'free' ? 'lock' : 'free') },
-    { side: 'teacher', hint: () => (S.t.supp ? null : S.t.pop === 'supp' ? 't-supp-orion' : 't-supp'), text: '鎖定螢幕時，老師從左欄「補充資源」打開「把星星連起來：獵戶座」，學生畫面跟著打開同一張；老師關掉，學生的也一起關掉', done: () => !!S.flags.suppSynced, run: () => { goTeacherReaderLive(); if (S.cls.mode !== 'lock') setMode('lock'); S.t.page = 0; S.t.pop = 'supp'; openSupp('teacher', suppById('orion')); } },
-    { side: 'teacher', hint: 't-focus', text: '老師點課文的一段，那一段留著、其他調暗，學生畫面同步聚焦同一段；再點一下段裡的一句，只留那一句；在那一句上點兩下標黃', done: () => !!S.flags.focusSent, run: () => { goTeacherReaderLive(); S.t.tool = null; S.focus = { page: S.t.page, blk: 'p1', sn: 1, mark: false }; S.flags.focusSent = true; } },
+    { side: 'teacher', hint: () => (S.t.modal ? 't-start-go' : 't-start'), text: '按「開始上課」，選 501 · 自然和同步模式，從這一頁開始', done: () => S.cls.everLive, run: () => { if (S.t.screen !== 'reader') openBook(); S.t.modal = 'start'; S.t.draft = { ci: Math.max(0, S.t.classes.findIndex((x) => x.c === '501')), mode: 'free' }; later(1500, () => { S.t.modal = null; startClass({ cid: '501', subj: '自然', mode: 'free' }); }); } },
+    { side: 'student', hint: () => (S.s.screen === 'login' ? 's-login' : 's-join'), text: '學生收到「老師開始上課了」，按加入就自動跟隨老師的頁面', done: () => S.s.inClass, run: () => { if (S.s.screen === 'login') studentLogin(); if (S.s.screen === 'pick') finishPick(); if (!S.s.inClass) { S.s.invite = true; later(1500, () => joinStudent()); } } },
+    { side: 'teacher', hint: 't-mode', text: '按左欄最下面的「上課中」再按「鎖定」：學生跟著老師翻頁，不能畫記；再按一次回到自由閱讀', done: () => S.cls.modeChanged, run: () => { goTeacherReaderLive(); setMode('lock'); later(2200, () => setMode('free')); } },
+    { side: 'teacher', hint: () => (S.t.supp ? null : S.t.pop === 'supp' ? 't-supp-orion' : 't-supp'), text: '鎖定螢幕時，老師從左欄「補充資源」打開「把星星連起來：獵戶座」，學生畫面跟著打開同一張；老師關掉，學生的也一起關掉', done: () => !!S.flags.suppSynced, run: () => { goTeacherReaderLive(); if (S.cls.mode !== 'lock') setMode('lock'); S.t.page = 0; S.t.pop = 'supp'; later(900, () => openSupp('teacher', suppById('orion'))); later(3400, () => { closeSupp('teacher'); S.t.pop = null; }); } },
+    { side: 'teacher', hint: 't-focus', text: '老師點課文的一段，那一段留著、其他調暗，學生畫面同步聚焦同一段；再點一下段裡的一句，只留那一句；在那一句上點兩下標黃', done: () => !!S.flags.focusSent, run: () => { goTeacherReaderLive(); S.t.tool = null; S.focus = { page: S.t.page, blk: 'p1', sn: null, mark: false }; S.flags.focusSent = true; later(1400, () => { S.focus = { ...S.focus, sn: 1 }; }); later(2800, () => { S.focus = { ...S.focus, mark: true }; }); } },
     { side: 'student', hint: () => (S.s.rs && S.s.rs.fs > DEFAULT_RS.fs ? null : 's-settings'), text: '（試做）學生在「設定」把字調大，這一頁變長、要往下捲才看得完。老師點這頁最下面那段，跟隨中的學生畫面會自己捲到那一段', done: () => !!S.flags.followScrolled, run: () => {
       goTeacherReaderLive(); S.t.tool = null; S.t.pop = null; S.s.pop = null;
       if (!locked() && !S.s.follow) setFollow(true);
@@ -2731,60 +2835,64 @@ const STEPS = {
       later(450, () => { S.focus = { page: 0, blk: 'p2', sn: null, mark: false }; S.flags.focusSent = true; });
       later(1600, () => { S.flags.followScrolled = true; });
     } },
-    { side: 'student', hint: 's-follow', text: '回到自由閱讀，學生還在跟隨中；點右上角「跟隨老師中」或自己翻頁就取消跟隨，再點一次又跟回來', done: () => S.s.toggled, run: () => { if (S.cls.mode === 'lock') setMode('free'); setFollow(!S.s.follow); } },
+    { side: 'student', hint: 's-follow', text: '回到自由閱讀，學生還在跟隨中；跟隨中，左欄最下面的頁數是藍色、只有老師頭像和頁碼，沒有箭頭，不會誤觸翻頁。點一下就變回自己翻頁；按上方的老師頭像又跟回來', done: () => S.s.toggled, run: () => { if (S.cls.mode === 'lock') setMode('free'); setFollow(false); later(1800, () => setFollow(true)); } },
     { side: 'student', hint: () => (S.s.pop === 'supp' ? 's-supp-chart' : 's-supp'), text: '自由閱讀時，學生自己打開「補充資源」看這一頁有什麼。自己點開的只有自己看得到，老師那邊不會出現', done: () => !!S.flags.sSuppOpened, run: () => { goTeacherReaderLive(); if (S.cls.mode === 'lock') setMode('free'); closeSupp('teacher'); S.t.pop = null; S.s.pop = 'supp'; openSupp('student', suppById(sPage() === 0 ? 'chart' : 'tri')); } },
   ],
   3: [
-    { side: 'teacher', hint: 't-roster', text: '點上方「已加入」打開全班名單：一開始大家都是 0 分，只看到座號，看得出誰還沒登入', done: () => !!S.flags.rosterSeen, run: () => { S.t.pop = 'roster'; S.flags.rosterSeen = true; S.flags.scoreOpened = true; S.t.scoreMode = 'plus'; } },
-    { side: 'teacher', hint: () => (S.t.pop !== 'roster' ? 't-roster' : 't-me'), text: '預設就是加分模式，點誰就幫誰 +1，加過分的會變成自己的形狀夥伴。點 12 號陳小宇，學生端右上角會跳提示', done: () => !!S.flags.meScored, run: () => { goTeacherReaderLive(); S.t.pop = 'roster'; S.t.scoreMode = 'plus'; bonus(ME, 1); [3, 8, 21].forEach((x) => bonus(x, 1)); } },
-    { side: 'student', hint: null, text: '學生端右上角跳出加分提示。形狀夥伴平常躲著讓學生專心，這時才從右下角冒出來開心地說一句話，說完又躲回去', done: () => !!S.flags.buddyBonus, run: () => { if (!S.flags.meScored) { goTeacherReaderLive(); bonus(ME, 1); } S.flags.buddyBonus = true; } },
+    { side: 'teacher', hint: 't-roster', text: '按左欄最下面的「上課中」，點「501 29/30」打開全班名單：一開始大家都是 0 分，只看到座號，看得出誰還沒登入', done: () => !!S.flags.rosterSeen, run: () => { S.t.pop = 'roster'; S.flags.rosterSeen = true; S.flags.scoreOpened = true; S.t.scoreMode = 'plus'; } },
+    { side: 'teacher', hint: () => (S.t.pop !== 'roster' ? 't-roster' : 't-me'), text: '預設就是加分模式，點誰就幫誰 +1，加過分的會變成自己的形狀夥伴。點 12 號陳小宇，學生端會跳提示', done: () => !!S.flags.meScored, run: () => { goTeacherReaderLive(); S.t.pop = 'roster'; S.t.scoreMode = 'plus'; bonus(ME, 1); [3, 8, 21].forEach((x) => bonus(x, 1)); } },
+    { side: 'student', hint: null, text: '學生被加分時，形狀夥伴從右下角冒出來開心地說一句話，說完又躲回去', done: () => !!S.flags.buddyBonus, run: () => { if (!S.flags.meScored) { goTeacherReaderLive(); bonus(ME, 1); } S.flags.buddyBonus = true; } },
     { side: 'teacher', hint: 't-class', text: '大家都很投入，按「全班 +1」', done: () => !!S.flags.classBonus, run: () => { goTeacherReaderLive(); S.t.pop = 'roster'; S.t.scoreMode = 'plus'; classBonus(1); } },
-    { side: 'teacher', hint: 't-minus', text: '切到「扣分」再點形狀夥伴就是扣一分，「全班 −1」一次扣全班；點錯了按「上一步」', done: () => !!S.flags.minusUsed, run: () => { goTeacherReaderLive(); S.t.pop = 'roster'; bonus(5, -1); S.t.scoreMode = 'plus'; } },
+    { side: 'teacher', hint: 't-minus', text: '切到「扣分」再點形狀夥伴就是扣一分，「全班 −1」一次扣全班；點錯了按「上一步」', done: () => !!S.flags.minusUsed, run: () => { goTeacherReaderLive(); S.t.pop = 'roster'; S.t.scoreMode = 'minus'; later(900, () => bonus(5, -1)); later(2200, () => undoScore()); later(3000, () => { S.t.scoreMode = 'plus'; }); } },
+    { side: 'teacher', hint: null, text: '工具箱的「隨機抽籤」：從已加入的學生抽一位發表，抽到的可以直接 +1', done: () => !!S.flags.lotterySeen, run: () => { goTeacherReaderLive(); S.t.pop = 'lottery'; const pool = S.cls.joined.length ? S.cls.joined : [ME]; S.lot = { seat: pool[Math.floor(Math.random() * pool.length)], rolling: false, plus: 0, fx: 0 }; S.flags.lotterySeen = true; } },
   ],
   4: [
     { side: 'teacher', hint: 't-pen', text: '點左欄「畫筆」，旁邊跳出顏色和粗細，挑一個顏色在課本上畫', done: () => !!S.flags.penSet, run: () => { goTeacherReaderLive(); S.t.pop = null; S.t.tool = 'pen'; S.t.inkPop = true; S.t.brush.pen.c = PEN_C[1]; S.t.brush.pen.w = 6; S.t.ink[PAGES[S.t.page].id].push({ c: PEN_C[1], w: 6, pts: [[120, 300], [180, 296], [260, 302], [330, 298]] }); S.flags.penSet = true; } },
-    { side: 'teacher', hint: 't-eraser', text: '換「橡皮擦」拉一個框，框到的筆跡一次清掉', done: () => !!S.flags.boxErased, run: () => { goTeacherReaderLive(); S.t.tool = 'eraser'; S.t.inkPop = false; eraseRect(S.t.ink[PAGES[S.t.page].id], [100, 260, 360, 340]); S.flags.boxErased = true; } },
+    { side: 'teacher', hint: 't-eraser', text: '換「橡皮擦」拉一個框，框到的筆跡一次清掉', done: () => !!S.flags.boxErased, run: () => { goTeacherReaderLive(); const ink = S.t.ink[PAGES[S.t.page].id]; if (!ink.length) ink.push({ c: PEN_C[1], w: 6, pts: [[140, 300], [220, 296], [300, 304]] }); S.t.tool = 'eraser'; S.t.inkPop = false; later(1200, () => { eraseRect(ink, [100, 260, 360, 340]); S.flags.boxErased = true; }); } },
     { side: 'teacher', hint: () => (S.t.pop === 'toolbox' ? 't-tb-laser' : 't-box'), text: '工具箱裡的「雷射筆」畫完一下子就淡掉，適合邊講邊指', done: () => !!S.flags.laserUsed, run: () => { goTeacherReaderLive(); S.t.pop = null; S.t.tool = 'laser'; S.t.inkPop = true; S.flags.laserUsed = true; } },
     { side: 'teacher', hint: () => (S.t.pop === 'timer' ? 't-timer-go' : S.t.pop === 'toolbox' ? 't-tb-timer' : 't-box'), text: '「工具箱」裡的「計時器」倒數，學生畫面同步顯示，時間到 3 秒後消失', done: () => !!S.flags.timerUsed, run: () => { goTeacherReaderLive(); startTimer(8); } },
     { side: 'teacher', hint: () => (S.t.pop === 'toolbox' ? 't-tb-group' : S.t.pop === 'group' ? null : 't-box'), text: '工具箱的「分組」：總人數自動帶已加入的人數，填組別數就能分', done: () => !!S.flags.grouped, run: () => { goTeacherReaderLive(); S.t.tool = null; S.t.inkPop = false; S.t.pop = 'group'; S.t.grp = { total: String(S.cls.joined.length), by: 'groups', n: '5', busy: false, res: null }; makeGroups(S.t.grp); } },
     { side: 'teacher', hint: () => (S.t.pop === 'toolbox' ? 't-tb-board' : 't-box'), text: '「白板」浮在課本上，左下角可以換方格或英文四線格', done: () => !!S.flags.boardUsed, run: () => { goTeacherReaderLive(); S.t.pop = null; openBoard(S.t); S.t.board.bg = 'en'; } },
     { side: 'teacher', hint: () => (S.t.pop === 'toolbox' ? 't-tb-note' : 't-box'), text: '「便利貼」直接打字、可以拖著走；「貼紙」選好點一下頁面就貼上', done: () => !!S.flags.noteUsed, run: () => { goTeacherReaderLive(); if (S.t.board) S.t.board.open = false; addNote(S.t, S.t.page); const ns = S.t.notes[PAGES[S.t.page].id]; ns[ns.length - 1].text = '下課前提醒大家看北斗七星'; S.t.editNote = null; S.t.stickers[PAGES[S.t.page].id].push({ id: uid(), x: 720, y: 120, e: 'star' }); } },
-    { side: 'teacher', hint: () => (S.t.pop === 'toolbox' ? null : 't-box'), text: '打開工具箱時，左欄工具右上角出現 ×，不常用的可以拿掉；拿掉的在工具箱按 ＋ 放回去', done: () => !!S.flags.railEdited, run: () => { goTeacherReaderLive(); S.t.tool = null; S.t.inkPop = false; S.t.pop = 'toolbox'; S.t.rail = S.t.rail.filter((k) => k !== 'clear'); S.flags.railEdited = true; } },
+    { side: 'teacher', hint: () => (S.t.pop === 'toolbox' ? null : 't-box'), text: '打開工具箱時，左欄工具右上角出現 ×，不常用的可以拿掉；拿掉的在工具箱按 ＋ 放回去', done: () => !!S.flags.railEdited, run: () => { goTeacherReaderLive(); S.t.tool = null; S.t.inkPop = false; S.t.pop = 'toolbox'; later(1200, () => { S.t.rail = S.t.rail.filter((k) => k !== 'clear'); S.flags.railEdited = true; }); later(2800, () => { if (!S.t.rail.includes('clear')) S.t.rail.splice(4, 0, 'clear'); }); } },
+    { side: 'teacher', hint: null, text: '工具箱「系統工具」的「目次」：點了直接打開，看整本的章節、跳到任何一頁', done: () => !!S.flags.tocSeen, run: () => { goTeacherReaderLive(); S.t.pop = 'toc'; S.flags.tocSeen = true; } },
   ],
   5: [
     { side: 'teacher', hint: () => (S.t.pop !== 'task' ? 't-task' : !S.compose ? 't-type-choice' : 't-send'), text: '口頭出題「北極星在哪一個星座裡？」，點「派任務 → 選擇題 → 派出」', done: () => !!S.flags.choiceSent, run: () => { goTeacherReaderLive(); sendTask('choice', { n: 4 }); } },
-    { side: 'student', hint: () => (S.s.modal === 'choice' ? 's-pickB' : 's-choice-open'), text: '學生跳出 A–D 大按鈕，選一個送出；送出後不能改', done: () => !!S.flags.choiceAnswered || !!S.flags.revealed, run: () => { if (!S.task || S.task.type !== 'choice') { goTeacherReaderLive(); sendTask('choice', { n: 4 }); } answerChoice('B'); S.s.modal = 'choice'; } },
+    { side: 'student', hint: () => (S.s.modal === 'choice' ? 's-pickB' : 's-choice-open'), text: '學生跳出 A–D 大按鈕，選一個送出；送出後不能改', done: () => !!S.flags.choiceAnswered || !!S.flags.revealed, run: () => { if (!S.task || S.task.type !== 'choice') { goTeacherReaderLive(); sendTask('choice', { n: 4 }); } S.s.modal = 'choice'; later(1600, () => answerChoice('B')); } },
     { side: 'teacher', hint: 't-close', text: '作答中只看到幾人答完。大家都答了，按「結束作答」', done: () => !!S.flags.choiceClosed || !!S.flags.revealed, run: () => { if (S.task && S.task.type === 'choice') { S.t.pop = 'task'; closeAnswer(); } } },
     { side: 'teacher', hint: 't-correct', text: '點選正確選項 B：直接公布答案，每個選項的人數長出來', done: () => !!S.flags.revealed, run: () => { if (S.task && S.task.type === 'choice') { S.t.pop = 'task'; closeAnswer(); reveal('B'); } } },
-    { side: 'teacher', hint: 't-plusright', text: '名單分答對、答錯、沒作答。在「答對」這組按「答對 +1 分」一鍵加分；旁邊的「抽籤」可以請一位發表', done: () => !!S.flags.plusRight, run: () => { if (S.task && S.task.type === 'choice') { S.t.pop = 'task'; plusRight(); } } },
+    { side: 'teacher', hint: 't-plusright', text: '名單分答對、答錯、沒作答。在「答對」這組按「答對 +1」一鍵加分；旁邊的「抽籤」可以請一位發表', done: () => !!S.flags.plusRight, run: () => { if (S.task && S.task.type === 'choice') { S.t.pop = 'task'; plusRight(); } } },
     { side: 'student', hint: null, text: '學生收到答對或答錯，夥伴跟著反應：答對開心、答錯安慰；答對的人同時收到加分', done: () => !!S.flags.resultSeen, run: () => { S.s.modal = null; S.flags.resultSeen = true; } },
     { side: 'teacher', hint: () => (S.task ? 't-next-task' : !S.compose ? 't-type-text' : 't-send'), text: '按「再派一題」，改派文字題', done: () => !!S.flags.textSent, run: () => { goTeacherReaderLive(); sendTask('text', {}); } },
     { side: 'student', hint: 's-text-send', text: '學生在跳出的視窗打字回答、送出', done: () => !!S.flags.textAnswered, run: () => { if (!S.task || S.task.type !== 'text') { goTeacherReaderLive(); sendTask('text', {}); } submitText('先找到北斗七星，把勺口兩顆星連起來，往外延長五倍就是北極星。'); S.s.modal = null; } },
-    { side: 'teacher', hint: () => (S.t.pop !== 'task' ? 't-task' : liveT() ? 't-stop-text' : 't-textcard'), text: '按「結束作答」，回收面板列出每個人寫的字。點一張卡放大，可以投影、加分', done: () => !!S.flags.textViewed, run: () => { if (S.task && S.task.type === 'text') { S.t.pop = 'task'; if (liveT()) stopTask(); S.task.view = ME; S.flags.textViewed = true; } } },
+    { side: 'teacher', hint: () => (S.t.pop !== 'task' ? 't-task' : liveT() ? 't-stop-text' : 't-textcard'), text: '按「結束作答」，回收面板列出每個人寫的字。點一張卡放大，可以投影、加分', done: () => !!S.flags.textViewed, run: () => { if (S.task && S.task.type === 'text') { S.t.pop = 'task'; if (liveT()) stopTask(); later(1400, () => { S.task.view = ME; S.flags.textViewed = true; }); } } },
     { side: 'teacher', hint: () => (S.task && S.task.type !== 'shot' ? toNext() : !S.compose ? 't-type-shot' : 't-send'), text: '再派手寫題：「畫在」選課本這一頁（也可以選白紙、方格、四線格）', done: () => !!S.flags.shotSent, run: () => { goTeacherReaderLive(); sendTask('shot', {}); } },
     { side: 'student', hint: () => (S.s.modal === 'submit' ? 's-confirm' : 's-submit'), text: '學生直接在課本上作答（畫在另一層），按「送出畫面」，夥伴說一句「交出去了」', done: () => !!S.flags.shotSubmitted, run: () => { if (!S.task || S.task.type !== 'shot') { goTeacherReaderLive(); sendTask('shot', {}); } if (!S.task.mine.length) autoAnswer(); submit(); } },
     { side: 'teacher', hint: () => (S.t.pop !== 'task' ? 't-task' : 't-stop'), text: '按「結束作答」：學生端不能再送出', done: () => !!S.flags.shotStopped, run: () => { if (S.task) { S.task.view = null; S.shared = null; S.t.pop = 'task'; stopTask(); } } },
-    { side: 'teacher', hint: () => (S.t.pop !== 'task' ? 't-task' : S.task && S.task.view ? 't-share' : 't-detail'), text: '點一份作品放到整個畫面：直接用筆批註（旁邊有橡皮擦、清除），批註送回學生；+1 分，分享給全班（顯示座號姓名）', done: () => !!S.flags.sharedOnce, run: () => { if (liveT()) stopTask(); const f = firstSub(); if (f) { S.t.pop = 'task'; openDetail(f); const sub = S.task.subs[f]; if (!sub.notes.length) sub.notes.push({ c: COLORS.note, w: 4, pts: [[600, 60], [700, 40], [790, 70]] }); share(f); } } },
+    { side: 'teacher', hint: () => (S.t.pop !== 'task' ? 't-task' : S.task && S.task.view ? 't-share' : 't-detail'), text: '點一份作品放到整個畫面：直接用筆批註（旁邊有橡皮擦、清除），批註送回學生；按 +1 加分，「分享畫面」給全班看（顯示座號姓名）', done: () => !!S.flags.sharedOnce, run: () => { if (liveT()) stopTask(); const f = firstSub(); if (f) { S.t.pop = 'task'; openDetail(f); const sub = S.task.subs[f]; if (!sub.notes.length) sub.notes.push({ c: COLORS.note, w: 4, pts: [[600, 60], [700, 40], [790, 70]] }); share(f); } } },
     { side: 'teacher', hint: () => (S.task && S.task.type !== 'voice' ? toNext() : !S.compose ? 't-type-voice' : 't-send'), text: '再派聲音題：學生錄音回答，例如念一段課文、用英文回答', done: () => !!S.flags.voiceSent, run: () => { goTeacherReaderLive(); sendTask('voice', {}); } },
     { side: 'student', hint: () => (S.s.modal === 'voice' ? 's-rec' : 's-rec-open'), text: '學生按錄音、說完按停止，同一顆鈕變成播放可以先聽，不滿意就重錄，再送出（示範的錄音是模擬的）', done: () => !!S.flags.voiceAnswered, run: () => { if (!S.task || S.task.type !== 'voice') { goTeacherReaderLive(); sendTask('voice', {}); } submitVoice(9); } },
-    { side: 'teacher', hint: () => (S.t.pop !== 'task' ? 't-task' : liveT() ? 't-stop-voice' : 't-voice-play'), text: '按「結束作答」，回收面板一格一位，點播放鍵聽；可以抽籤、幫有作答的全部 +1，或點某一格的 +1 單獨加分', done: () => !!S.flags.voicePlayed, run: () => { if (S.task && S.task.type === 'voice') { S.t.pop = 'task'; if (liveT()) stopTask(); S.flags.voicePlayed = true; } } },
+    { side: 'teacher', hint: () => (S.t.pop !== 'task' ? 't-task' : liveT() ? 't-stop-voice' : 't-voice-play'), text: '按「結束作答」，回收面板一格一位，點播放鍵聽；可以抽籤、幫有作答的全部 +1，或點某一格的 +1 單獨加分', done: () => !!S.flags.voicePlayed, run: () => { if (S.task && S.task.type === 'voice') { S.t.pop = 'task'; if (liveT()) stopTask(); later(1400, () => { playVoice('v' + S.task.id + ME); S.flags.voicePlayed = true; }); } } },
   ],
   6: [
-    { side: 'teacher', hint: 't-end', text: '按「結束上課」：這堂課的加分自動存成一筆紀錄；學生畫面整頁換成「下課囉！」，夥伴說一句下課的話，點夥伴換下一句', done: () => !!S.flags.ended, run: () => { if (!S.cls.live) { ensureLive(); bonus(ME, 1); } endClass(); } },
+    { side: 'teacher', hint: 't-end', text: '按「下課」：這堂課的加分自動存成一筆紀錄；學生畫面整頁換成「下課囉！」，夥伴說一句下課的話，點夥伴換下一句', done: () => !!S.flags.ended, run: () => { if (!S.cls.live) { ensureLive(); bonus(ME, 1); } endClass(); later(2200, () => { if (S.s.end) S.s.end.msgI = (S.s.end.msgI || 0) + 1; }); } },
     { side: 'student', hint: 's-mood', text: '學生選今天上課的心情（很開心、學到很多、還好、有點難、有點累、不開心），夥伴回一句話；只能選一次', done: () => !!S.s.mood, run: () => { if (S.s.screen !== 'end') { if (S.cls.live) endClass(); else toEnd(endStats()); } S.s.mood = 'learned'; if (S.s.end) S.s.end.msgI = 0; } },
     { side: 'student', hint: 's-end-shelf', text: '下面整理今天做了什麼（畫了幾筆重點、答對幾題、老師加了幾分），按「回書櫃」離開，夥伴在書櫃說一句下課的話', done: () => !!S.flags.endBack, run: () => { if (S.s.screen !== 'end') toEnd(endStats()); endToShelf(); } },
   ],
   7: [
     { side: 'teacher', hint: () => (S.t.screen !== 'shelf' ? null : S.t.shelfTab !== 'classes' ? 't-classes' : !S.t.classView ? 't-classcard' : 't-records'), text: '回書櫃 →「班級星艦」→ 501 →「學習紀錄」', done: () => !!(S.t.classView && S.t.classView.tab === 'records'), run: () => { if (S.cls.live) endClass(); openClass('501', '自然', 'records'); } },
     { side: 'teacher', hint: () => (S.t.classView && S.t.classView.rec.view === 'index' ? 't-rec-score' : 't-rec-session'), text: '加分紀錄：每次上課一筆，可以取名。點進去看全班那一堂各加幾分', done: () => !!S.flags.sessionSeen, run: () => { openClass('501', '自然', 'records'); S.t.classView.rec = { view: 'session', id: S.sessions[0].id, sort: 'seat' }; S.flags.sessionSeen = true; } },
-    { side: 'teacher', hint: () => (S.t.classView && S.t.classView.rec.view === 'total' ? 't-rec-person' : S.t.classView && S.t.classView.rec.view !== 'index' ? 't-rec-back' : 't-rec-total'), text: '累計總分：點一位學生，右邊滑出他每次上課的紀錄', done: () => !!S.flags.personSeen, run: () => { openClass('501', '自然', 'records'); S.t.classView.rec = { view: 'total', person: ME }; S.flags.personSeen = true; } },
-    { side: 'teacher', hint: () => (S.t.classView && S.t.classView.rec.view === 'tasks' ? 't-rec-taskrow' : S.t.classView && S.t.classView.rec.view !== 'index' ? 't-rec-back' : 't-rec-task'), text: '任務紀錄：點一題看結果，課後補上題目', done: () => !!S.flags.taskRecSeen, run: () => { openClass('501', '自然', 'records'); S.t.classView.rec = { view: 'task', id: S.taskLog[0].id }; S.flags.taskRecSeen = true; } },
+    { side: 'teacher', hint: () => (S.t.classView && S.t.classView.rec.view === 'total' ? 't-rec-person' : S.t.classView && S.t.classView.rec.view !== 'index' ? 't-rec-back' : 't-rec-total'), text: '累計總分：點一位學生，右邊滑出他每次上課的紀錄', done: () => !!S.flags.personSeen, run: () => { openClass('501', '自然', 'records'); S.t.classView.rec = { view: 'total' }; later(1300, () => { S.t.classView.rec = { view: 'total', person: ME }; S.flags.personSeen = true; }); } },
+    { side: 'teacher', hint: () => (S.t.classView && S.t.classView.rec.view === 'tasks' ? 't-rec-taskrow' : S.t.classView && S.t.classView.rec.view !== 'index' ? 't-rec-back' : 't-rec-task'), text: '任務紀錄：點一題看結果，課後補上題目', done: () => !!S.flags.taskRecSeen, run: () => { openClass('501', '自然', 'records'); S.t.classView.rec = { view: 'tasks' }; later(1300, () => { S.t.classView.rec = { view: 'task', id: S.taskLog[0].id }; S.flags.taskRecSeen = true; }); } },
+    { side: 'teacher', hint: null, text: '加分紀錄每一堂可以取名：沒取名時自動帶上課的那一節；按鉛筆改名，右上角「匯出 Excel」可以下載分數', done: () => !!S.flags.renameSeen, run: () => { openClass('501', '自然', 'records'); S.t.classView.rec = { view: 'sessions', edit: S.sessions[0].id }; S.flags.renameSeen = true; } },
   ],
   8: [
-    { side: 'student', hint: 's-buddy', text: '學生的書櫃右下角，夥伴探出頭，滑過時多露出一點。點它輪流說話，會提到今天老師加了幾分', done: () => !!S.flags.shelfPoked, run: () => { S.s.screen = 'shelf'; pokeShelf(); } },
+    { side: 'student', hint: 's-buddy', text: '學生的書櫃右側，夥伴躲在書櫃後面探出頭，點一下才整個跳出來。點它輪流說話，會提到今天老師加了幾分', done: () => !!S.flags.shelfPoked, run: () => { S.s.screen = 'shelf'; pokeShelf(); } },
     { side: 'student', hint: null, text: '書櫃上有新書時，夥伴開心地提示', done: () => !!S.flags.newBook, run: () => { S.s.screen = 'shelf'; S.s.shelfMood = 'new'; S.flags.newBook = true; say(TALK[S.s.avatar.shape].newBook, 'celebrating', 3600); } },
     { side: 'student', hint: () => (S.s.shelfMood === 'away' ? 's-buddy' : null), text: '很久沒登入時，夥伴在書櫃睡著了，點一下叫醒它', done: () => !!S.flags.woke, run: () => { S.s.screen = 'shelf'; if (S.s.shelfMood !== 'away') { S.s.shelfMood = 'away'; S.s.rx = null; } else pokeShelf(); } },
-    { side: 'student', hint: 's-avatar', text: '右上角頭像選單看「我的學習夥伴」：形狀、個性和眼睛；按「換學習夥伴」可以重選', done: () => !!S.flags.palSeen, run: () => { S.s.screen = 'shelf'; S.s.menu = true; S.flags.palSeen = true; } },
+    { side: 'student', hint: 's-avatar', text: '右上角座號頭像的選單看自己的學習夥伴；按「換學習夥伴」可以重選', done: () => !!S.flags.palSeen, run: () => { S.s.screen = 'shelf'; S.s.menu = true; S.flags.palSeen = true; } },
+    { side: 'student', hint: null, text: '頭像選單的「個人資料」看自己的帳號和密碼（學生不能改密碼，忘了請老師重設）', done: () => !!S.flags.profileSeen, run: () => { S.s.screen = 'shelf'; S.s.menu = false; S.profile = { side: 'student', show: false, pw: null }; S.flags.profileSeen = true; } },
   ],
 };
 const WHO = { teacher: '老師', student: '學生', admin: '管理員' };
@@ -2821,13 +2929,13 @@ function Guide() {
 }
 function resetAll() { timers.forEach(clearTimeout); timers = []; S = fresh(S.view); }
 function goChapter(n) {
-  S.chapter = n;
+  S.chapter = n; S.t.modal = null; S.profile = null; S.admin.modal = null; // 換章收掉上一章開著的視窗
   // 換章時收掉上一章打開的補充資源，不要蓋住下一章的畫面
   S.t.supp = null; S.s.supp = null; if (S.t.pop === 'supp') S.t.pop = null; if (S.s.pop === 'supp') S.s.pop = null;
   if (n === 1 && S.view === 'split' && !S.admin.made501) S.view = 'admin';
   if (n >= 2) { ensureSetup(); if (S.view === 'admin') S.view = 'split'; }
-  if (n >= 3 && n <= 5) { if (!S.cls.live) { ensureLive(); toast('teacher', '已經幫你開好課：501 · 自然，學生自由閱讀'); } S.t.screen = 'reader'; }
-  if (n === 6 && !S.flags.ended) { if (!S.cls.live) { ensureLive(); bonus(ME, 1); toast('teacher', '已經幫你開好課：501 · 自然'); } S.t.screen = 'reader'; }
+  if (n >= 3 && n <= 5) { if (!S.cls.live) { ensureLive(); toast('teacher', '已開始上課'); } S.t.screen = 'reader'; }
+  if (n === 6 && !S.flags.ended) { if (!S.cls.live) { ensureLive(); bonus(ME, 1); toast('teacher', '已開始上課'); } S.t.screen = 'reader'; }
   if (n === 8) { if (S.cls.live) endClass(); S.s.screen = 'shelf'; S.s.end = null; S.s.pop = null; S.view = 'split'; }
 }
 
@@ -2848,17 +2956,19 @@ function Device({ side }) {
       ${side === 'student' && S.s.inClass && S.cls.live && html`<span class="tag">${locked() ? '被鎖定' : following() ? '跟隨老師' : '自己翻頁'}</span>`}</div>
     <div class="dev-fit" ref=${ref}>
       <div class="dev" style=${{ width: 1440 * sc + 'px', height: 900 * sc + 'px' }}>
-        <div class="stage" style=${{ transform: `scale(${sc})` }} onClick=${() => { const P = side === 'admin' ? S.admin : side === 'teacher' ? S.t : S.s; if (P.menu || S.t.cardMenu != null) { P.menu = false; S.t.cardMenu = null; refresh(); } }}>
+        <div class="stage" style=${{ transform: `scale(${sc})` }} onClick=${() => { const P = side === 'admin' ? S.admin : side === 'teacher' ? S.t : S.s; if (P.menu || S.t.cardMenu != null || S.admin.rowMenu) { P.menu = false; S.t.cardMenu = null; S.admin.rowMenu = null; refresh(); } }}>
           ${side === 'teacher' ? html`<${TeacherApp} />` : side === 'student' ? html`<${StudentApp} />` : html`<${AdminApp} />`}
           ${S.cheer && (side === 'teacher' || (side === 'student' && S.s.inClass)) && html`<${Cheer} key=${S.cheer.id} />`}
-          <div class="toasts" aria-live="polite">${toasts.map((t) => html`<div class="toast" key=${t.id}>${t.icon && html`<${Icon} n=${t.icon} s=${18} />`}${t.text}</div>`)}</div>
+          <div class="toasts" aria-live="polite">${toasts.map((t) => html`<div class="toast" key=${t.id}>${t.icon && html`<span class=${'t-ic' + (t.icon === 'check' ? ' ok' : '')}><${Icon} n=${t.icon} s=${15} /></span>`}${t.text}</div>`)}</div>
         </div>
       </div>
     </div>
   </div>`;
 }
-/* 網站版（2026-11-03）：一個網站三個入口。#/admin、#/teacher、#/student 各開一個角色；其他網址是三端並排的展示版。
-   同一台電腦開好幾個視窗時，用 BroadcastChannel 互傳整份狀態，老師按了學生視窗就跟著變（跨裝置要等正式後端） */
+/* 上課控制收在工具箱時，要按的東西在工具箱裡：工具箱沒開就先亮工具箱 */
+const viaBox = (k) => (BAR === 'toolbox' && S.cls.live && ['t-mode', 't-roster', 't-end', 't-task'].includes(k) && !S.t.barOpen && !(k === 't-roster' && S.t.pop === 'roster') ? 't-sync' : k);
+/* 網站版：#/admin、#/teacher、#/student 各開一個角色；其他網址是三端並排的展示版。
+   同一台電腦開好幾個視窗時，用 BroadcastChannel 互傳整份狀態（跨裝置要等正式後端） */
 const ROLE = (location.hash.match(/^#\/(admin|teacher|student)\b/) || [])[1] || null;
 window.addEventListener('hashchange', () => location.reload());
 const chan = 'BroadcastChannel' in window ? new BroadcastChannel('classroom-sync') : null;
@@ -2879,7 +2989,7 @@ function App() {
   useEffect(() => { if (!chan) return; if (REMOTE) { REMOTE = false; return; } post({ type: 'state', S }); });
   const ci = currentStep();
   const st = ci >= 0 ? STEPS[S.chapter][ci] : null;
-  HINT = st ? (typeof st.hint === 'function' ? st.hint() : st.hint) : null;
+  HINT = st ? viaBox(typeof st.hint === 'function' ? st.hint() : st.hint) : null;
   useEffect(() => { const id = setInterval(() => { tickTimer(); if (S.timer || (S.task && S.task.status === 'collecting')) refresh(); }, 500); return () => clearInterval(id); }, []);
   const views = S.view === 'split' ? ['teacher', 'student'] : [S.view];
   const devRef = useRef();
@@ -2901,7 +3011,6 @@ function App() {
         <button aria-pressed=${S.view === 'student'} onClick=${act(() => { S.view = 'student'; })}>學生端</button>
         <button aria-pressed=${S.view === 'split'} onClick=${act(() => { S.view = 'split'; })}>並排</button>
       </div>
-      <div class="seg" role="group" aria-label="上課控制列">${[['top', '控制列在上'], ['dock', '下方膠囊'], ['float', '浮動膠囊']].map(([k, l]) => html`<button aria-pressed=${BAR === k} onClick=${act(() => { BAR = k; BARPOS = null; })}>${l}</button>`)}</div>
       <div class="seg" role="group" aria-label="開新視窗">${[['teacher', '老師'], ['student', '學生'], ['admin', '管理員']].map(([r, l]) => html`<button onClick=${() => openRole(r)}><${Icon} n="arrow-up-right" s=${14} />${l}</button>`)}</div>
       <button class="ghost" onClick=${act(() => { S.guide = !S.guide; })}><${Icon} n="panel-right" s=${16} />${S.guide ? '收起導覽' : '流程導覽'}</button>
       <button class="ghost" onClick=${act(resetAll)}><${Icon} n="rotate-ccw" s=${16} />重新開始</button>
