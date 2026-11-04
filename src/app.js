@@ -2708,20 +2708,20 @@ function StudentCreateDialog() {
 function AdminCreate() {
   const A = S.admin, d = A.draft; const hint = useHint();
   const mode = A.mode;
-  const cancel = html`<button class="btn sec" onClick=${act(() => { A.modal = null; A.justMade = false; })}>${A.made501 && A.justMade ? '完成' : '取消'}</button>`; // 取消放下面，不放右上角 ×（2026-11-03）
+  const cancel = html`<button class="btn sec" onClick=${act(() => { A.modal = null; A.justMade = false; })}>取消</button>`; // 取消放下面，不放右上角 ×（2026-11-03）；建好後也還是「取消」（2026-11-04 乙練）
   return html`<div>
-    ${A.made501 && A.justMade && html`<div class="done-card"><${Icon} n="check" s=${24} /><b>已建立 501 的 30 個學生帳號</b><span class="spacer"></span><button class="btn sm sec" onClick=${act(() => { downloadCsv('admin', '501_帳密清單.csv', ACCT_HEADER, schoolAccountRows(SCHOOL).filter((r) => r[0] === '學生' && r[2] === '501'), '已下載 501 的帳密清單'); })}><${Icon} n="download" s=${16} />下載帳密清單</button></div>`}
     <div class="seg" role="group" aria-label="建立方式">${[['single', '單筆'], ['multi', '多筆'], ['excel', 'Excel 匯入']].map(([k, l]) => html`<button aria-pressed=${mode === k} onClick=${act(() => { A.mode = k; if (k === 'excel') S.flags.excelSeen = true; })}>${l}</button>`)}</div>
     ${mode === 'excel' && html`<div class="form-grid" style="margin-bottom:18px"><div class="fld"><label for="ac-school">學校</label><${Combo} id="ac-school" value=${A.madeSchool ? SCHOOL : S.admin.schools[0].name} options=${S.admin.schools.map((x) => x.name)} onChange=${(v) => { if (v !== SCHOOL) toast('admin', `示範只開放${SCHOOL}`); }} placeholder="輸入或展開搜尋" /></div></div>`}
     ${mode === 'multi' && html`<div class="form-grid">
       <div class="fld"><label for="ac-school">學校</label><${Combo} id="ac-school" value=${A.madeSchool ? SCHOOL : S.admin.schools[0].name} options=${S.admin.schools.map((x) => x.name)} onChange=${(v) => { if (v !== SCHOOL) toast('admin', `示範只開放${SCHOOL}`); }} placeholder="輸入或展開搜尋" /></div>
-      <div class="fld"><label for="ac-cls">班級</label><input class="inp" id="ac-cls" value=${d.cls} onInput=${(e) => { d.cls = e.target.value; }} /></div>
-      <div class="fld"><label for="ac-n">學生人數</label><input class="inp" id="ac-n" value=${d.count} onInput=${(e) => { d.count = e.target.value; }} /></div>
-      <div class="fld"><label for="ac-pre">帳號前綴</label><input class="inp" id="ac-pre" value=${d.prefix} onInput=${(e) => { d.prefix = e.target.value; }} /></div>
-      <div class="fld"><label>密碼</label><div class="seg" style="align-self:flex-start">${[['same', '全班相同'], ['random', '隨機']].map(([k, l]) => html`<button aria-pressed=${(d.pwMode || 'same') === k} onClick=${act(() => { d.pwMode = k; })}>${l}</button>`)}</div></div>
-      ${d.pwMode === 'same' ? html`<div class="fld"><label for="ac-pw">全班密碼</label><input class="inp" id="ac-pw" placeholder="輸入密碼" value=${d.pw || ''} onInput=${act((e) => { d.pw = e.target.value; })} /></div>` : html`<div></div>`}
+      <div class="fld"><label for="ac-cls">班級</label><input class="inp" id="ac-cls" value=${d.cls} onInput=${act((e) => { d.cls = e.target.value; A.justMade = false; })} /></div>
+      <div class="fld"><label for="ac-n">學生人數</label><input class="inp" id="ac-n" value=${d.count} onInput=${act((e) => { d.count = e.target.value; A.justMade = false; })} /></div>
+      <div class="fld"><label for="ac-pre">帳號前綴</label><input class="inp" id="ac-pre" value=${d.prefix} onInput=${act((e) => { d.prefix = e.target.value; A.justMade = false; })} /></div>
+      <div class="fld"><label>密碼</label><div class="seg" style="align-self:flex-start">${[['same', '全班相同'], ['random', '隨機']].map(([k, l]) => html`<button aria-pressed=${(d.pwMode || 'same') === k} onClick=${act(() => { if (d.pwMode !== k) A.justMade = false; d.pwMode = k; })}>${l}</button>`)}</div></div>
+      ${d.pwMode === 'same' ? html`<div class="fld"><label for="ac-pw">全班密碼</label><input class="inp" id="ac-pw" placeholder="輸入密碼" value=${d.pw || ''} onInput=${act((e) => { d.pw = e.target.value; A.justMade = false; })} /></div>` : html`<div></div>`}
       <div class="fld full"><div class="preview-line">預覽：${d.prefix}01、${d.prefix}02、${d.prefix}03 … ${d.prefix}${pad(d.count)}（共 ${d.count} 個）<br />密碼：${d.pwMode === 'same' ? ((d.pw || '').trim() ? `全班都是 ${d.pw.trim()}` : '全班同一組') : '每人一組隨機密碼'}</div></div>
-      <div class="fld full dialog-foot">${cancel}<button class=${'btn ' + hint('a-go')} disabled=${d.pwMode === 'same' && !(d.pw || '').trim()} onClick=${act(() => { if (!A.madeSchool) return toast('admin', `請先在「學校」建立${SCHOOL}`); if (d.cls !== '501') return toast('admin', '示範只開放建立 501'); if (A.made501) return toast('admin', '501 已經建立過了'); make501(); A.filter = '全部'; })}>建立 ${d.count} 個帳號</button></div>
+      ${A.made501 && A.justMade && html`<div class="fld full"><div class="done-card"><${Icon} n="check" s=${24} /><b>已建立 501 的 30 個學生帳號</b><span class="spacer"></span><button class="btn sm sec" onClick=${act(() => { downloadCsv('admin', '501_帳密清單.csv', ACCT_HEADER, schoolAccountRows(SCHOOL).filter((r) => r[0] === '學生' && r[2] === '501'), '已下載 501 的帳密清單'); })}><${Icon} n="download" s=${16} />下載帳密清單</button></div></div>`}
+      <div class="fld full dialog-foot">${cancel}<button class=${'btn ' + hint('a-go')} disabled=${(d.pwMode === 'same' && !(d.pw || '').trim()) || A.justMade} onClick=${act(() => { if (!A.madeSchool) return toast('admin', `請先在「學校」建立${SCHOOL}`); if (d.cls !== '501') return toast('admin', '示範只開放建立 501'); if (A.made501) return toast('admin', '501 已經建立過了'); make501(); A.filter = '全部'; })}>建立 ${d.count} 個帳號</button></div>
     </div>`}
     ${mode === 'single' && (() => { const s = A.single; if (!s.pw) s.pw = genPw();
       const ok = s.cls.trim() && s.seat && s.name.trim() && s.acct.trim() && s.pw.trim();
