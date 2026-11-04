@@ -523,6 +523,10 @@ const SUPP = {
     { g: '圖：圖 2 北方天空的星軌', items: [{ id: 'trails', k: 'video', t: '星軌縮時', src: 'assets/star-trails.jpg' }] },
   ],
 };
+/* 每一組補充資源掛在課文的哪一塊（熊熊給的資料：哪一頁、掛在哪個元件上） */
+const SUPP_BLK = { p108: ['p1', 'fig', 'p2'], p110: ['h', 'p1', 'fig'] };
+const blkRes = (page, blk) => { const pid = PAGES[page] && PAGES[page].id, i = (SUPP_BLK[pid] || []).indexOf(blk); return i < 0 ? [] : SUPP[pid][i].items; };
+const RES_IC = { text: 'file-text', image: 'image', audio: 'play', video: 'play', web: 'globe' };
 const suppItems = (page) => SUPP[PAGES[page].id].flatMap((g) => g.items);
 const suppById = (id) => Object.values(SUPP).flat().flatMap((g) => g.items).find((x) => x.id === id);
 let suppAudio = null;
@@ -1055,9 +1059,14 @@ function PageArt({ page, f, tap }) {
   const hint = useHint();
   const fb = (id) => 'fb' + (f && f.blk === id ? ' on' : '') + (tap && id === 'p1' && page === 0 ? ' ' + hint('t-focus') : '');
   const sn = (id, str) => SENT(str).map((x, i) => html`<span class=${'sn' + (f && f.blk === id && f.sn === i ? ' on' + '' : '')} data-sn=${i}>${T(x)}</span>`);
-  const P_ = (id, str, gap) => html`<p class=${fb(id)} data-blk=${id} style=${{ '--gap': gap }}>${sn(id, str)}</p>`;
+  /* 課文掛補充資源（2026-11-04 乙練選 A）：有掛的段落尾巴一個小記號；老師點這段＝聚焦（學生同步），段落下方浮出這段的資源膠囊，再點一項才打開 */
+  const res = (id) => blkRes(page, id);
+  const mk = (id) => res(id).length > 0 && html`<span class="res-mk" aria-label=${`這段有 ${res(id).length} 個補充資源`}><${Icon} n="blocks" s=${13} />${res(id).length}</span>`;
+  const cap = (id) => tap && f && f.blk === id && res(id).length > 0 && html`<span class="blk-cap" role="group" aria-label="這段的補充資源">${res(id).map((it) => html`<button class=${'bc-it' + ((S.t.supp && S.t.supp.id === it.id) || S.t.playing === it.id ? ' on' : '')} onClick=${act((e) => { e.stopPropagation(); openSupp('teacher', it); })}><${Icon} n=${RES_IC[it.k] || 'file-text'} s=${15} />${it.t}</button>`)}</span>`;
+  const P_ = (id, str, gap) => html`<p class=${fb(id) + (res(id).length ? ' has-res' : '')} data-blk=${id} style=${{ '--gap': gap }}>${sn(id, str)}${mk(id)}${cap(id)}</p>`;
   /* 內容、圖、間距照編輯器閱讀模式的第 2、5 頁（--gap 是跟上一塊的距離，頁寬 1195 的 px） */
-  const Fig = (src, alt, w, credit, cap, gap, ratio) => html`<figure class=${fb('fig')} data-blk="fig" style=${{ '--gap': gap, '--fw': w, '--cy': Math.round(w / ratio - 32) }}><img src=${src} alt=${alt} draggable="false" /><span class="credit">${credit}</span><figcaption>${cap}</figcaption></figure>`;
+  const cap2 = cap;
+  const Fig = (src, alt, w, credit, cap, gap, ratio) => html`<figure class=${fb('fig') + (res('fig').length ? ' has-res' : '')} data-blk="fig" style=${{ '--gap': gap, '--fw': w, '--cy': Math.round(w / ratio - 32) }}><img src=${src} alt=${alt} draggable="false" /><span class="credit">${credit}</span><figcaption>${cap}${mk('fig')}</figcaption>${cap2('fig')}</figure>`;
   if (page === 0) return html`<div class="pg-in">
     <h2 class=${fb('h')} data-blk="h">${sn('h', '夜空裡的{星座}')}</h2>
     ${P_('p1', '晴朗的夜晚抬頭往天空看，可以看到許多一閃一閃的星星。古時候的人把亮度接近、位置相鄰的星星連起來想像成圖案，這些圖案就叫做[{星座}]。', 40)}
@@ -1065,7 +1074,7 @@ function PageArt({ page, f, tap }) {
     ${P_('p2', '夏天的夜晚，我們可以找到明亮的「夏季大三角」。它由三顆分別屬於不同星座的亮星組成，是初學觀星的人最容易認出的目標。', 36)}
   </div>`;
   return html`<div class="pg-in">
-    <h2 class=${fb('h')} data-blk="h">${sn('h', '{星星}為什麼會動')}</h2>
+    <h2 class=${fb('h') + (res('h').length ? ' has-res' : '')} data-blk="h">${sn('h', '{星星}為什麼會動')}${mk('h')}${cap('h')}</h2>
     <h3 class=${fb('h3a')} data-blk="h3a" style="--gap:40">${sn('h3a', '一個晚上之內的移動')}</h3>
     ${P_('p1', '同一個晚上，星星的位置會慢慢由東往西移動。這不是星星自己在跑，而是[{地球自轉}]造成的。', 30)}
     ${Fig('assets/star-trails.jpg', '長時間曝光拍下的星星軌跡，形成一圈一圈的同心圓', 340, 'Youniverse Multiverse · CC0', '圖 2 北方天空的星軌', 36, 900 / 676)}
@@ -2115,9 +2124,7 @@ function TaskPanel() {
     if (tab === 'none') return html`<${NameChips} t=${task} list=${noneL} />`;
     if (task.type === 'text') return html`<div class="text-cards">${doneL.map((seat) => html`<button data-seat=${seat} class=${'tcard' + drawnCls(seat) + (seat === ME ? ' ' + hint('t-textcard') : '')} onClick=${act(() => { task.view = seat; S.flags.textViewed = true; })}><span class="who2"><${SeatBtn} t=${task} seat=${seat} />${nameOf(seat)}</span><span class="tc-t">${task.texts[seat]}</span></button>`)}</div>`;
     if (task.type === 'voice') return html`<div class="vs-grid">${doneL.map((seat) => html`<${VoiceSeat} t=${task} seat=${seat} />`)}</div>`;
-    return html`<div class="subs subs-all">${doneL.map((seat) => { const sub = task.subs[seat];
-      return html`<button data-seat=${seat} class=${'shot-t' + drawnCls(seat) + ' ' + (seat === ME ? hint('t-detail') : '')} aria-label=${`放大看 ${nameOf(seat)} 的作品`} onClick=${act(() => openDetail(seat))}>
-        <span class="box"><${MiniWork} t=${task} layers=${[sub.ink, sub.notes]} /></span><${SeatBtn} t=${task} seat=${seat} cls="shot-no" /><span class="shot-nm">${nameOf(seat)}</span></button>`; })}</div>`;
+    return html`<div class="vs-grid">${doneL.map((seat) => html`<${ShotSeat} t=${task} seat=${seat} />`)}</div>`; // 手寫題檢討跟聲音題同一套：座號圈＋名字，下面「看作品」（2026-11-04 乙練選 A2）
   };
   return html`<div class=${'pop task-pop review'}>
     ${head(live ? name : html`${name}<span class="hd-n"><b>${doneL.length}</b>／${att.length}</span>`)}
@@ -2460,6 +2467,15 @@ function RvFoot({ list }) {
     <button class=${'btn xs sec ' + hint('t-next-task')} onClick=${act(endTask)}>再派一題</button></div>`;
 }
 /* 聲音題檢討（2026-11-04 乙練）：座號圈＝照上方「加分｜扣分」加減分（跟名單、其他題型同一套，滑過先預告 +1／−1）；名字下面「▶ 0:04」小膠囊＝播放 */
+function ShotSeat({ t, seat }) {
+  const hint = useHint(), minus = S.t.scoreMode === 'minus';
+  return html`<div data-seat=${seat} class=${'vs' + drawnCls(seat)}>
+    <button class=${'vs-c' + kidCls(t, seat) + (minus ? ' m' : '')} aria-label=${`幫 ${nameOf(seat)} ${minus ? '扣' : '加'} 1 分`} onClick=${act((e) => rvScore(t, seat, e.currentTarget))}>
+      <span class="vs-face"><${SeatFace} t=${t} seat=${seat} box=${50} /></span><i class="vs-hv">${minus ? '−1' : '+1'}</i><${SeatSc} t=${t} seat=${seat} /></button>
+    <span class="vs-nm">${nameOf(seat)}</span>
+    <button class=${'vs-pl' + (seat === ME ? ' ' + hint('t-detail') : '')} aria-label=${`看 ${nameOf(seat)} 的作品`} onClick=${act(() => openDetail(seat))}><${Icon} n="eye" s=${13} /><em>看作品</em></button>
+  </div>`;
+}
 function VoiceSeat({ t, seat, readonly }) { // readonly：學習紀錄裡回看，座號圈不能加減分
   const v = t.voices[seat], key = 'v' + t.id + seat, on = S.playingVoice === key, hint = useHint(), minus = S.t.scoreMode === 'minus';
   return html`<div data-seat=${seat} class=${'vs' + drawnCls(seat) + (on ? ' on' : '')}>

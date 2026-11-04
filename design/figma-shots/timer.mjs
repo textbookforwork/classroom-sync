@@ -1,5 +1,6 @@
 // 閱讀｜計時器（師生連動）（Figma BE 頁 141:576，本輪新開的區塊）
 // 輸出 out/timer-01.png …，依序填進區塊裡的圖框
+// 2026-11-04 重排：圖框依序放 01,02,03,04,05,08,06,07（timer-08＝最後 10 秒變紅，新圖框 be-12-8）
 import { open, shot } from './common.mjs';
 const { p, ev, close } = await open();
 const W = (ms = 600) => p.waitForTimeout(ms);
@@ -19,8 +20,11 @@ await W(1200); await shot(p, 'timer-04.png', ['.timer-card']);
 // 5 老師暫停 → 學生寫「暫停中」
 await ev(() => { pauseTimer(); refresh(); });
 await W(800); await shot(p, 'timer-05.png', ['.timer-card']);
+// 8 最後 10 秒：老師數字和圓圈變紅（另存 timer-08）
+await ev(() => { pauseTimer(); S.timer.endAt = Date.now() + 8500; S.view = 'teacher'; S.t.pop = null; refresh(); });
+await W(700); await shot(p, 'timer-08.png', ['.timer-pop.pinned']);
 // 6 時間到（老師）
-await ev(() => { pauseTimer(); S.timer.endAt = Date.now() + 1200; S.view = 'teacher'; S.t.pop = null; refresh(); });
+await ev(() => { S.timer.endAt = Date.now() + 1200; S.view = 'teacher'; S.t.pop = null; refresh(); });
 await W(2200); await shot(p, 'timer-06.png', ['.timer-pop.pinned']);
 // 7 時間到（學生）
 await ev(() => { S.view = 'student'; refresh(); });

@@ -25,7 +25,7 @@ await ev(() => { S.t.stickerPop = false; S.t.tool = null; S.t.notes[PAGES[S.t.pa
 await W(); await shot(p, 'tools-06.png', ['.bd-bgs']);
 // 7 分組
 await ev(() => { S.t.board.open = false; S.t.tool = null; S.t.inkPop = false; S.t.pop = 'group'; S.t.grp = { total: String(S.cls.joined.length), by: 'groups', n: '5', busy: false, res: null }; makeGroups(S.t.grp); refresh(); });
-await W(1800); await shot(p, 'tools-07.png', ['.grp-res']);
+await W(1800); await shot(p, 'tools-07.png', ['.gcards']);
 // 8 目次
 await ev(() => { S.t.pop = 'toc'; refresh(); });
 await W(); await shot(p, 'tools-08.png', ['.toc-tabs']);

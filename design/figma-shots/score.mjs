@@ -1,5 +1,6 @@
 // 師生連動｜到課與加分（Figma BE 頁 141:576，區塊 145:114）
 // 輸出 out/score-01.png …，依序填進區塊裡的圖框
+// 2026-11-04：score-09＝抽籤按 +1 後黑底黃字，新圖框 be-6-9
 import { open, shot } from './common.mjs';
 const { p, ev, close } = await open();
 const W = (ms = 600) => p.waitForTimeout(ms);
@@ -32,4 +33,7 @@ await W(1500); await shot(p, 'score-07.png', ['.score-top .x-btn@0']);
 // 8 工具箱的隨機抽籤
 await ev(() => { S.t.pop = 'lottery'; S.lot = { seat: 17, rolling: false, plus: 0, fx: 0 }; refresh(); });
 await W(800); await shot(p, 'score-08.png', ['.lot-pop']);
+// 9 抽到的人按 +1：框線變成黑底黃字
+await ev(() => { S.lot.plus = 1; S.lot.fx = 1; bonus(17, 1); refresh(); });
+await W(1200); await shot(p, 'score-09.png', ['.lot-plus']);
 await close();

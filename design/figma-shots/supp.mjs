@@ -1,5 +1,6 @@
 // 工具｜補充資源索引（Figma BE 頁 141:576，區塊 147:2）
 // 輸出 out/supp-01.png …，依序填進區塊裡的圖框
+// 2026-11-04 重排：圖框依序放 01,02,03,06,04,05
 import { open, shot } from './common.mjs';
 const { p, ev, close } = await open();
 const W = (ms = 600) => p.waitForTimeout(ms);

@@ -1,5 +1,6 @@
 // 派任務｜選擇題、是非題（Figma BE 頁 141:576，區塊 145:135）
 // 輸出 out/choice-01.png …，依序填進區塊裡的圖框（be-7-1 … be-7-9 沿用原節點，之後加的接在後面）
+// 2026-11-04 重排：圖框依序放 01,02,03,04,13,05,06,07,08,09,10,11,12,14（choice-14＝有題目的答案卡，接在新圖框 be-7-14）
 // 用法：node choice.mjs
 import { open, shot } from './common.mjs';
 const { p, ev, close } = await open();
@@ -59,13 +60,17 @@ await shot(p, 'choice-10.png', ['.who-chose']);
 // 11 學生端：答對了（夥伴開心）
 await ev(() => { S.view = 'student'; S.s.modal = 'result'; S.task.answers[12] = 'B'; refresh(); });
 await W(1200);
-await shot(p, 'choice-11.png', ['.result']);
+await shot(p, 'choice-11.png', ['.rs-talk', '.rs-card']);
 // 12 學生端：答錯了（夥伴安慰，加「你選 C」）
 await ev(() => { S.task.answers[12] = 'C'; refresh(); });
 await W(1200);
-await shot(p, 'choice-12.png', ['.result']);
+await shot(p, 'choice-12.png', ['.rs-bub', '.rs-card']);
 // 13 是非題：選題型選「是非題」，學生端是 O／X 兩個大按鈕，其餘流程同選擇題
 await ev(() => { S.s.modal = null; sendTask('choice', { tf: true }); S.view = 'student'; S.s.modal = 'choice'; refresh(); });
 await W(800);
 await shot(p, 'choice-13.png', ['.abtns']);
+// 14 學生端：老師有打題目和選項文字時，答案卡列出題目和每個選項
+await ev(() => { S.s.modal = null; sendTask('choice', { n: 4, q: '夏季大三角由哪三顆星組成？', opts: ['北極星、織女星、天狼星', '織女星、牛郎星、天津四', '天狼星、參宿四、南河三', '大角星、角宿一、軒轅十四'] }); S.task.answers[12] = 'B'; closeAnswer(); reveal('B'); S.view = 'student'; S.s.modal = 'result'; refresh(); });
+await W(1200);
+await shot(p, 'choice-14.png', ['.rs-card']);
 await close();
