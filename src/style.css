@@ -989,6 +989,11 @@ textarea.note-t { field-sizing: content; min-width: 96px; max-width: 296px; min-
 .timer-pill { cursor: pointer; border: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
 .timer-pin { position: absolute; z-index: 15; top: 16px; left: 120px; }
 .timer-pop.pinned { width: 190px; box-shadow: var(--shadow-pop); }
+.timer-pin { cursor: grab; touch-action: none; user-select: none; }
+.timer-pin.dragging { cursor: grabbing; }
+.timer-pin.dragging .timer-pop { box-shadow: 0 14px 36px rgba(26,25,23,.18); }
+.tm-grip { display: block; width: 24px; height: 3px; margin: -8px auto -2px; border-radius: 999px; background: #DADADA; transition: background .15s, width .15s; } /* 細的把手，看得出能抓就好 */
+.timer-pin:hover .tm-grip, .timer-pin.dragging .tm-grip { background: #B5B5B5; width: 30px; }
 .timer-pop.pinned .pop-b { padding: 16px 16px 16px; gap: 12px; }
 .float-timer { position: absolute; z-index: 15; top: 36px; right: 40px; height: 44px; padding: 0 18px; font-size: 18px; box-shadow: var(--shadow-pop); }
 .timer-pill.done { background: var(--danger); color: #fff; box-shadow: none; animation: shake .5s 3; }

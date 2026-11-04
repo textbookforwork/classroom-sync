@@ -1760,7 +1760,7 @@ function TeacherApp() {
   return html`<div class=${'reader' + (BAR !== 'top' ? ' bar-' + BAR : '') + (BAR === 'toolbox' && live && t.barOpen ? ' cb-open' : '')}>
     <${Rail} side="teacher" />
     ${BAR === 'toolbox' || BAR === 'rail' ? (live && S.t.barOpen && html`<${ClassBar} />`) : BAR !== 'top' && (live ? html`<${ClassBar} />` : html`<div class=${'class-bar ' + BAR}>${PAGER_POS === 'capsule' && html`<${HPager} /><span class="cb-sep"></span>`}<button class=${'btn ' + hint('t-start')} onClick=${act(openStart)}>開始上課</button></div>`)}
-    ${BAR !== 'top' && S.timer && t.pop !== 'timer' && html`<div class="timer-pin"><${TimerPop} pinned /></div>`}
+    ${BAR !== 'top' && S.timer && t.pop !== 'timer' && html`<div class="timer-pin" title="按住拖曳" style=${t.timerPos ? { left: t.timerPos.x + 'px', top: t.timerPos.y + 'px' } : null} onPointerDown=${dragPin}><${TimerPop} pinned /></div>`}
     <div class="topbar" style=${BAR !== 'top' ? { display: 'none' } : null}>
       ${live ? html`<span class="title">${S.cls.cid}</span>
         <button class=${'pill ' + hint('t-roster')} style="cursor:pointer;border:0" onClick=${act(() => { t.pop = t.pop === 'roster' ? null : 'roster'; t.scoreMode = 'plus'; S.flags.rosterSeen = true; S.flags.scoreOpened = true; })}><i class="live-dot"></i>上課中<span style="color:var(--line)">｜</span><${Icon} n="users" s=${16} /><b style="font-variant-numeric:tabular-nums">${S.cls.joined.length}</b><span style="color:var(--text-2)">/ ${present().length + ABSENT.length}</span><${Icon} n="chevron-down" s=${14} /></button>
@@ -1930,6 +1930,17 @@ function parseTime(v) {
 }
 /* 計時器：設定好按開始，就釘在畫面左上角倒數（取代右上角的時間膠囊，2026-11-03 乙練）；釘住時不放 ×，按停止才消失 */
 // 派任務帶的時限：只能 −／＋ 時間，跟作答彈窗同一個計時，不能暫停或停止（2026-11-03 乙練）
+/* 釘住的計時器可以拖：按把手或卡片空白處拖，放開就停在那裡（位置記在 S.t.timerPos，下次打開也在那裡；2026-11-04 乙練選 A） */
+function dragPin(e) {
+  if (e.button || e.target.closest('button, input')) return;
+  const el = e.currentTarget, par = el.offsetParent; if (!par) return;
+  const k = par.getBoundingClientRect().width / par.offsetWidth, sx = e.clientX, sy = e.clientY, ox = el.offsetLeft, oy = el.offsetTop;
+  el.setPointerCapture(e.pointerId); el.classList.add('dragging');
+  const mv = (ev) => { const x = Math.max(0, Math.min(par.offsetWidth - el.offsetWidth, ox + (ev.clientX - sx) / k)), y = Math.max(0, Math.min(par.offsetHeight - el.offsetHeight, oy + (ev.clientY - sy) / k));
+    el.style.left = x + 'px'; el.style.top = y + 'px'; S.t.timerPos = { x, y }; };
+  const up = () => { el.classList.remove('dragging'); el.removeEventListener('pointermove', mv); el.removeEventListener('pointerup', up); };
+  el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up);
+}
 function TimerPop({ pinned }) {
   const T = S.timer; const hint = useHint(); const t = S.t;
   if (t.timerSec == null) t.timerSec = (t.timerMin || 5) * 60;
@@ -1948,6 +1959,7 @@ function TimerPop({ pinned }) {
   return html`<div class=${'pop timer-pop' + (pinned ? ' pinned' : '')}>
     ${!pinned && html`<div class="pop-h"><h4>計時器</h4><button class="x-btn" aria-label="關閉" onClick=${close}><${Icon} n="x" /></button></div>`}
     <div class="pop-b">
+      ${pinned && html`<span class="tm-grip" aria-hidden="true"></span>`}
       <${Ring} size=${pinned ? 150 : 184} frac=${frac} done=${T && T.done}>
         ${edit ? html`<input class="tm-in-edit" aria-label="設定時間" value=${mmss(left)} ref=${(el) => el && document.activeElement !== el && (el.focus(), el.select())}
             onKeyDown=${(e) => { if (e.key === 'Enter') commit(e.currentTarget.value); if (e.key === 'Escape') setEdit(false); }} onBlur=${(e) => commit(e.currentTarget.value)} />`
