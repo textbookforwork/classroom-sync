@@ -1400,6 +1400,8 @@ button.pt:hover { box-shadow: inset 0 0 0 1px var(--line); }
 .reader.bar-toolbox .pageframe { top: 24px; } /* 畫布最大化：膠囊沒展開時不讓位 */
 .reader.bar-toolbox.cb-open .pageframe { bottom: 64px; } /* 課本頁撐到底時才讓出一條；膠囊貼在課本頁正下方 */
 /* 上課同步展開後：放在畫布下面的灰邊，不壓到課本；做得矮一點，畫布只讓出一小條（2026-11-03 乙練） */
+.reader.cb-open .pop-layer.center:not(:has(.review)) { bottom: auto; height: calc(var(--cb-top, 830px) - 10px); } /* 上課膠囊展開時，面板下緣停在膠囊上方，不被蓋到（2026-11-04 乙練抓到分組面板） */
+.reader.cb-open .pop-layer:not(.center) > .pop { max-height: calc(var(--cb-top, 830px) - 10px - var(--pop-top, 16px)); overflow: auto; scrollbar-width: none; }
 .class-bar.under { z-index: 25; left: 104px; bottom: 14px; transform: none; padding: 2px; box-shadow: none; background: var(--raised); gap: 2px; animation: rise .18s var(--ease); }
 .class-bar.under .cb-cls, .class-bar.under .btn { height: 40px; }
 .cb-task { position: relative; }

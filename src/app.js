@@ -1293,7 +1293,7 @@ function Toolbox({ side }) {
     const canAdd = custom && RAIL_RM.includes(rk) && !P.rail.includes(rk);
     const hint = useHint();
     // 已經放在左欄的工具，在工具箱裡是停用的（照 Figma：用左欄那顆就好）
-    const inRail = custom && RAIL_RM.includes(rk) && P.rail.includes(rk);
+    const inRail = custom && RAIL_RM.includes(rk) && P.rail.includes(rk) && !(rk === 'task' && BAR === 'toolbox'); // 派任務在上課膠囊裡，不在左欄，工具箱裡要能按
     return html`<span class="tb-cell"><button class=${'tile' + (k && P.tool === k ? ' on' : '') + (side === 'teacher' && k ? ' ' + hint('t-tb-' + k) : '')} disabled=${inRail || (k === 'clear' && !ink.length)} title=${inRail ? '已經在左欄' : undefined} onClick=${act(() => { if (side === 'teacher' && k === 'laser') S.flags.laserUsed = true; if (DO[k]) DO[k](); else if (k) { P.tool = P.tool === k ? null : k; P.pop = null; P.inkPop = BRUSHES.includes(k) && P.tool === k; P.inkY = 640; } else toast(side, '示範沒有做'); })}><${Icon} n=${icon} /><span>${label}</span></button>
       ${canAdd && html`<button class="add-x" aria-label=${'把' + label + '放回左欄'} title="放回左欄" onClick=${act(() => { P.rail = RAIL_ORDER.filter((x) => x === k || P.rail.includes(x)); if (side === 'teacher') S.flags.railEdited = true; })}><${Icon} n="plus" s=${12} /></button>`}</span>`;
   };
