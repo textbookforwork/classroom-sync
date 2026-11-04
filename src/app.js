@@ -692,12 +692,14 @@ function ScoreMode() {
     <button class=${(minus ? 'on ' : '') + hint('t-minus')} aria-pressed=${minus} onClick=${act(() => { S.t.scoreMode = 'minus'; })}>扣分</button></div>`;
 }
 /* 放大看一份作答時的「這是誰」：‹ 座號 名字 3/3 › 合成一顆，座號點了就加減分（2026-11-03 乙練：這條要更簡潔） */
+/* 放大看一份作答的下方列（2026-11-04 乙練選 A）：「這是誰」（夥伴＋名字，加過分掛小黃章）｜換人 ‹ 5/25 ›｜右邊才是動作（+1 框線、分享畫面）。
+   黃色只代表「已經加的分」，按鈕用框線，才不會以為已經加過 */
 function WhoNav({ t, seat, idx, n, go, score = true }) {
-  return html`<span class="who-nav"><button aria-label="上一位" disabled=${idx <= 0} onClick=${act(() => go(idx - 1))}><${Icon} n="chevron-left" s=${18} /></button>
-    ${score ? html`<${SeatBtn} t=${t} seat=${seat} />` : html`<span class="seat">${pad(seat)}</span>`}<b>${nameOf(seat)}</b><small>${idx + 1}/${n}</small>
-    <button aria-label="下一位" disabled=${idx >= n - 1} onClick=${act(() => go(idx + 1))}><${Icon} n="chevron-right" s=${18} /></button>
-    ${score && html`<button class="btn xs lime who-plus" aria-label=${`幫 ${nameOf(seat)} 加 1 分`} onClick=${act((e) => rvScore(t, seat, e.currentTarget, 1))}>+1</button>`}</span>`; // 放大看時直接一顆 +1（2026-11-03 乙練：要看得出能加分）
+  const g = (t.gave || {})[seat] || 0;
+  return html`<span class="vsep dt-sep"></span><span class="who-id"><span class=${'who-face' + kidCls(t, seat)}><${SeatFace} t=${t} seat=${seat} box=${34} /></span><b>${nameOf(seat)}</b>${score && g !== 0 && html`<span class=${'who-got' + (g < 0 ? ' neg' : '')} key=${'g' + g}>${g > 0 ? '+' + g : '−' + -g}</span>`}</span>
+    <span class="who-nav"><button aria-label="上一位" disabled=${idx <= 0} onClick=${act(() => go(idx - 1))}><${Icon} n="chevron-left" s=${18} /></button><small>${idx + 1} / ${n}</small><button aria-label="下一位" disabled=${idx >= n - 1} onClick=${act(() => go(idx + 1))}><${Icon} n="chevron-right" s=${18} /></button></span>`;
 }
+const WhoPlus = ({ t, seat }) => html`<button class="btn sm who-plus" aria-label=${`幫 ${nameOf(seat)} 加 1 分`} onClick=${act((e) => rvScore(t, seat, e.currentTarget, 1))}>+1</button>`;
 function plusRight() {
   const t = S.task; if (!t || t.plusDone) return;
   const right = Object.entries(t.answers).filter(([, v]) => v === t.correct).map(([k]) => +k);
@@ -1706,7 +1708,7 @@ function TextBig({ t, seat, onBack, records }) {
     <div class="detail-top">
       <button class=${'btn sm sec dt-back ' + hint('t-detail-back')} onClick=${act(back)}><${Icon} n="arrow-left" s=${18} />返回</button>
       <${WhoNav} t=${t} seat=${cur} idx=${idx} n=${seats.length} go=${(i) => setCur(seats[i])} score=${!records} />
-      <span class="spacer"></span>
+      <span class="spacer"></span>${!records && html`<${WhoPlus} t=${t} seat=${cur} />`}
       ${!records && (shared ? html`<button class="btn sm sec" onClick=${act(unshare)}>停止分享</button>` : html`<button class="btn sm" onClick=${act(() => { S.shared = { seat: cur, type: 'text', anon: false }; toast('teacher', '已分享畫面'); })}><${Icon} n="cast" s=${16} />分享畫面</button>`)}
     </div>
   </div>`;
@@ -2143,7 +2145,7 @@ function Detail() {
       <div class="detail-top">
         <button class=${'btn sm sec dt-back ' + hint('t-detail-back')} onClick=${act(() => { task.view = null; if (S.shared) unshare(); })}><${Icon} n="arrow-left" s=${18} />返回</button>
         <${WhoNav} t=${task} seat=${seat} idx=${idx} n=${seats.length} go=${(i) => { task.view = seats[i]; if (isShared) S.shared = { ...S.shared, seat: task.view }; }} />
-        <span class="spacer"></span>
+        <span class="spacer"></span><${WhoPlus} t=${task} seat=${seat} />
         ${isShared ? html`<button class="btn sm sec" onClick=${act(unshare)}>停止分享</button>` : html`<button class=${'btn sm ' + hint('t-share')} onClick=${act(() => share(seat))}><${Icon} n="cast" s=${16} />分享畫面</button>`}
       </div>
       <div class="dt-stage">
