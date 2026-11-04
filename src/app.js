@@ -1975,7 +1975,7 @@ function TimerPop({ pinned }) {
         ${edit ? (() => { const save = () => commit(`${mRef.current.value || 0}:${sRef.current.value || 0}`);
             const key = (e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEdit(null); };
             const blur = () => setTimeout(() => { if (![mRef.current, sRef.current].includes(document.activeElement)) save(); }, 0);
-            const num = (e, max) => { const v = e.currentTarget.value.replace(/\D/g, '').slice(0, 2); e.currentTarget.value = v; if (e.currentTarget === mRef.current && v.length === 2) { sRef.current.focus(); sRef.current.select(); } };
+            const num = (e) => { const raw = e.currentTarget.value, v = raw.replace(/\D/g, '').slice(0, 2); e.currentTarget.value = v; if (e.currentTarget === mRef.current && (v.length === 2 || /[:：.\s]/.test(raw))) { sRef.current.focus(); sRef.current.select(); } }; // 分鐘打一位數也行；打兩位或打冒號就跳到秒
             const field = (ref, k, v, label) => html`<input class="tm-in-edit" ref=${(el) => { ref.current = el; if (el && edit === k && !el.dataset.f) { el.dataset.f = 1; el.focus(); el.select(); } }} inputmode="numeric" aria-label=${label} value=${String(v).padStart(2, '0')} onInput=${num} onKeyDown=${key} onBlur=${blur} onFocus=${(e) => e.currentTarget.select()} />`;
             return html`<span class="tm-in2">${field(mRef, 'm', Math.floor(left / 60), '分')}<b>:</b>${field(sRef, 's', left % 60, '秒')}</span>`; })()
           : T && T.done ? html`<span class="tm-t">時間到</span>`
