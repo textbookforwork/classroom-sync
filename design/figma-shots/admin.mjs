@@ -31,18 +31,18 @@ await W(); await shot(p, 'admin-07.png', ['.dialog .seg', '.dialog .form-grid'])
 // 8 多筆：預覽帳號與密碼規則
 await ev(() => { const A = S.admin; A.mode = 'multi'; A.draft.pw = 'star501'; refresh(); });
 await W(); await shot(p, 'admin-08.png', ['.preview-line']);
-// 9 建好後：已建立＋下載帳密清單，取消變完成
+// 9 建好後：已建立＋下載帳密清單，「建立 N 個帳號」變灰
 await ev(() => { S.admin.justMade = true; refresh(); });
-await W(); await shot(p, 'admin-09.png', ['.done-card', 'txt=完成']);
+await W(); await shot(p, 'admin-09.png', ['.done-card', 'txt=建立 30 個帳號']);
 // 10 Excel 匯入
 await ev(() => { S.admin.justMade = false; S.admin.mode = 'excel'; refresh(); });
 await W(); await shot(p, 'admin-10.png', ['.drop', 'txt=下載範本']);
-// 11 學生表格：被老師移出班級的學生，班級欄變空白、帳號保留
-await ev(() => { S.admin.modal = null; S.removed = [7]; S.admin.filter = '全部'; refresh(); });
-await W(); await shot(p, 'admin-11.png', ['.acc .tbl tbody tr@6']);
-// 12 搜尋「未分班」
+// 11 學生表格的搜尋：比對學校、班級（或「未分班」）、姓名、帳號，打一部分也找得到，英文不分大小寫
+await ev(() => { S.admin.modal = null; S.removed = [7]; S.admin.filter = '全部'; S.admin.q.students = 'XG5011'; refresh(); });
+await W(); await shot(p, 'admin-11.png', ['.acc-bar .search']);
+// 12 搜尋「未分班」：被老師移出班級的學生
 await ev(() => { S.admin.q.students = '未分班'; refresh(); });
-await W(); await shot(p, 'admin-12.png', ['.acc-bar .search', '.note-line']);
+await W(); await shot(p, 'admin-12.png', ['.acc .tbl tbody tr@0']);
 // 13 搜尋找不到
 await ev(() => { S.admin.q.students = '王小美'; refresh(); });
 await W(); await shot(p, 'admin-13.png', ['.acc-list']);

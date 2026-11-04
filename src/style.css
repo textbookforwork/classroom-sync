@@ -1975,6 +1975,27 @@ a.btn { text-decoration: none; }
 
 .abtn.sent { box-shadow: inset 0 0 0 1px #DFE880; }
 .abtn:disabled { cursor: default; opacity: .7; }
+.rs-talk { display: flex; align-items: center; gap: 20px; }
+.rs-pal { flex: none; }
+.rs-bub { position: relative; flex: 1; background: var(--raised); border: 1.5px solid var(--line-subtle); border-radius: 20px; padding: 14px 18px; font-size: 16px; line-height: 1.6; }
+.rs-bub::before { content: ""; position: absolute; left: -11px; top: 50%; margin-top: -10px; width: 20px; height: 20px; background: var(--raised); border-left: 1.5px solid var(--line-subtle); border-bottom: 1.5px solid var(--line-subtle); transform: rotate(45deg); border-radius: 0 0 0 4px; } /* 尖角指向夥伴，像對話框 */
+.rs-bub b { display: block; font-size: 22px; margin-bottom: 2px; }
+.rs-bub.ok b { color: #2E7D4F; }
+.rs-card { margin-top: 16px; border-radius: 14px; background: var(--sunken); padding: 12px 14px; }
+.rs-q { margin: 0 0 8px 2px; font-size: 14px; color: var(--text-2); }
+.rs-opt { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 10px; font-size: 14px; color: var(--text-2); min-height: 40px; }
+.rs-opt i { font-style: normal; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--line); color: var(--ink); flex: none; }
+.rs-opt.right { background: var(--raised); color: var(--ink); font-weight: 600; box-shadow: inset 0 0 0 1.5px #2E7D4F; }
+.rs-opt.right i { background: #2E7D4F; color: #fff; box-shadow: none; }
+.rs-opt.mine { background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--text-3); }
+.rs-opt small { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--text-2); }
+.rs-opt.right small { color: #2E7D4F; }
+.rs-letters { display: flex; gap: 10px; justify-content: center; padding: 6px 0 20px; }
+.rs-letters span { position: relative; width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 20px; font-weight: 600; background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--line-subtle); color: var(--text-3); }
+.rs-letters .right { background: #2E7D4F; color: #fff; box-shadow: none; }
+.rs-letters .mine { box-shadow: inset 0 0 0 1.5px var(--text-3); color: var(--ink); }
+.rs-letters em { position: absolute; bottom: -19px; font-style: normal; font-size: 11px; white-space: nowrap; color: var(--text-2); }
+.rs-letters .right em { color: #2E7D4F; }
 .res-pal { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; }
 .res-pal .say { padding: 10px 16px; border-radius: 18px 18px 18px 4px; background: var(--sunken); font-size: 15px; }
 /* 被抽到 ≠ 被加分：抽中只是白底綠框粗體；加過分才在旁邊出現綠色分數；+1 鈕滑過才出現 */

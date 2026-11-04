@@ -2464,19 +2464,24 @@ function VoiceDialog() {
       </div>`}
     </div>`, act(close), 'ans-dlg');
 }
+/* 學生看答題結果：夥伴開口跟學生說（第一句就是結果，接夥伴的話），下面灰底卡片放答案；
+   老師有打題目或選項文字就列出來，沒有就只排字母。正確＝綠框打勾，你選的＝灰框，不用紅色（2026-11-04 乙練） */
 function ResultDialog() {
   const s = S.s, t = S.task;
   if (!t || t.type !== 'choice' || !t.correct) return null;
-  const mine = t.answers[ME];
+  const mine = t.answers[ME], L = optLetters(t), txt = (x) => (t.opts || [])[L.indexOf(x)] || '';
   const kind = !mine ? 'none' : mine === t.correct ? 'ok' : 'bad';
   const close = () => { s.modal = null; S.flags.resultSeen = true; };
   const a = s.avatar || { shape: 'pink', eye: 'happy' };
+  const nm = (x) => txt(x) || ` ${x}`, say = (k) => line(k).replace(/^答對了[！!，,。]?\s*/, ''), hasText = !!(t.q || L.some((x) => txt(x)));
+  const head = { ok: '答對了！', bad: '差一點點', none: '這題你沒有作答' }[kind];
+  const body = kind === 'ok' ? `${txt(t.correct) ? `就是${txt(t.correct)}` : `答案就是 ${t.correct}`}，${say('right')}`
+    : kind === 'bad' ? `答案是${nm(t.correct)}，你選了${nm(mine)}。${say('wrong')}` : `答案是${nm(t.correct)}，下次一起試試看。`;
   return dlg('答題結果', html`<div class="pop-b" style="padding-top:24px">
-    <div class=${'result ' + kind}>
-      ${kind !== 'none' && html`<div class="res-pal"><${Companion} shape=${a.shape} eye=${kind === 'ok' ? 'happy' : 'calm'} box=${96} cls=${kind === 'ok' ? 'jump' : 'sway'} /><span class="say">${line(kind === 'ok' ? 'right' : 'wrong')}</span></div>`}
-      <h3>${kind === 'ok' ? '答對了！' : kind === 'bad' ? '答錯了' : '未作答'}</h3>
-      <p>正確答案 <b>${t.correct}</b>${mine && kind === 'bad' ? html`　你選 ${mine}` : ''}</p>
-    </div>
+    <div class="rs-talk"><span class="rs-pal"><${Companion} shape=${a.shape} eye=${kind === 'ok' ? 'happy' : 'calm'} box=${84} cls=${kind === 'ok' ? 'jump' : 'sway'} /></span>
+      <div class=${'rs-bub ' + kind}><b>${head}</b>${body}</div></div>
+    <div class="rs-card">${hasText ? html`${t.q && html`<p class="rs-q">${t.q}</p>`}${L.map((x) => html`<div class=${'rs-opt' + (x === t.correct ? ' right' : x === mine ? ' mine' : '')}><i>${x}</i>${txt(x)}<small>${x === t.correct ? (x === mine ? '✓ 正確答案・你選的' : '✓ 正確答案') : x === mine ? '你選的' : ''}</small></div>`)}`
+      : html`<div class="rs-letters">${L.map((x) => html`<span class=${x === t.correct ? 'right' : x === mine ? 'mine' : ''}>${x}${x === t.correct ? html`<em>✓ 正確答案</em>` : x === mine ? html`<em>你選的</em>` : ''}</span>`)}</div>`}</div>
     <div class="dialog-foot" style="justify-content:center"><button class="btn sm" onClick=${act(close)}>知道了</button></div></div>`, act(close), 'ans-dlg');
 }
 function FeedbackDialog() {
