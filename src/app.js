@@ -482,12 +482,11 @@ function bumpTimer(d) { const T = S.timer; if (!T || T.done) return; const now =
 function tickTimer() {
   const T = S.timer; if (!T || T.done || T.paused) return;
   if (Date.now() >= T.endAt) {
-    T.done = true; beep();
-    later(3000, () => { if (S.timer === T) S.timer = null; });
+    T.done = true; beep(); // 時間到：卡片停在「時間到」，老師按「關閉」才收掉（2026-11-04 乙練選 A）
     const k = S.task;
     if (T.taskId && k && k.id === T.taskId && k.status === 'collecting') {
       if (k.type === 'choice') closeAnswer(); else stopTask();
-      S.t.pop = 'task'; S.t.tool = null; // 時間到直接打開任務彈窗看結果（2026-11-03 乙練）
+      S.t.pop = 'task'; S.t.tool = null; S.timer = null; // 時間到直接打開任務彈窗看結果（2026-11-03 乙練）；任務的倒數跟著收掉
       toast('teacher', '時間到');
     }
   }
@@ -1270,9 +1269,9 @@ function LotteryPop() {
       <button class=${'lot-shape' + (L.rolling ? ' rolling' : '') + (L.seat != null ? ' ready' : '')} key=${'s' + L.fx} disabled=${L.seat == null || L.rolling} aria-label=${L.seat != null ? `幫 ${nameOf(L.seat)} 加 1 分` : '抽籤'} onClick=${act(give)}>
         <${Pebble} shape="science" size=${200} dark=${true} />
         <span class="lot-num" ref=${numRef}>${L.seat != null ? pad(L.seat) : '?'}</span>
-        ${L.plus > 0 && html`<span class="lot-plus" key=${L.fx}>+1</span>`}
+        ${L.seat != null && !L.rolling && html`<span class=${'lot-plus ' + (L.plus > 0 ? 'got' : 'todo')} key=${'p' + L.fx}>+${L.plus || 1}</span>`}
       </button>
-      <div class="lot-name" ref=${nameRef}>${L.seat != null ? nameOf(L.seat) : ' '}${L.plus > 0 ? html`<small> +${L.plus}</small>` : ''}</div>
+      <div class="lot-name" ref=${nameRef}>${L.seat != null ? nameOf(L.seat) : ' '}</div>
       <button class="btn sm lot-go" disabled=${L.rolling} onClick=${act(roll)}>${L.rolling ? html`<span class="dice-spin"><${Icon} n="dice" s=${18} /></span>` : L.seat != null ? '再抽一次' : '抽籤'}</button>
     </div></div>`;
 }
@@ -1952,7 +1951,7 @@ function TimerPop({ pinned }) {
   const [edit, setEdit] = useState(false);
   const close = act(() => { t.pop = null; });
   const left = T ? timeLeft() : t.timerSec;
-  const frac = T ? left / T.total : 1;
+  const frac = T ? (T.done ? 1 : left / T.total) : 1; // 時間到：整圈變紅
   const bump = (d) => act(() => { if (T) bumpTimer(d * 60); else t.timerSec = Math.max(10, Math.min(3600, t.timerSec + d * 60)); });
   // 點時間就能直接打：例如改成 0:30
   const commit = (v) => { const sec = parseTime(v); setEdit(false); if (sec == null || sec < 1) return;
@@ -1961,7 +1960,7 @@ function TimerPop({ pinned }) {
     else if (T.paused) { T.left = n; T.total = Math.max(T.total, n); }
     else if (!T.done) { T.endAt = Date.now() + n * 1000; T.total = Math.max(T.total, n); }
     refresh(); };
-  return html`<div class=${'pop timer-pop' + (pinned ? ' pinned' : '')}>
+  return html`<div class=${'pop timer-pop' + (pinned ? ' pinned' : '') + (T && T.done ? ' done' : '')}>
     ${!pinned && html`<div class="pop-h"><h4>計時器</h4><button class="x-btn" aria-label="關閉" onClick=${close}><${Icon} n="x" /></button></div>`}
     <div class="pop-b">
       ${pinned && html`<span class="tm-grip" aria-hidden="true"></span>`}
@@ -1969,11 +1968,12 @@ function TimerPop({ pinned }) {
         ${edit ? html`<input class="tm-in-edit" aria-label="設定時間" value=${mmss(left)} ref=${(el) => el && document.activeElement !== el && (el.focus(), el.select())}
             onKeyDown=${(e) => { if (e.key === 'Enter') commit(e.currentTarget.value); if (e.key === 'Escape') setEdit(false); }} onBlur=${(e) => commit(e.currentTarget.value)} />`
           : html`<button class="tm-t tm-edit" aria-label="點一下改時間" disabled=${T && T.done} onClick=${() => setEdit(true)}>${T && T.done ? '時間到' : mmss(left)}</button>`}
+        ${T && T.done && html`<small class="tm-was">${mmss(T.total)}</small>`}
         ${!(T && T.done) && html`<span class="tm-adj"><button aria-label="少 1 分鐘" disabled=${T ? left <= 60 : t.timerSec <= 60} onClick=${bump(-1)}><${Icon} n="minus" s=${14} /></button>1 分鐘<button aria-label="多 1 分鐘" onClick=${bump(1)}><${Icon} n="plus" s=${14} /></button></span>`}
       </${Ring}>
       ${!(T && T.taskId) && html`<div class="tm-acts">
         ${!T ? html`<button class=${'btn sm tm-go ' + hint('t-timer-go')} onClick=${act(() => { startTimer(t.timerSec); t.pop = null; })}>開始計時</button>`
-        : T.done ? html`<button class="btn sm sec tm-go" onClick=${act(stopTimer)}>停止</button>`
+        : T.done ? html`<button class="btn sm tm-go" onClick=${act(stopTimer)}>關閉</button>`
         : html`<button class="tm-c gray" aria-label=${T.paused ? '繼續' : '暫停'} onClick=${act(pauseTimer)}><${Icon} n=${T.paused ? 'play' : 'pause'} s=${20} /></button>
                <button class="tm-c" aria-label="停止" onClick=${act(stopTimer)}><${Icon} n="square" s=${18} /></button>`}
       </div>`}
@@ -2311,7 +2311,7 @@ function StudentApp() {
       </div>
     </div>
     ${S.timer && live && html`<div class=${'timer-card' + (S.timer.done ? ' done' : '')} role="timer" aria-label="老師的計時器">
-      <${Ring} size=${104} frac=${S.timer.done ? 0 : timeLeft() / S.timer.total} done=${S.timer.done}>
+      <${Ring} size=${104} frac=${S.timer.done ? 1 : timeLeft() / S.timer.total} done=${S.timer.done}>
         <b class="tm-t sm">${S.timer.done ? '時間到' : mmss(timeLeft())}</b>${S.timer.paused && html`<small>暫停中</small>`}
       </${Ring}></div>`}
     ${'' /* 加分提示只留右下角夥伴說話，右上角的卡片拿掉（2026-11-03 乙練） */}
