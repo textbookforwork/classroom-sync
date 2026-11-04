@@ -2111,7 +2111,7 @@ function TaskPanel() {
   const body = () => {
     if (tab === 'none') return html`<${NameChips} t=${task} list=${noneL} />`;
     if (task.type === 'text') return html`<div class="text-cards">${doneL.map((seat) => html`<button data-seat=${seat} class=${'tcard' + drawnCls(seat) + (seat === ME ? ' ' + hint('t-textcard') : '')} onClick=${act(() => { task.view = seat; S.flags.textViewed = true; })}><span class="who2"><${SeatBtn} t=${task} seat=${seat} />${nameOf(seat)}</span><span class="tc-t">${task.texts[seat]}</span></button>`)}</div>`;
-    if (task.type === 'voice') return html`<div class="voice-grid">${doneL.map((seat) => html`<${VoiceTile} t=${task} seat=${seat} />`)}</div>`;
+    if (task.type === 'voice') return html`<div class="vs-grid">${doneL.map((seat) => html`<${VoiceSeat} t=${task} seat=${seat} />`)}</div>`;
     return html`<div class="subs subs-all">${doneL.map((seat) => { const sub = task.subs[seat];
       return html`<button data-seat=${seat} class=${'shot-t' + drawnCls(seat) + ' ' + (seat === ME ? hint('t-detail') : '')} aria-label=${`放大看 ${nameOf(seat)} 的作品`} onClick=${act(() => openDetail(seat))}>
         <span class="box"><${MiniWork} t=${task} layers=${[sub.ink, sub.notes]} /></span><${SeatBtn} t=${task} seat=${seat} cls="shot-no" /><span class="shot-nm">${nameOf(seat)}</span></button>`; })}</div>`;
@@ -2455,6 +2455,16 @@ function RvFoot({ list }) {
   return html`<div class="rv-foot">
     <button class="btn xs sec" disabled=${!list.length} onClick=${act(() => draw(list))}>${S.drawing ? html`<span class="dice-spin"><${Icon} n="dice" s=${16} /></span>` : '抽籤'}</button>
     <button class=${'btn xs sec ' + hint('t-next-task')} onClick=${act(endTask)}>再派一題</button></div>`;
+}
+/* 聲音題檢討：跟名單一樣的座號圈，滑過出現播放鍵、點了就播（播放中粗綠框＋暫停鍵），名字下面長度和一顆框線 +1（2026-11-04 乙練） */
+function VoiceSeat({ t, seat }) {
+  const v = t.voices[seat], key = 'v' + t.id + seat, on = S.playingVoice === key, hint = useHint(), minus = S.t.scoreMode === 'minus';
+  return html`<div data-seat=${seat} class=${'vs' + drawnCls(seat) + (on ? ' on' : '')}>
+    <button class=${'vs-c' + kidCls(t, seat) + (seat === ME ? ' ' + hint('t-voice-play') : '')} aria-label=${(on ? '暫停 ' : '播放 ') + nameOf(seat)} onClick=${act(() => { playVoice(key); S.flags.voicePlayed = true; })}>
+      <span class="vs-face"><${SeatFace} t=${t} seat=${seat} box=${50} /></span><i class="vs-ic"><${Icon} n=${on ? 'pause' : 'play'} s=${18} /></i><${SeatSc} t=${t} seat=${seat} /></button>
+    <span class="vs-nm">${nameOf(seat)}</span><small class="vs-len">${mmss(v.sec)}</small>
+    <button class=${'vs-plus' + (minus ? ' m' : '')} aria-label=${`幫 ${nameOf(seat)} ${minus ? '扣' : '加'} 1 分`} onClick=${act((e) => rvScore(t, seat, e.currentTarget))}>${minus ? '−1' : '+1'}</button>
+  </div>`;
 }
 /* 聲音題的一份回答：一格一位，上面座號名字，中間播放鍵和長度，右上角 +1（點了直接加分） */
 function VoiceTile({ t, seat, live }) {
