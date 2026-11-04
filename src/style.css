@@ -895,6 +895,8 @@ textarea.inp { height: 130px; padding: 12px 16px; resize: none; line-height: 1.6
 .tm-t.sm { font-size: 22px; letter-spacing: .5px; }
 .tm-ring.done .tm-t { color: var(--danger); font-size: 28px; letter-spacing: 0; }
 .tm-ring.done .tm-t.sm { font-size: 19px; }
+.timer-pop.hurry .tm-ring > svg circle:last-child, .timer-card.hurry .tm-ring > svg circle:last-child { stroke: var(--danger); } /* 最後 10 秒：老師、學生的數字和圓圈都變紅（2026-11-04 乙練） */
+.timer-pop.hurry .tm-split, .timer-pop.hurry .tm-t, .timer-card.hurry .tm-t { color: var(--danger); }
 .tm-was { font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; margin-top: -4px; }
 .timer-pop.pinned.done { animation: shake .4s 2, tmglow 1.6s ease-in-out .8s infinite; } /* 晃兩下，外圈紅光一亮一暗 */
 @keyframes tmglow { 0%, 100% { box-shadow: var(--shadow-pop), 0 0 0 0 rgba(214,48,32,0); } 50% { box-shadow: var(--shadow-pop), 0 0 0 8px rgba(214,48,32,.18); } }
@@ -1851,8 +1853,8 @@ a.btn { text-decoration: none; }
 .pa-h .spacer { flex: 1; }
 
 /* 聲音題：錄完同一顆圓鈕變播放鍵（黑底），不另外放「先聽一次」 */
-.rec-btn.play { background: var(--ink); }
-.rec-btn.play.on { background: var(--olive); }
+.rec-btn.play { background: var(--olive); } /* 播放鍵用綠色，跟錄音的紅色分開（2026-11-04 乙練） */
+.rec-btn.play.on { background: #3F4D00; }
 
 /* 聲音題回收：一格一位的格狀排法（不用長條，資訊不擠） */
 .voice-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-height: 470px; overflow: auto; scrollbar-width: none; padding: 3px; }

@@ -1967,7 +1967,7 @@ function TimerPop({ pinned }) {
     else if (T.paused) { T.left = n; T.total = Math.max(T.total, n); }
     else if (!T.done) { T.endAt = Date.now() + n * 1000; T.total = Math.max(T.total, n); }
     refresh(); };
-  return html`<div class=${'pop timer-pop' + (pinned ? ' pinned' : '') + (T && T.done ? ' done' : '')}>
+  return html`<div class=${'pop timer-pop' + (pinned ? ' pinned' : '') + (T && T.done ? ' done' : T && !T.paused && left <= 10 ? ' hurry' : '')}>
     ${!pinned && html`<div class="pop-h"><h4>計時器</h4><button class="x-btn" aria-label="關閉" onClick=${close}><${Icon} n="x" /></button></div>`}
     <div class="pop-b">
       ${pinned && html`<span class="tm-grip" aria-hidden="true"></span>`}
@@ -2322,7 +2322,7 @@ function StudentApp() {
         </${Sheet}>
       </div>
     </div>
-    ${S.timer && live && html`<div class=${'timer-card' + (S.timer.done ? ' done' : '')} role="timer" aria-label="老師的計時器">
+    ${S.timer && live && html`<div class=${'timer-card' + (S.timer.done ? ' done' : !S.timer.paused && timeLeft() <= 10 ? ' hurry' : '')} role="timer" aria-label="老師的計時器">
       <${Ring} size=${104} frac=${S.timer.done ? 1 : timeLeft() / S.timer.total} done=${S.timer.done}>
         <b class="tm-t sm">${S.timer.done ? '時間到' : mmss(timeLeft())}</b>${S.timer.paused && html`<small>暫停中</small>`}
       </${Ring}></div>`}
