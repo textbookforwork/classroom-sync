@@ -1181,8 +1181,8 @@ function Rail({ side, preview, edit }) { // preview：學生工具列設定的�
     ${teacher && !preview && (BAR === 'toolbox' || PAGER_POS === 'rail') && html`<div class="sync-zone">${BAR === 'toolbox' && syncTile}${PAGER_POS === 'rail' && pagerEl}</div>`}
     ${!teacher && html`<div class="spill-wrap">${(() => {
       // 預覽：點一下切換「跟隨中」和「自己翻頁」兩種樣子給老師看（2026-11-03 乙練）
-      if (preview) return S.tbFollow !== false ? html`<button class="spill on" title="跟隨中（點一下看自己翻頁的樣子）" onClick=${act(() => { S.tbFollow = false; })}><span class="sav">方</span><b>${PAGES[page].nums[0]}</b></button>`
-        : html`<button class="sfollow" title="自己翻頁中（點一下看跟隨的樣子）" onClick=${act(() => { S.tbFollow = true; })}>方</button>${pagerEl}`; // 學生工具列預覽：同步鈕是左欄固定的一格，畫上課中跟隨的樣子（2026-11-03 乙練）
+      if (preview) return S.tbFollow !== false ? html`<button class="spill on" title="這是學生「跟隨老師」時的頁數鈕（藍色，頁碼跟著老師）。點一下，看學生自己翻頁時的樣子" onClick=${act(() => { S.tbFollow = false; })}><span class="sav">方</span><b>${PAGES[page].nums[0]}</b></button>`
+        : html`<button class="sfollow" title="這是學生「自己翻頁」時的樣子：這顆是跟回老師的按鈕，下面可以自己翻頁。點一下，看學生跟隨老師時的樣子" onClick=${act(() => { S.tbFollow = true; })}>方</button>${pagerEl}`; // 學生工具列預覽：同步鈕是左欄固定的一格，畫上課中跟隨的樣子（2026-11-03 乙練）
       const live = S.s.inClass && S.cls.live, lk = live && locked(), on = live && following();
       /* 鎖定：深色、只有頁碼，不能按 */
       if (lk) return html`<div class="spill lock" aria-label="老師鎖定中"><span class="sav"><${Icon} n="lock" s=${14} /></span><b>${PAGES[page].nums[0]}</b></div>`;
