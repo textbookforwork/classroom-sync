@@ -491,13 +491,15 @@ function tickTimer() {
     }
   }
 }
-/* 時間到的提示音：木琴往上敲四個音「叮叮叮～咚」（乙練選 音效/A_木琴上行；2026-11-04） */
+/* 時間到的提示音：三聲泡泡「啵啵啵」再一聲「叮咚」（乙練選 音效/C_泡泡叮咚，要大聲一點；2026-11-04） */
 function beep() {
-  try { const A = new (window.AudioContext || window.webkitAudioContext)();
-    [[0, 1046.5, 9], [.13, 1318.5, 9], [.26, 1568, 9], [.42, 2093, 5]].forEach(([t, f, dk]) => [[1, .5], [4, .12], [10, .03]].forEach(([k, v]) => {
-      const o = A.createOscillator(), g = A.createGain(), at = A.currentTime + t, len = 4.6 / dk;
-      o.type = 'sine'; o.frequency.value = f * k; g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(v * .35, at + .004); g.gain.exponentialRampToValueAtTime(.0001, at + len);
-      o.connect(g); g.connect(A.destination); o.start(at); o.stop(at + len + .05); })); } catch (e) {}
+  try { const A = new (window.AudioContext || window.webkitAudioContext)(), out = A.createGain(); out.gain.value = .9; out.connect(A.destination);
+    [[0, 400, 1200], [.15, 500, 1500], [.3, 600, 1800]].forEach(([t, f0, f1]) => { const o = A.createOscillator(), g = A.createGain(), at = A.currentTime + t;
+      o.type = 'sine'; o.frequency.setValueAtTime(f0, at); o.frequency.linearRampToValueAtTime(f1, at + .12); g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(.8, at + .004); g.gain.exponentialRampToValueAtTime(.0001, at + .14);
+      o.connect(g); g.connect(out); o.start(at); o.stop(at + .16); });
+    [[2093, 5], [1568, 6]].forEach(([f, dk]) => [[1, .5], [4, .12], [10, .03]].forEach(([k, v]) => { const o = A.createOscillator(), g = A.createGain(), at = A.currentTime + .5, len = 4.6 / dk;
+      o.type = 'sine'; o.frequency.value = f * k; g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(v, at + .004); g.gain.exponentialRampToValueAtTime(.0001, at + len);
+      o.connect(g); g.connect(out); o.start(at); o.stop(at + len + .05); })); } catch (e) {}
 }
 
 /* ───────── 補充資源（同編輯器閱讀模式的補充資源面板，內容照《自然科學 5下》第 2、5 頁） ─────────
