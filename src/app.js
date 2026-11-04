@@ -1606,7 +1606,7 @@ function Records() {
   /* 2026-11-03 乙練：30 格一樣重、看不出重點 → 上方一行先講重點；0 分變淡、有分的才有分數膠囊；排序改成兩顆切換 */
   const scoreRow = (x, n, top, extra = {}) => html`<${extra.onClick ? 'button' : 'div'} class=${'pt2' + (n === 0 ? ' zero' : '') + (extra.sel ? ' sel' : '') + (extra.cls ? ' ' + extra.cls : '')} onClick=${extra.onClick}>
     <span class="sn">${pad(x.seat)}</span><span class="nm">${x.name}</span>
-    ${n === 0 ? html`<span class="sc0">—</span>` : html`<b class=${'sc' + (n < 0 ? ' neg' : n === top ? ' top' : '')}>${fmt(n)}</b>`}</${extra.onClick ? 'button' : 'div'}>`;
+    ${n !== 0 && html`<b class=${'sc' + (n < 0 ? ' neg' : '')}>${fmt(n)}</b>`}</${extra.onClick ? 'button' : 'div'}>`;
   const sortSeg = html`<div class="seg" role="radiogroup" aria-label="排序">${[['seat', '座號'], ['score', '分數']].map(([k, l]) => html`<button role="radio" aria-pressed=${(r.sort || 'seat') === k} onClick=${act(() => { r.sort = k; })}>${l}</button>`)}</div>`;
   const exportBtn = html`<button class="ghost" onClick=${act(() => toast('teacher', '已匯出 Excel'))}><${Icon} n="download" s=${15} />匯出 Excel</button>`;
   const sorted = (get) => [...roster()].sort((a, b) => (r.sort === 'score' ? get(b.seat) - get(a.seat) || a.seat - b.seat : a.seat - b.seat));
@@ -1617,7 +1617,6 @@ function Records() {
     const top = Math.max(0, ...roster().map((x) => get(x.seat))), tops = top > 0 ? roster().filter((x) => get(x.seat) === top) : [];
     return html`<div>
       <div class="rec-h">${back({ view: 'sessions' })}<b style="font-size:18px">${sessName(s)}</b><small>${s.date} ${s.time}</small><span class="spacer"></span>${sortSeg}${exportBtn}</div>
-      <div class="rec-sum"><span><b>${got.length}</b> 人有加分</span><span>共 <b>${sum}</b> 分</span>${tops.length > 0 && html`<span class="tops">最多${tops.map((x) => html`<em>${pad(x.seat)} ${x.name} ${fmt(top)}</em>`)}</span>`}</div>
       <div class="pts2">${sorted(get).map((x) => scoreRow(x, get(x.seat), top))}</div></div>`;
   }
   if (r.view === 'total') {
@@ -1627,7 +1626,6 @@ function Records() {
     const never = roster().filter((x) => !S.sessions.some((ss) => (ss.scores[x.seat] || 0) > 0)).length;
     return html`<div class="rec-wrap">
       <div class="rec-h">${back({ view: 'sessions' })}<b style="font-size:18px">累計總分（本學期）</b><small>${S.sessions.length} 次上課</small><span class="spacer"></span>${sortSeg}${exportBtn}</div>
-      <div class="rec-sum"><span>全班平均 <b>${avg}</b> 分</span><span>最高 <b>${top}</b> 分</span><span>還沒加過分 <b>${never}</b> 人</span></div>
       <div class="pts2" style=${{ paddingRight: person ? '340px' : 0 }}>${sorted(totalOf).map((x) => scoreRow(x, totalOf(x.seat), top, { onClick: act(() => { r.person = r.person === x.seat ? null : x.seat; S.flags.personSeen = true; }), sel: person === x.seat, cls: x.seat === ME ? hint('t-rec-person') : '' }))}</div>
       ${person && html`<aside class="side-panel"><div style="display:flex;align-items:center;gap:10px"><span class="av-circle" style="width:44px;height:44px"><${Kid} seat=${person} box=${34} /></span><h4>${pad(person)} ${nameOf(person)}<small>累計 ${totalOf(person)} 分</small></h4>
           <button class="x-btn" style="margin-left:auto" aria-label="收起" onClick=${act(() => { r.person = null; })}><${Icon} n="x" /></button></div>
@@ -1689,7 +1687,7 @@ function ReturnResult({ t, records }) {
   const seats = present().map((s) => s.seat);
   if (big) return html`<${TextBig} t=${t} seat=${big} onBack=${() => setBig(null)} records=${records} />`;
   return html`<div>
-    <div class="rec-sum"><span><b>${answeredCount(t)}</b>／${seats.length} 回傳</span>${Object.keys(t.gave || {}).length > 0 && html`<span><b>${Object.keys(t.gave).length}</b> 人有加分</span>`}</div>
+    <div class="rec-sum"><span><b>${answeredCount(t)}</b>／${seats.length} 回傳</span></div>
     ${t.type !== 'voice' && (() => { const miss = seats.filter((x) => !(t.type === 'text' ? t.texts[x] : t.subs[x])); return miss.length > 0 && html`<div class="miss-line">沒交 ${miss.length} 人：${miss.map((x) => html`<span>${pad(x)} ${nameOf(x)}</span>`)}</div>`; })()}
     ${t.type === 'voice' ? html`<div class="voice-grid">${seats.filter((x) => (t.voices || {})[x]).map((seat) => html`<${VoiceTile} t=${t} seat=${seat} live=${false} />`)}</div>
       ${seats.some((x) => !(t.voices || {})[x]) && html`<div class="v-none"><b>未作答</b>${seats.filter((x) => !(t.voices || {})[x]).map((x) => html`<span>${pad(x)} ${nameOf(x)}</span>`)}</div>`}`
