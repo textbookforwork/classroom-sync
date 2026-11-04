@@ -1948,13 +1948,14 @@ function dragPin(e) {
 function TimerPop({ pinned }) {
   const T = S.timer; const hint = useHint(); const t = S.t;
   if (t.timerSec == null) t.timerSec = (t.timerMin || 5) * 60;
-  const [edit, setEdit] = useState(false);
+  const [edit, setEdit] = useState(null); // 改時間：分、秒各一格，冒號固定在中間（2026-11-04 乙練）
+  const mRef = useRef(), sRef = useRef();
   const close = act(() => { t.pop = null; });
   const left = T ? timeLeft() : t.timerSec;
   const frac = T ? (T.done ? 1 : left / T.total) : 1; // 時間到：整圈變紅
   const bump = (d) => act(() => { if (T) bumpTimer(d * 60); else t.timerSec = Math.max(10, Math.min(3600, t.timerSec + d * 60)); });
   // 點時間就能直接打：例如改成 0:30
-  const commit = (v) => { const sec = parseTime(v); setEdit(false); if (sec == null || sec < 1) return;
+  const commit = (v) => { const sec = parseTime(v); setEdit(null); if (sec == null || sec < 1) return;
     const n = Math.min(3600, Math.round(sec));
     if (!T) t.timerSec = n;
     else if (T.paused) { T.left = n; T.total = Math.max(T.total, n); }
@@ -1965,9 +1966,14 @@ function TimerPop({ pinned }) {
     <div class="pop-b">
       ${pinned && html`<span class="tm-grip" aria-hidden="true"></span>`}
       <${Ring} size=${pinned ? 150 : 184} frac=${frac} done=${T && T.done}>
-        ${edit ? html`<input class="tm-in-edit" aria-label="設定時間" value=${mmss(left)} ref=${(el) => el && document.activeElement !== el && (el.focus(), el.select())}
-            onKeyDown=${(e) => { if (e.key === 'Enter') commit(e.currentTarget.value); if (e.key === 'Escape') setEdit(false); }} onBlur=${(e) => commit(e.currentTarget.value)} />`
-          : html`<button class="tm-t tm-edit" aria-label="點一下改時間" disabled=${T && T.done} onClick=${() => setEdit(true)}>${T && T.done ? '時間到' : mmss(left)}</button>`}
+        ${edit ? (() => { const save = () => commit(`${mRef.current.value || 0}:${sRef.current.value || 0}`);
+            const key = (e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEdit(null); };
+            const blur = () => setTimeout(() => { if (![mRef.current, sRef.current].includes(document.activeElement)) save(); }, 0);
+            const num = (e, max) => { const v = e.currentTarget.value.replace(/\D/g, '').slice(0, 2); e.currentTarget.value = v; if (e.currentTarget === mRef.current && v.length === 2) { sRef.current.focus(); sRef.current.select(); } };
+            const field = (ref, k, v, label) => html`<input class="tm-in-edit" ref=${(el) => { ref.current = el; if (el && edit === k && !el.dataset.f) { el.dataset.f = 1; el.focus(); el.select(); } }} inputmode="numeric" aria-label=${label} value=${String(v).padStart(2, '0')} onInput=${num} onKeyDown=${key} onBlur=${blur} onFocus=${(e) => e.currentTarget.select()} />`;
+            return html`<span class="tm-in2">${field(mRef, 'm', Math.floor(left / 60), '分')}<b>:</b>${field(sRef, 's', left % 60, '秒')}</span>`; })()
+          : T && T.done ? html`<span class="tm-t">時間到</span>`
+          : html`<span class="tm-t tm-split"><button class="tm-edit" aria-label="改分鐘" onClick=${() => setEdit('m')}>${String(Math.floor(left / 60)).padStart(2, '0')}</button>:<button class="tm-edit" aria-label="改秒數" onClick=${() => setEdit('s')}>${String(left % 60).padStart(2, '0')}</button></span>`}
         ${T && T.done && html`<small class="tm-was">${mmss(T.total)}</small>`}
         ${!(T && T.done) && html`<span class="tm-adj"><button aria-label="少 1 分鐘" disabled=${T ? left <= 60 : t.timerSec <= 60} onClick=${bump(-1)}><${Icon} n="minus" s=${14} /></button>1 分鐘<button aria-label="多 1 分鐘" onClick=${bump(1)}><${Icon} n="plus" s=${14} /></button></span>`}
       </${Ring}>
