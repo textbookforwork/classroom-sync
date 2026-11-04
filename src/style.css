@@ -1270,6 +1270,9 @@ textarea.note-t { field-sizing: content; min-width: 96px; max-width: 296px; min-
 .rec-row .pencil { width: 30px; height: 30px; border-radius: 999px; border: 0; background: transparent; color: var(--text-3); cursor: pointer; display: grid; place-items: center; }
 .rec-row .pencil:hover { background: var(--muted); color: var(--ink); }
 .rec-row .inp { height: 34px; font-size: 14px; width: 220px; }
+/* 改名：按鉛筆就直接游標在裡面、原名字全選；白底橄欖綠框，像正在輸入；文字起點跟顯示時的名字對齊（2026-11-04 乙練） */
+.rec-row .inp.nm-edit { width: 280px; height: 36px; margin: -6px 0 -6px -11px; padding: 0 10px; font-size: 15px; color: var(--ink); background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--olive); border: 0; outline: none; }
+.rec-row:has(.nm-edit) { background: var(--raised); }
 .rec-h { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .rec-h .back { font-size: 18px; font-weight: 600; }
 .rec-h small { color: var(--text-3); font-size: 13px; }

@@ -1597,7 +1597,7 @@ function Records() {
       <button class=${'rec-row total ' + hint('t-rec-total')} onClick=${act(() => { v.rec = { view: 'total' }; })}><span>累計總分（本學期）</span><span class="spacer"></span><small>${S.sessions.length} 次</small><${Icon} n="chevron-right" /></button>
       ${S.sessions.map((s, i) => html`<div class=${'rec-row ' + (i === 0 ? hint('t-rec-session') : '')} role="button" tabindex="0" onClick=${act(() => { v.rec = { view: 'session', id: s.id, sort: 'seat' }; S.flags.sessionSeen = true; })}>
         <span class="when">${s.date} ${s.time}</span>
-        ${r.edit === s.id ? html`<input class="inp" id=${'nm-' + s.id} value=${s.name} placeholder=${secLabel(s) || '幫這堂課取個名字'} onClick=${(e) => e.stopPropagation()} onInput=${(e) => { s.name = e.target.value; }} onKeyDown=${act((e) => { if (e.key === 'Enter') r.edit = null; })} />`
+        ${r.edit === s.id ? html`<input class="inp nm-edit" id=${'nm-' + s.id} value=${s.name || secLabel(s)} placeholder="幫這堂課取個名字" ref=${(el) => { if (el && !el.dataset.f) { el.dataset.f = 1; el.focus(); el.select(); } }} onClick=${(e) => e.stopPropagation()} onInput=${(e) => { s.name = e.target.value; }} onKeyDown=${act((e) => { if (e.key === 'Enter' || e.key === 'Escape') r.edit = null; })} onBlur=${act(() => { if (r.edit === s.id) r.edit = null; })} />`
           : html`<span class="sess-nm">${s.name || secLabel(s)}</span>`}
         ${s.live && html`<span class="chip">上課中</span>`}
         <span class="spacer"></span>
