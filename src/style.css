@@ -33,7 +33,7 @@
   --shadow-float: 0 28px 80px rgba(26, 25, 23, 0.22);
   --shadow-pop: 0 12px 40px rgba(26, 25, 23, 0.16);
   --r-card: 16px; --r-panel: 20px; --r-tile: 12px; --r-field: 8px;
-  --font: "Outfit", "Noto Sans TC", "PingFang TC", "Heiti TC", system-ui, sans-serif;
+  --font: "Lexend", "Noto Sans TC", "PingFang TC", "Heiti TC", system-ui, sans-serif;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 * { box-sizing: border-box; }

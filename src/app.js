@@ -736,6 +736,8 @@ function playVoice(key) {
   if (voiceAudio) voiceAudio.pause();
   if (S.playingVoice === key) { S.playingVoice = null; voiceAudio = null; return; }
   S.playingVoice = key; voiceAudio = new Audio('assets/vega.mp3');
+  let shown = -1; // 播放膠囊顯示「已播／總長」，每過一秒重畫一次
+  voiceAudio.ontimeupdate = () => { const s = Math.floor(voiceAudio?.currentTime || 0); if (s !== shown) { shown = s; refresh(); } };
   voiceAudio.onended = () => { S.playingVoice = null; refresh(); }; voiceAudio.play().catch(() => {});
 }
 function submit() {
@@ -1402,7 +1404,7 @@ function Shelf({ side }) {
         ${bt === 'textbook' ? subjects.map((sj) => html`<section class="sec"><div class="sec-h"><${Pebble} shape=${sj} size=${24} dark=${true} /><h2>${sj}</h2></div>
             <div class="bk-grid">${TEXTBOOKS.filter((b) => b.subject === sj).map(card)}</div></section>`)
           : html`<div class="shelf-empty"><span class="ic"><${Icon} n="ghost" s=${40} /></span><p class="t">這裡還沒有${bt === 'shared' ? '共享教材' : '自編教材'}</p>
-            <p class="h">${bt === 'shared' ? '在自編教材按「共享」，就會出現在這裡' : '到數位教科書，按課本右下角的鉛筆就能建立一份'}</p></div>`}`}
+            <p class="h">${bt === 'shared' ? '在自編教材按「共享」，就會出現在這裡' : '到數位教科書，按課本卡片的「⋯」選「建立自編」就能建立一份'}</p></div>`}`}
     </section>
     ${admin && html`<${AdminModals} />`}
     ${S.profile && S.profile.side === side && html`<${ProfileDialog} />`}
@@ -2485,7 +2487,7 @@ function VoiceSeat({ t, seat, readonly }) { // readonly：學習紀錄裡回看�
     <button class=${'vs-c' + kidCls(t, seat) + (minus ? ' m' : '') + (readonly ? ' ro' : '')} disabled=${readonly} aria-label=${readonly ? `${pad(seat)} ${nameOf(seat)}` : `幫 ${nameOf(seat)} ${minus ? '扣' : '加'} 1 分`} onClick=${readonly ? undefined : act((e) => rvScore(t, seat, e.currentTarget))}>
       <span class="vs-face"><${SeatFace} t=${t} seat=${seat} box=${50} /></span><i class="vs-hv">${minus ? '−1' : '+1'}</i><${SeatSc} t=${t} seat=${seat} /></button>
     <span class="vs-nm">${nameOf(seat)}</span>
-    <button class=${'vs-pl' + (on ? ' on' : '') + (seat === ME ? ' ' + hint('t-voice-play') : '')} aria-label=${(on ? '暫停 ' : '播放 ') + nameOf(seat)} onClick=${act(() => { playVoice(key); S.flags.voicePlayed = true; })}><${Icon} n=${on ? 'pause' : 'play'} s=${12} /><em>${mmss(v.sec)}</em></button>
+    <button class=${'vs-pl' + (on ? ' on' : '') + (seat === ME ? ' ' + hint('t-voice-play') : '')} aria-label=${(on ? '暫停 ' : '播放 ') + nameOf(seat)} onClick=${act(() => { playVoice(key); S.flags.voicePlayed = true; })}><${Icon} n=${on ? 'pause' : 'play'} s=${12} /><em>${on ? `${mmss(Math.min(v.sec, Math.floor(voiceAudio?.currentTime || 0)))} / ${mmss(v.sec)}` : mmss(v.sec)}</em></button>
   </div>`;
 }
 /* 聲音題的一份回答：一格一位，上面座號名字，中間播放鍵和長度，右上角 +1（點了直接加分） */
@@ -2558,7 +2560,7 @@ function SubmitDialog() {
   if (!task) return null;
   const pageInk = onPaper(task) ? [] : s.ink[PAGES[task.page].id];
   return dlg('送出畫面', html`
-    <div class="pop-h"><h4>送出畫面</h4><button class="x-btn" aria-label="關閉" onClick=${act(() => { s.modal = null; })}><${Icon} n="x" /></button></div>
+    <div class="pop-h"><h4>送出畫面</h4></div>
     <div class="pop-b">
       <div class="big-work"><${Work} t=${task} w=${552} layers=${[pageInk, task.mine]} /></div>
       <div class="dialog-foot"><button class="btn sec sm" onClick=${act(() => { s.modal = null; s.tool = 'pen'; })}>再改一下</button><button class=${'btn sm ' + hint('s-confirm')} onClick=${act(submit)}>送出</button></div>
