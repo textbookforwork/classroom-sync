@@ -1625,7 +1625,7 @@ function Records() {
     const avg = Math.round(roster().reduce((a, x) => a + totalOf(x.seat), 0) / Math.max(1, roster().length) * 10) / 10;
     const never = roster().filter((x) => !S.sessions.some((ss) => (ss.scores[x.seat] || 0) > 0)).length;
     return html`<div class="rec-wrap">
-      <div class="rec-h">${back({ view: 'sessions' })}<b style="font-size:18px">累計總分（本學期）</b><small>${S.sessions.length} 次上課</small><span class="spacer"></span>${sortSeg}${exportBtn}</div>
+      <div class="rec-h">${back({ view: 'sessions' })}<b style="font-size:18px">累計總分（本學期）</b><span class="spacer"></span>${sortSeg}${exportBtn}</div>
       <div class="pts2" style=${{ paddingRight: person ? '340px' : 0 }}>${sorted(totalOf).map((x) => scoreRow(x, totalOf(x.seat), top, { onClick: act(() => { r.person = r.person === x.seat ? null : x.seat; S.flags.personSeen = true; }), sel: person === x.seat, cls: x.seat === ME ? hint('t-rec-person') : '' }))}</div>
       ${person && html`<aside class="side-panel"><div style="display:flex;align-items:center;gap:10px"><span class="av-circle" style="width:44px;height:44px"><${Kid} seat=${person} box=${34} /></span><h4>${pad(person)} ${nameOf(person)}<small>累計 ${totalOf(person)} 分</small></h4>
           <button class="x-btn" style="margin-left:auto" aria-label="收起" onClick=${act(() => { r.person = null; })}><${Icon} n="x" /></button></div>
