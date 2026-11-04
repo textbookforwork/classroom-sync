@@ -42,7 +42,7 @@ export async function ring(p, sels, pad = 6) {
         if (s.startsWith('txt=')) { // 含這段字、面積最小的元素
           const t = s.slice(4); el = [...dev.querySelectorAll('*')].filter((e) => e.textContent.includes(t) && e.getBoundingClientRect().width > 0).sort((a, b) => { const A = a.getBoundingClientRect(), B = b.getBoundingClientRect(); return A.width * A.height - B.width * B.height; })[0];
         } else { const [sel, idx] = s.split('@'); el = [...dev.querySelectorAll(sel)][+(idx || 0)]; }
-        if (el && el.closest('button') && dev.contains(el.closest('button'))) el = el.closest('button');
+        if (s.startsWith('txt=') && el && el.closest('button') && dev.contains(el.closest('button'))) el = el.closest('button'); // 字在按鈕裡就圈整顆按鈕
         if (!el) { window.__noring = (window.__noring || []).concat(s); continue; }
         const b = el.getBoundingClientRect(); r = { x: (b.left - d.left) / k, y: (b.top - d.top) / k, w: b.width / k, h: b.height / k };
       } else r = s;

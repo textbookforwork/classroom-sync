@@ -2209,7 +2209,8 @@ function EndScreen() {
   const s = S.s, a = s.avatar || { shape: 'pink', eye: 'happy' }, e = s.end || { marks: 0, right: 0, sent: 0, bonus: 0, msgI: 0 }; const hint = useHint();
   const md = s.mood && MOODS.find((m) => m.id === s.mood), R = RTALK[a.shape], B = TALK[a.shape].brk;
   const msg = e.msgI ? B[(e.msgI - 1) % B.length] : md ? R.moods[md.id] : R.endStart;
-  const parts = [e.marks && `畫了 ${e.marks} 筆重點`, e.right && `答對 ${e.right} 題`, e.sent && `交了 ${e.sent} 次作答`, e.bonus > 0 && `老師加了 ${e.bonus} 分`].filter(Boolean);
+  const parts = [e.marks && `畫了 ${e.marks} 筆重點`, e.right && `答對 ${e.right} 題`, e.sent && `交了 ${e.sent} 次作答`].filter(Boolean);
+  const sum = (parts.length ? `今天你${parts.join('、')}。` : '') + (e.bonus > 0 ? `老師幫你加了 ${e.bonus} 分。` : ''); // 加分是老師做的，另起一句（原本會變成「今天你老師加了 1 分」）
   return html`<div class="endscr" style=${{ '--sc': SH[a.shape].color }}>
     <div class="end-cf" aria-hidden="true">${END_CF.map((c) => html`<i class=${'cf ' + c.k} style=${{ left: c.left + '%', '--x': c.x + 'px', '--r': c.r + 'deg', '--d': c.d + 's', '--s': c.s + 'px', '--c': c.c }}></i>`)}</div>
     <div class="end-in">
@@ -2218,7 +2219,7 @@ function EndScreen() {
       <button class="end-pal" title="點我換一句" onClick=${act(() => { e.msgI = (e.msgI || 0) + 1; })}><${Companion} shape=${a.shape} eye=${md ? md.eye : a.eye} box=${190} cls="jump" key=${(s.mood || '') + e.msgI} /></button>
       <p class="end-q">今天上課的心情是？</p>
       <div class="moods" role="radiogroup" aria-label="今天上課的心情">${MOODS.map((m) => html`<button role="radio" aria-checked=${s.mood === m.id} class=${'mood' + (s.mood === m.id ? ' on' : '') + ' ' + (m.id === 'learned' ? hint('s-mood') : '')} disabled=${!!s.mood && s.mood !== m.id} onClick=${act(() => { if (!s.mood) { s.mood = m.id; e.msgI = 0; } })}>${m.label}</button>`)}</div>
-      ${parts.length ? html`<p class="end-sum">今天你${parts.join('、')}。</p>` : ''}
+      ${sum ? html`<p class="end-sum">${sum}</p>` : ''}
       <button class=${'btn ' + hint('s-end-shelf')} onClick=${act(endToShelf)}>回書櫃<${Icon} n="arrow-right" s=${18} /></button>
     </div>
   </div>`;
