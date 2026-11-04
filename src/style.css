@@ -2235,21 +2235,17 @@ a.btn { text-decoration: none; }
 .rv-tabs button:focus { outline: none; box-shadow: none; }
 .vs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 18px 8px; padding-top: 10px; }
 .vs { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.vs-c { position: relative; width: 64px; height: 64px; border: 0; padding: 0; border-radius: 50%; background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--line); display: grid; place-items: center; font: inherit; font-size: 19px; font-weight: 600; color: var(--ink); cursor: pointer; overflow: visible; font-variant-numeric: tabular-nums; transition: box-shadow .15s; }
+.vs-c { position: relative; width: 64px; height: 64px; border: 0; padding: 0; border-radius: 50%; background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--line); display: grid; place-items: center; font: inherit; font-size: 19px; font-weight: 600; color: var(--ink); cursor: pointer; overflow: visible; font-variant-numeric: tabular-nums; }
 .vs-c.has-kid { background: transparent; box-shadow: none; }
-.vs-face { display: grid; place-items: center; transition: opacity .15s; }
-.vs-ic { position: absolute; inset: 8px; border-radius: 50%; background: var(--olive); color: #fff; display: grid; place-items: center; opacity: 0; transform: scale(.85); transition: opacity .15s, transform .15s; }
-.vs-c:hover .vs-ic, .vs.on .vs-ic { opacity: 1; transform: none; } /* 滑過才出現播放鍵 */
-.vs-c:hover .vs-face, .vs.on .vs-face { opacity: .15; }
-.vs.on .vs-c { box-shadow: inset 0 0 0 3px var(--olive); }
-.vs.on .vs-c::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--olive); opacity: 0; animation: vsring 1.4s ease-out infinite; } /* 播放中：綠框外一圈慢慢擴散 */
-@keyframes vsring { 0% { opacity: .5; transform: scale(.92); } 100% { opacity: 0; transform: scale(1.15); } }
+.vs-hv { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 19px; font-weight: 700; background: var(--lime-subtle); box-shadow: inset 0 0 0 2px var(--olive); color: var(--olive); opacity: 0; transition: opacity .12s; pointer-events: none; }
+.vs-c.m .vs-hv { background: var(--danger-surface); box-shadow: inset 0 0 0 2px var(--danger); color: var(--danger); }
+.vs-c:hover .vs-hv { opacity: 1; } /* 滑過先預告點下去會 +1 或 −1 */
 .vs-nm { font-size: 14px; margin-top: 2px; }
-.vs-len { font-size: 11.5px; color: var(--text-3); font-variant-numeric: tabular-nums; }
-.vs-plus { height: 26px; min-width: 44px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--olive); color: var(--olive); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 2px; }
-.vs-plus:hover { background: var(--lime-subtle); }
-.vs-plus.m { box-shadow: inset 0 0 0 1.5px var(--danger); color: var(--danger); }
-.vs-plus.m:hover { background: var(--danger-surface); }
+.vs-pl { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--raised); box-shadow: inset 0 0 0 1.2px #C9D27A; color: var(--olive); font: inherit; cursor: pointer; }
+.vs-pl em { font-style: normal; font-size: 11.5px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.vs-pl:hover { background: var(--lime-subtle); }
+.vs-pl.on { background: var(--olive); color: #fff; box-shadow: none; }
+.vs-pl.on em { color: #fff; }
 .vs.drawn.final .vs-c { box-shadow: inset 0 0 0 4px #99A428; }
 /* 檢討裡被加減過分的人：座號圈換成形狀夥伴，跟名單同一套 */
 .sk-dot.has-kid, .sk-seat.has-kid, .nm-chip.got .sk-dot.has-kid, .nm-chip.lost .sk-dot.has-kid, .pop .who-chose .nm-chip.sk.drawn.final .sk-dot.has-kid { background: transparent !important; box-shadow: none !important; }

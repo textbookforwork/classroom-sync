@@ -491,12 +491,13 @@ function tickTimer() {
     }
   }
 }
-/* 時間到的提示音：柔和的「叮、咚、叮」（高、低、高），像鐘聲慢慢淡掉，不用刺耳的嗶嗶聲（2026-11-04 乙練） */
+/* 時間到的提示音：木琴往上敲四個音「叮叮叮～咚」（乙練選 音效/A_木琴上行；2026-11-04） */
 function beep() {
   try { const A = new (window.AudioContext || window.webkitAudioContext)();
-    [[0, 784], [.34, 587], [.68, 784]].forEach(([t, f]) => [[f, .16], [f * 2, .04]].forEach(([hz, v]) => { const o = A.createOscillator(), g = A.createGain(), at = A.currentTime + t;
-      o.type = 'sine'; o.frequency.value = hz; g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(v, at + .015); g.gain.exponentialRampToValueAtTime(.0001, at + .9);
-      o.connect(g); g.connect(A.destination); o.start(at); o.stop(at + .95); })); } catch (e) {}
+    [[0, 1046.5, 9], [.13, 1318.5, 9], [.26, 1568, 9], [.42, 2093, 5]].forEach(([t, f, dk]) => [[1, .5], [4, .12], [10, .03]].forEach(([k, v]) => {
+      const o = A.createOscillator(), g = A.createGain(), at = A.currentTime + t, len = 4.6 / dk;
+      o.type = 'sine'; o.frequency.value = f * k; g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(v * .35, at + .004); g.gain.exponentialRampToValueAtTime(.0001, at + len);
+      o.connect(g); g.connect(A.destination); o.start(at); o.stop(at + len + .05); })); } catch (e) {}
 }
 
 /* ───────── 補充資源（同編輯器閱讀模式的補充資源面板，內容照《自然科學 5下》第 2、5 頁） ─────────
@@ -2458,14 +2459,14 @@ function RvFoot({ list }) {
     <button class="btn xs sec" disabled=${!list.length} onClick=${act(() => draw(list))}>${S.drawing ? html`<span class="dice-spin"><${Icon} n="dice" s=${16} /></span>` : '抽籤'}</button>
     <button class=${'btn xs sec ' + hint('t-next-task')} onClick=${act(endTask)}>再派一題</button></div>`;
 }
-/* 聲音題檢討：跟名單一樣的座號圈，滑過出現播放鍵、點了就播（播放中粗綠框＋暫停鍵），名字下面長度和一顆框線 +1（2026-11-04 乙練） */
+/* 聲音題檢討（2026-11-04 乙練）：座號圈＝照上方「加分｜扣分」加減分（跟名單、其他題型同一套，滑過先預告 +1／−1）；名字下面「▶ 0:04」小膠囊＝播放 */
 function VoiceSeat({ t, seat }) {
   const v = t.voices[seat], key = 'v' + t.id + seat, on = S.playingVoice === key, hint = useHint(), minus = S.t.scoreMode === 'minus';
   return html`<div data-seat=${seat} class=${'vs' + drawnCls(seat) + (on ? ' on' : '')}>
-    <button class=${'vs-c' + kidCls(t, seat) + (seat === ME ? ' ' + hint('t-voice-play') : '')} aria-label=${(on ? '暫停 ' : '播放 ') + nameOf(seat)} onClick=${act(() => { playVoice(key); S.flags.voicePlayed = true; })}>
-      <span class="vs-face"><${SeatFace} t=${t} seat=${seat} box=${50} /></span><i class="vs-ic"><${Icon} n=${on ? 'pause' : 'play'} s=${18} /></i><${SeatSc} t=${t} seat=${seat} /></button>
-    <span class="vs-nm">${nameOf(seat)}</span><small class="vs-len">${mmss(v.sec)}</small>
-    <button class=${'vs-plus' + (minus ? ' m' : '')} aria-label=${`幫 ${nameOf(seat)} ${minus ? '扣' : '加'} 1 分`} onClick=${act((e) => rvScore(t, seat, e.currentTarget))}>${minus ? '−1' : '+1'}</button>
+    <button class=${'vs-c' + kidCls(t, seat) + (minus ? ' m' : '')} aria-label=${`幫 ${nameOf(seat)} ${minus ? '扣' : '加'} 1 分`} onClick=${act((e) => rvScore(t, seat, e.currentTarget))}>
+      <span class="vs-face"><${SeatFace} t=${t} seat=${seat} box=${50} /></span><i class="vs-hv">${minus ? '−1' : '+1'}</i><${SeatSc} t=${t} seat=${seat} /></button>
+    <span class="vs-nm">${nameOf(seat)}</span>
+    <button class=${'vs-pl' + (on ? ' on' : '') + (seat === ME ? ' ' + hint('t-voice-play') : '')} aria-label=${(on ? '暫停 ' : '播放 ') + nameOf(seat)} onClick=${act(() => { playVoice(key); S.flags.voicePlayed = true; })}><${Icon} n=${on ? 'pause' : 'play'} s=${12} /><em>${mmss(v.sec)}</em></button>
   </div>`;
 }
 /* 聲音題的一份回答：一格一位，上面座號名字，中間播放鍵和長度，右上角 +1（點了直接加分） */
