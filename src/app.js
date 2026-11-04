@@ -989,10 +989,10 @@ function GroupPop() {
       ${g.res ? html`<div class="gcards" style=${{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>${g.res.map((r, i) => html`<div class="gcard" style=${{ '--gc': GROUP_C[i % GROUP_C.length] }}>
           <div class="gcard-h"><span class="gnum" aria-hidden="true"></span><b>第${ZH_N[i] || i + 1}組</b><small>${r.length} 人</small></div>
           ${r.map((x) => html`<div class="gm"><${Kid} seat=${x} box=${26} /><span>${nameOf(x)}</span><em>${pad(x)}</em></div>`)}</div>`)}</div>`
-      : html`<label class="field-l" for="g-total">總人數</label><input class="inp" id="g-total" inputmode="numeric" placeholder="請輸入總人數" value=${g.total} onInput=${act((e) => { g.total = e.target.value.replace(/\D/g, ''); })} />
+      : html`<label class="field-l" for="g-total">總人數</label><input class="inp" id="g-total" inputmode="numeric" placeholder="請輸入總人數" value=${g.total} onInput=${act((e) => { g.total = toHalf(e.target.value).replace(/\D/g, ''); })} />
         <p class="field-l" style="margin-top:14px">分組方式</p>
         <div class="seg grp-seg" role="group" aria-label="分組方式"><button aria-pressed=${g.by === 'groups'} onClick=${act(() => { g.by = 'groups'; })}>依組別數</button><button aria-pressed=${g.by === 'size'} onClick=${act(() => { g.by = 'size'; })}>依每組人數</button></div>
-        <label class="field-l" for="g-n" style="margin-top:14px;display:block">${g.by === 'groups' ? '組別數' : '每組人數'}</label><input class="inp" id="g-n" inputmode="numeric" placeholder=${g.by === 'groups' ? '請輸入組別數' : '請輸入每組人數'} value=${g.n} onInput=${act((e) => { g.n = e.target.value.replace(/\D/g, ''); })} />
+        <label class="field-l" for="g-n" style="margin-top:14px;display:block">${g.by === 'groups' ? '組別數' : '每組人數'}</label><input class="inp" id="g-n" inputmode="numeric" placeholder=${g.by === 'groups' ? '請輸入組別數' : '請輸入每組人數'} value=${g.n} onInput=${act((e) => { g.n = toHalf(e.target.value).replace(/\D/g, ''); })} />
         <p class="grp-help">${helper}</p>
         <button class="btn sm grp-go" disabled=${!ok} aria-busy=${g.busy} onClick=${g.busy ? undefined : run}>${g.busy ? html`<span class="spin"></span>` : '開始分組'}</button>`}
     </div>
@@ -1932,8 +1932,10 @@ function Collecting({ t, answered, tot, seats, has, onStop, stopHint }) {
   </div>`;
 }
 /* 「02:30」「2:30」「90」「1分30秒」都讀得懂，回傳秒數 */
+/* 全形數字、全形冒號也讀得懂（老師用注音輸入法常打成全形；2026-11-04 乙練） */
+const toHalf = (v) => String(v).replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/：/g, ':');
 function parseTime(v) {
-  v = String(v).trim().replace(/[秒\\s]/g, '').replace(/分/g, ':');
+  v = toHalf(v).trim().replace(/[秒\\s]/g, '').replace(/分/g, ':');
   if (!v) return null;
   if (v.includes(':')) { const [m, sec] = v.split(':'); const n = (+m || 0) * 60 + (+sec || 0); return Number.isFinite(n) ? n : null; }
   const n = +v; return Number.isFinite(n) ? n : null;
@@ -1975,7 +1977,7 @@ function TimerPop({ pinned }) {
         ${edit ? (() => { const save = () => commit(`${mRef.current.value || 0}:${sRef.current.value || 0}`);
             const key = (e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEdit(null); };
             const blur = () => setTimeout(() => { if (![mRef.current, sRef.current].includes(document.activeElement)) save(); }, 0);
-            const num = (e) => { const raw = e.currentTarget.value, v = raw.replace(/\D/g, '').slice(0, 2); e.currentTarget.value = v; if (e.currentTarget === mRef.current && (v.length === 2 || /[:：.\s]/.test(raw))) { sRef.current.focus(); sRef.current.select(); } }; // 分鐘打一位數也行；打兩位或打冒號就跳到秒
+            const num = (e) => { const raw = e.currentTarget.value, v = toHalf(raw).replace(/\D/g, '').slice(0, 2); e.currentTarget.value = v; if (e.currentTarget === mRef.current && (v.length === 2 || /[:：.\s]/.test(raw))) { sRef.current.focus(); sRef.current.select(); } }; // 分鐘打一位數也行；打兩位或打冒號就跳到秒
             const field = (ref, k, v, label) => html`<input class="tm-in-edit" ref=${(el) => { ref.current = el; if (el && edit === k && !el.dataset.f) { el.dataset.f = 1; el.focus(); el.select(); } }} inputmode="numeric" aria-label=${label} value=${String(v).padStart(2, '0')} onInput=${num} onKeyDown=${key} onBlur=${blur} onFocus=${(e) => e.currentTarget.select()} />`;
             return html`<span class="tm-in2">${field(mRef, 'm', Math.floor(left / 60), '分')}<b>:</b>${field(sRef, 's', left % 60, '秒')}</span>`; })()
           : T && T.done ? html`<span class="tm-t">時間到</span>`
@@ -2710,7 +2712,7 @@ function AdminModals() {
     const clsOpts = [...adminClasses().map((c) => [c, c]), ['', '未分班']];
     return dlg('編輯學生', html`${head(`編輯 ${r.name} 的資料`)}<div class="pop-b"><div class="form-grid">
       ${fld('ed-n', '姓名', d.name, (v) => { d.name = v; })}
-      ${fld('ed-s', fixed ? '座號（示範班 501 固定）' : '座號', d.seat, (v) => { d.seat = v.replace(/\D/g, ''); }, { readonly: fixed, inputmode: 'numeric' })}
+      ${fld('ed-s', fixed ? '座號（示範班 501 固定）' : '座號', d.seat, (v) => { d.seat = toHalf(v).replace(/\D/g, ''); }, { readonly: fixed, inputmode: 'numeric' })}
       <div class="fld full"><label for="ed-c">班級</label><${Dd} id="ed-c" value=${d.cls} options=${fixed ? [['501', '501'], ['', '未分班']] : clsOpts} onChange=${(v) => { d.cls = v; }} />
         </div>
       ${fld('ed-a', '帳號', r.acct, () => {}, { readonly: true })}
@@ -2769,7 +2771,7 @@ function AdminCreate() {
     </div>`}
     ${mode === 'single' && (() => { const s = A.single; if (!s.pw) s.pw = genPw();
       const ok = s.cls.trim() && s.seat && s.name.trim() && s.acct.trim() && s.pw.trim();
-      const f = (id, label, k, ph, extra) => html`<div class="fld"><label for=${id}>${label}</label><input class="inp" id=${id} placeholder=${ph} value=${s[k]} onInput=${act((e) => { s[k] = k === 'seat' ? e.target.value.replace(/\D/g, '') : e.target.value; })} ...${extra || {}} /></div>`;
+      const f = (id, label, k, ph, extra) => html`<div class="fld"><label for=${id}>${label}</label><input class="inp" id=${id} placeholder=${ph} value=${s[k]} onInput=${act((e) => { s[k] = k === 'seat' ? toHalf(e.target.value).replace(/\D/g, '') : e.target.value; })} ...${extra || {}} /></div>`;
       return html`<div class="form-grid">
       <div class="fld"><label for="ac-school">學校</label><${Combo} id="ac-school" value=${A.madeSchool ? SCHOOL : S.admin.schools[0].name} options=${S.admin.schools.map((x) => x.name)} onChange=${(v) => { if (v !== SCHOOL) toast('admin', `示範只開放${SCHOOL}`); }} placeholder="輸入或展開搜尋" /></div>
       ${f('as-c', '班級', 'cls', '輸入班級')}
