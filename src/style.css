@@ -746,6 +746,7 @@ textarea.inp { border-radius: 16px; }
 .tb2-h { display: flex; align-items: center; justify-content: space-between; }
 .tb2-h b { font-size: 16px; }
 .tb2-h { gap: 10px; }
+.tb2-note { margin: 6px 0 0; font-size: 14px; color: var(--text-2); } /* 一句說明就好（2026-11-04 乙練） */
 .tb2-sp { flex: 1; }
 .tb2-h .seg { margin-right: 6px; }
 .tb2-out { width: 100%; }

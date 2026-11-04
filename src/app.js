@@ -233,7 +233,8 @@ const TOOLS = [
   { k: 'highlighter', label: '螢光筆', icon: 'highlighter' },
   { k: 'laser', label: '雷射筆', icon: 'sun' },
   { k: 'eraser', label: '橡皮擦', icon: 'eraser' },
-  { k: 'undo', label: '復原／取消復原', icon: 'corner-up-left' },
+  { k: 'undo', label: '復原', icon: 'corner-up-left' },
+  { k: 'redo', label: '取消復原', icon: 'corner-up-right' }, // 復原、取消復原各自獨立（2026-11-04 乙練）
   { k: 'clear', label: '清除', icon: 'trash' },
   { k: 'board', label: '電子白板', icon: 'presentation' },
   { k: 'compass', label: '圓規', icon: 'drafting-compass' },
@@ -254,10 +255,10 @@ function ColorWheel({ onPick }) {
 const HI_C = ['#F0FF62', '#66E497', '#82E6F8', '#CEA8FF', '#FFB6D3', '#FFC2A5']; // 品牌淺色那一排（Figma 色彩與形狀 7:2） // 照色相排：黃綠→綠→藍→紫→粉→橘
 const brushDef = () => ({ pen: { c: PEN_C[0], w: 4 }, highlighter: { c: HI_C[0], w: 4 }, laser: { c: HI_C[0], w: 4 } });
 const BRUSHES = ['pen', 'highlighter', 'laser'];
-const RAIL_RM = ['laser', 'pen', 'highlighter', 'eraser', 'clear', 'undo', 'back', 'task', 'sync', 'supp', 'settings']; // 復原／取消復原算一組（undo）
+const RAIL_RM = ['laser', 'pen', 'highlighter', 'eraser', 'clear', 'undo', 'redo', 'back', 'task', 'sync', 'supp', 'settings'];
 /* 左欄分隔線下面那一段：返回編輯、派任務、補充資源、設定（工具箱固定在最前面，不能拿掉）。都可以收進工具箱再放回來 */
 const RAIL_BOTTOM = ['back', 'task', 'sync', 'supp', 'settings'];
-const RAIL_ORDER = ['pen', 'highlighter', 'laser', 'eraser', 'clear', 'undo', 'back', 'task', 'sync', 'supp', 'settings']; // 計時器只放工具箱，一點就開，不放進左欄（乙練 2026-10-30） // 打開工具箱時可以從左欄拿掉、也可以從工具箱加回來
+const RAIL_ORDER = ['pen', 'highlighter', 'laser', 'eraser', 'clear', 'undo', 'redo', 'back', 'task', 'sync', 'supp', 'settings']; // 計時器只放工具箱，一點就開，不放進左欄（乙練 2026-10-30） // 打開工具箱時可以從左欄拿掉、也可以從工具箱加回來
 const toolOf = (k) => TOOLS.find((t) => t.k === k);
 function fresh(prevView) {
   const now = new Date();
@@ -278,12 +279,12 @@ function fresh(prevView) {
       others: [],
       draft: { cls: '501', count: 30, prefix: 'xg501', pwMode: 'same', pw: '' }, // 預設全班相同（2026-11-03 乙練定）
     },
-    t: { screen: 'shelf', shelfTab: 'hall', menu: false, classes: [], classView: null, page: 0, tool: null, ink: { p108: [], p110: [] }, redo: [], rail: ['pen', 'highlighter', 'eraser', 'clear', 'undo', 'back', 'task', 'sync', 'supp', 'settings'], brush: brushDef(), inkPop: false, inkY: 260, notes: { p108: [], p110: [] }, stickers: { p108: [], p110: [] }, sticker: 'star', stickerPop: false, editNote: null, board: null, pop: null, modal: null, scoreMode: 'plus' },
+    t: { screen: 'shelf', shelfTab: 'hall', menu: false, classes: [], classView: null, page: 0, tool: null, ink: { p108: [], p110: [] }, redo: [], rail: ['pen', 'highlighter', 'eraser', 'clear', 'undo', 'redo', 'back', 'task', 'sync', 'supp', 'settings'], brush: brushDef(), inkPop: false, inkY: 260, notes: { p108: [], p110: [] }, stickers: { p108: [], p110: [] }, sticker: 'star', stickerPop: false, editNote: null, board: null, pop: null, modal: null, scoreMode: 'plus' },
     cls: { live: false, everLive: false, cid: '501', subj: '自然', mode: 'free', joined: [], modeChanged: false, startAt: 0 },
-    s: { screen: 'login', pickStep: 1, draft: { shape: null, eye: 'big' }, avatar: null, page: 0, follow: false, toggled: false, inClass: false, invite: false, tool: null, ink: { p108: [], p110: [] }, redo: [], rail: ['pen', 'highlighter', 'eraser', 'clear', 'undo', 'supp', 'settings'], brush: brushDef(), inkPop: false, inkY: 260, notes: { p108: [], p110: [] }, stickers: { p108: [], p110: [] }, sticker: 'star', stickerPop: false, editNote: null, board: null, pop: null, modal: null, notice: null, menu: false },
+    s: { screen: 'login', pickStep: 1, draft: { shape: null, eye: 'big' }, avatar: null, page: 0, follow: false, toggled: false, inClass: false, invite: false, tool: null, ink: { p108: [], p110: [] }, redo: [], rail: ['pen', 'highlighter', 'eraser', 'clear', 'undo', 'redo', 'supp', 'settings'], brush: brushDef(), inkPop: false, inkY: 260, notes: { p108: [], p110: [] }, stickers: { p108: [], p110: [] }, sticker: 'star', stickerPop: false, editNote: null, board: null, pop: null, modal: null, notice: null, menu: false },
     removed: [],
     ratio: {},
-    toolbar: { '501·自然': ['pen', 'highlighter', 'eraser', 'undo', 'clear'] }, // 學生預設沒有目次，老師有
+    toolbar: { '501·自然': ['pen', 'highlighter', 'eraser', 'undo', 'redo', 'clear'] }, // 學生預設沒有目次，老師有
     tbDraft: null,
     anonShare: false, // 分享時顯示座號姓名（乙練 2026-10-30）
     sessions: [
@@ -1113,7 +1114,8 @@ function Rail({ side, preview, edit }) { // preview：學生工具列設定的�
     if (k === 'pen' || k === 'highlighter' || k === 'eraser' || k === 'laser') return inkTool(k);
     if (k === 'timer') return teacher ? html`<button class=${'tile ' + (S.t.pop === 'timer' ? 'sel ' : '') + hint('t-timer')} onClick=${act(() => { S.t.pop = S.t.pop === 'timer' ? null : 'timer'; })}><${Icon} n="timer" /><span>計時器</span>${S.timer && html`<i class="badge"></i>`}</button>` : null;
     if (k === 'clear') return tile(k, '清除', 'trash', false, () => { ink.splice(0); P.redo = []; }, lock || !canUndo);
-    if (k === 'undo') return [tile('u1', '復原', 'corner-up-left', false, () => { P.redo.push(ink.pop()); }, lock || !canUndo), tile('u2', '取消復原', 'corner-up-right', false, () => { ink.push(P.redo.pop()); }, lock || !P.redo.length)];
+    if (k === 'undo') return tile('u1', '復原', 'corner-up-left', false, () => { P.redo.push(ink.pop()); }, lock || !canUndo);
+    if (k === 'redo') return tile('u2', '取消復原', 'corner-up-right', false, () => { ink.push(P.redo.pop()); }, lock || !P.redo.length);
     const t = toolOf(k); return tile(k, t.label.length > 4 ? t.label.slice(0, 4) : t.label, t.icon, false, () => toast(side, '示範沒有做'), lock);
   };
   const custom = true; // 學生的左欄也能自己增減（上課時從老師設定的學生工具列開始），邏輯跟老師一樣
@@ -1287,8 +1289,8 @@ function Toolbox({ side }) {
     timer: () => { P.pop = 'timer'; }, // 一點就開，不必先放進左欄、也不必先開始上課
   };
   const t = (icon, label, k) => {
-    const rk = k === 'redo' ? 'undo' : k; // 取消復原跟復原同一組，一起放進／拿出左欄
-    const canAdd = custom && RAIL_RM.includes(rk) && !P.rail.includes(rk) && k !== 'redo';
+    const rk = k;
+    const canAdd = custom && RAIL_RM.includes(rk) && !P.rail.includes(rk);
     const hint = useHint();
     // 已經放在左欄的工具，在工具箱裡是停用的（照 Figma：用左欄那顆就好）
     const inRail = custom && RAIL_RM.includes(rk) && P.rail.includes(rk);
@@ -1510,14 +1512,14 @@ function RemoveConfirm() {
   </div></div>`;
 }
 /* 左欄放得下幾格：學生平板高度扣掉固定的（夥伴、頁數、分隔線、工具箱、補充資源、設定），一格 52＋間距 4。
-   4:3 以 1024×768、16:9 以 1280×720 估（2026-11-03）。復原／取消復原佔兩格 */
+   4:3 以 1024×768、16:9 以 1280×720 估（2026-11-03）。*/
 const RAIL_FIXED = 360, TILE_STEP = 56;
 const DEVICE = { '4:3': [1024, 768], '16:9': [1280, 720] };
 const railCap = (r) => Math.floor((DEVICE[r][1] - RAIL_FIXED) / TILE_STEP);
-const slotsOf = (list) => list.reduce((n, k) => n + (k === 'undo' ? 2 : 1), 0);
+const slotsOf = (list) => list.length;
 /* 學生工具列：預覽就是編輯器（2026-11-03 乙練）。左欄長什麼樣學生就看到什麼樣；× 拿掉、拖曳排序、最後一格空位按＋加入，滿 6 個就沒有空位 */
 /* 按左欄的＋：打開跟閱讀時一樣的工具箱面板，工具分類排；點了就放進左欄，面板不關，可以連續加（2026-11-03 乙練） */
-const TOOL_GROUPS = [['編輯工具', ['pen', 'highlighter', 'laser', 'eraser', 'undo', 'clear', 'sticky']], ['學習工具', ['board']], ['科目工具', ['compass', 'protractor']]];
+const TOOL_GROUPS = [['編輯工具', ['pen', 'highlighter', 'laser', 'eraser', 'undo', 'redo', 'clear', 'sticky']], ['學習工具', ['board']], ['科目工具', ['compass', 'protractor']]];
 function SlotBox({ sel, add, close }) {
   const full = sel.length >= TOOL_CAP;
   return html`<div class="pop tb-pop slot-box">
@@ -1545,6 +1547,7 @@ function ToolbarSettings() {
     move: (from, to) => { const i = sel.indexOf(from), j = sel.indexOf(to); if (i < 0 || j < 0) return; sel.splice(i, 1); sel.splice(j, 0, from); refresh(); } };
   return html`<div class="tb2-out" ref=${boxRef}><div class="tb2" style=${{ width: Math.round(VW * sc) + 'px' }}>
     <div class="tb2-h"><b>學生看到的樣子</b><div class="seg" role="radiogroup" aria-label="學生閱讀載具">${['4:3', '16:9'].map((x) => html`<button role="radio" aria-pressed=${r === x} onClick=${act(() => { S.ratioDraft.r = x; })}>${x}</button>`)}</div><span class="tb2-sp"></span><button class="btn sec sm" onClick=${act(() => { S.t.modal = 'apply'; })}>套用到其他班</button><button class=${'btn sm ' + hint('t-toolsave')} onClick=${act(() => { S.toolbar[key] = [...sel]; S.ratio[key] = r; S.flags.toolbarSaved = true; toast('teacher', '已儲存'); })}>儲存</button></div>
+    <p class="tb2-note">這是學生預設放在側欄的工具列，其他工具可以在工具箱找到。</p>
     <div class="tb2-screen" style=${{ width: Math.round(VW * sc) + 'px', height: Math.round(VH * sc) + 'px' }}><div class="tb-preview" style=${{ width: VW + 'px', height: VH + 'px', transform: `scale(${sc})` }}>
       <div class="reader tb-reader"><${Rail} side="student" preview=${[...sel, 'supp', 'settings']} edit=${edit} />
         ${open && html`<${SlotBox} sel=${sel} add=${edit.add} close=${() => setOpen(false)} />`}
