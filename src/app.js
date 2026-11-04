@@ -491,8 +491,12 @@ function tickTimer() {
     }
   }
 }
+/* 時間到的提示音：柔和的「叮、咚、叮」（高、低、高），像鐘聲慢慢淡掉，不用刺耳的嗶嗶聲（2026-11-04 乙練） */
 function beep() {
-  try { const A = new (window.AudioContext || window.webkitAudioContext)(); [0, .25, .5].forEach((t) => { const o = A.createOscillator(), g = A.createGain(); o.frequency.value = 880; g.gain.setValueAtTime(.12, A.currentTime + t); g.gain.exponentialRampToValueAtTime(.001, A.currentTime + t + .2); o.connect(g); g.connect(A.destination); o.start(A.currentTime + t); o.stop(A.currentTime + t + .22); }); } catch (e) {}
+  try { const A = new (window.AudioContext || window.webkitAudioContext)();
+    [[0, 784], [.34, 587], [.68, 784]].forEach(([t, f]) => [[f, .16], [f * 2, .04]].forEach(([hz, v]) => { const o = A.createOscillator(), g = A.createGain(), at = A.currentTime + t;
+      o.type = 'sine'; o.frequency.value = hz; g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(v, at + .015); g.gain.exponentialRampToValueAtTime(.0001, at + .9);
+      o.connect(g); g.connect(A.destination); o.start(at); o.stop(at + .95); })); } catch (e) {}
 }
 
 /* ───────── 補充資源（同編輯器閱讀模式的補充資源面板，內容照《自然科學 5下》第 2、5 頁） ─────────
