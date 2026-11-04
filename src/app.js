@@ -524,6 +524,8 @@ const SUPP = {
   ],
 };
 /* 每一組補充資源掛在課文的哪一塊（熊熊給的資料：哪一頁、掛在哪個元件上） */
+/* 課文裡直接掛資源的詞：點了直接打開，同時聚焦它所在的段落（乙練選 A） */
+const KW_RES = { 星座: 'what', 地球自轉: 'tri' };
 const SUPP_BLK = { p108: ['p1', 'fig', 'p2'], p110: ['h', 'p1', 'fig'] };
 const blkRes = (page, blk) => { const pid = PAGES[page] && PAGES[page].id, i = (SUPP_BLK[pid] || []).indexOf(blk); return i < 0 ? [] : SUPP[pid][i].items; };
 const RES_IC = { text: 'file-text', image: 'image', audio: 'play', video: 'play', web: 'globe' };
@@ -1049,7 +1051,7 @@ const ZY = { 星: 'ㄒㄧㄥ', 座: 'ㄗㄨㄛˋ', 織: 'ㄓ', 女: 'ㄋㄩˇ', 
 /* 句子裡用 {詞} 標要注音的詞、[詞] 標重點詞 */
 const T = (str) => str.split(/(\{[^}]+\}|\[[^\]]+\])/).map((part) => {
   if (part[0] === '{') return [...part.slice(1, -1)].map((ch) => ZY[ch] ? html`<span class="zy">${ch}<span class="zy-r" aria-hidden="true">${ZY[ch]}</span></span>` : ch);
-  if (part[0] === '[') return html`<b class="kw">${T(part.slice(1, -1))}</b>`;
+  if (part[0] === '[') { const w = part.slice(1, -1).replace(/[{}]/g, ''), rid = KW_RES[w]; return rid ? html`<b class="kw kw-res" data-res=${rid} title="點了打開補充資源">${T(part.slice(1, -1))}</b>` : html`<b class="kw">${T(part.slice(1, -1))}</b>`; }
   return part;
 });
 /* 聚焦：第一下點段落，那一段留著、其他調暗；第二下點段裡的句子，只留那一句是黑的。
@@ -1085,6 +1087,7 @@ function focusTap(page, e, dbl) {
   const tgt = e.target;
   if (tgt.closest('.note, .stk, button, .draw')) return;
   const blk = tgt.closest('[data-blk]'), snEl = tgt.closest('[data-sn]'), F = S.focus;
+  const kw = tgt.closest('[data-res]'); if (kw && blk) { S.focus = { page, blk: blk.dataset.blk, sn: null, mark: false }; S.flags.focusSent = true; const it = suppById(kw.dataset.res); if (it) openSupp('teacher', it); return refresh(); }
   if (!blk) { S.focus = null; return refresh(); }
   const id = blk.dataset.blk;
   if (!F || F.page !== page || F.blk !== id) S.focus = { page, blk: id, sn: null, mark: false };
@@ -2025,7 +2028,7 @@ function ClassPanel() {
         const n = scoreOf(s.seat), f = S.flash[s.seat], ab = ABSENT.includes(s.seat), on = joined.includes(s.seat);
         const shown = on && n !== 0, sad = f && f.d < 0;
         return html`<button class=${'kid' + (on ? '' : ' away') + (sad ? ' down' : '') + (s.seat === ME ? ' ' + hint('t-me') : '')} style=${{ '--i': s.seat % 8 }} disabled=${!on} aria-disabled=${!mode} onClick=${act((e) => { if (!mode) return; if (!minus) burst(e.currentTarget.querySelector('.face') || e.currentTarget); bonus(s.seat, minus ? -1 : 1); })}>
-          ${shown ? html`<span class="face morph" key=${'m' + s.seat}><${Kid} seat=${s.seat} box=${56} cls=${f ? (sad ? 'sink' : 'jump') : ''} mood=${sad ? 'sad' : undefined} key=${'k' + s.seat} /><span class=${'sc ' + (n > 0 ? 'up' : 'down') + (f ? ' bump' + (sad ? ' minus' : '') : '')} key=${f ? 'f' + f.id : 'sc'}>${f ? (sad ? '−1' : '+1') : n > 0 ? n : '−' + -n}</span></span>`
+          ${shown ? html`<span class="face morph" key=${'m' + s.seat}><${Kid} seat=${s.seat} box=${56} cls=${f ? (sad ? 'sink' : 'jump') : ''} mood=${sad ? 'sad' : undefined} key=${'k' + s.seat} /><span class=${'sc ' + (n > 0 ? 'up' : 'down') + (f ? ' bump' + (sad ? ' minus' : '') : '')} key=${f ? 'f' + f.id : 'sc'}>${f ? (sad ? '−1' : '+1') : n > 0 ? '+' + n : '−' + -n}</span></span>`
             : html`<span class="face" key=${'d' + s.seat}><span class="seat-dot">${pad(s.seat)}</span>${f && html`<span class=${'sc bump' + (sad ? ' minus' : '')} key=${'f' + f.id}>${sad ? '−1' : '+1'}</span>`}</span>`}
           <span class="nm2">${s.name}</span>${!on && html`<em class="att">還沒加入</em>`}</button>`; })}</div>
     </div>
