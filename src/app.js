@@ -1048,13 +1048,13 @@ const T = (str) => str.split(/(\{[^}]+\}|\[[^\]]+\])/).map((part) => {
   if (part[0] === '[') return html`<b class="kw">${T(part.slice(1, -1))}</b>`;
   return part;
 });
-/* 聚焦：第一下點段落，那一段留著、其他調暗；第二下點段裡的句子，只留那一句是黑的；在那一句上點兩下標黃。
+/* 聚焦：第一下點段落，那一段留著、其他調暗；第二下點段裡的句子，只留那一句是黑的。
    上課中學生跟隨老師時，學生畫面同步聚焦同一段、同一句（老師筆跡不同步）。規則照自編編輯器的逐句聚焦 */
 const SENT = (str) => str.match(/[^。！？；]+[。！？；]*[」』）]*/g) || [str];
 function PageArt({ page, f, tap }) {
   const hint = useHint();
   const fb = (id) => 'fb' + (f && f.blk === id ? ' on' : '') + (tap && id === 'p1' && page === 0 ? ' ' + hint('t-focus') : '');
-  const sn = (id, str) => SENT(str).map((x, i) => html`<span class=${'sn' + (f && f.blk === id && f.sn === i ? ' on' + (f.mark ? ' mk' : '') : '')} data-sn=${i}>${T(x)}</span>`);
+  const sn = (id, str) => SENT(str).map((x, i) => html`<span class=${'sn' + (f && f.blk === id && f.sn === i ? ' on' + '' : '')} data-sn=${i}>${T(x)}</span>`);
   const P_ = (id, str, gap) => html`<p class=${fb(id)} data-blk=${id} style=${{ '--gap': gap }}>${sn(id, str)}</p>`;
   /* 內容、圖、間距照編輯器閱讀模式的第 2、5 頁（--gap 是跟上一塊的距離，頁寬 1195 的 px） */
   const Fig = (src, alt, w, credit, cap, gap, ratio) => html`<figure class=${fb('fig')} data-blk="fig" style=${{ '--gap': gap, '--fw': w, '--cy': Math.round(w / ratio - 32) }}><img src=${src} alt=${alt} draggable="false" /><span class="credit">${credit}</span><figcaption>${cap}</figcaption></figure>`;
@@ -1071,7 +1071,7 @@ function PageArt({ page, f, tap }) {
     ${Fig('assets/star-trails.jpg', '長時間曝光拍下的星星軌跡，形成一圈一圈的同心圓', 340, 'Youniverse Multiverse · CC0', '圖 2 北方天空的星軌', 36, 900 / 676)}
   </div>`;
 }
-/* 老師點課文：第一下選段，第二下選句；點空白處取消。雙擊聚焦中的那一句標黃 */
+/* 老師點課文：第一下選段，第二下選句；點空白處取消 */
 function focusTap(page, e, dbl) {
   const tgt = e.target;
   if (tgt.closest('.note, .stk, button, .draw')) return;
@@ -1090,7 +1090,7 @@ const DEFAULT_RS = { fs: 20, lh: 1.6, font: 'auto', zy: false, ar: '4:3' };
 /* 頁的寬固定比例縮放；字大、行距、字體、注音跟著閱讀設定，字變大時頁往下長 */
 function Sheet({ page, w, layers = [], draw, cls = '', children, rs, f, tap }) {
   const r = rs || DEFAULT_RS;
-  return html`<div class=${'sheet pg ' + (r.font === 'kai' ? 'kai ' : '') + (r.zy ? '' : 'nozy ') + (f ? 'fx ' + (f.sn != null ? 'fx-sn ' : '') : '') + (tap ? 'tappable ' : '') + cls} onClick=${tap ? (e) => focusTap(page, e, false) : undefined} onDblClick=${tap ? (e) => focusTap(page, e, true) : undefined} style=${{ width: w + 'px', minHeight: w / pr(page, r) + 'px', '--fs': r.fs, '--lh': r.lh, '--sw': w + 'px' }}>
+  return html`<div class=${'sheet pg ' + (r.font === 'kai' ? 'kai ' : '') + (r.zy ? '' : 'nozy ') + (f ? 'fx ' + (f.sn != null ? 'fx-sn ' : '') : '') + (tap ? 'tappable ' : '') + cls} onClick=${tap ? (e) => focusTap(page, e, false) : undefined} style=${{ width: w + 'px', minHeight: w / pr(page, r) + 'px', '--fs': r.fs, '--lh': r.lh, '--sw': w + 'px' }}>
     <${PageArt} page=${page} f=${f} tap=${tap} />
     <${InkSvg} page=${page} layers=${layers} />${draw}${children}
   </div>`;
@@ -2879,7 +2879,7 @@ const STEPS = {
     { side: 'student', hint: () => (S.s.screen === 'login' ? 's-login' : 's-join'), text: '學生收到「老師開始上課了」，按加入就自動跟隨老師的頁面', done: () => S.s.inClass, run: () => { if (S.s.screen === 'login') studentLogin(); if (S.s.screen === 'pick') finishPick(); if (!S.s.inClass) { S.s.invite = true; later(1500, () => joinStudent()); } } },
     { side: 'teacher', hint: 't-mode', text: '按左欄最下面的「上課中」再按「鎖定」：學生跟著老師翻頁，不能畫記；再按一次回到自由閱讀', done: () => S.cls.modeChanged, run: () => { goTeacherReaderLive(); setMode('lock'); later(2200, () => setMode('free')); } },
     { side: 'teacher', hint: () => (S.t.supp ? null : S.t.pop === 'supp' ? 't-supp-orion' : 't-supp'), text: '鎖定螢幕時，老師從左欄「補充資源」打開「把星星連起來：獵戶座」，學生畫面跟著打開同一張；老師關掉，學生的也一起關掉', done: () => !!S.flags.suppSynced, run: () => { goTeacherReaderLive(); if (S.cls.mode !== 'lock') setMode('lock'); S.t.page = 0; S.t.pop = 'supp'; later(900, () => openSupp('teacher', suppById('orion'))); later(3400, () => { closeSupp('teacher'); S.t.pop = null; }); } },
-    { side: 'teacher', hint: 't-focus', text: '老師點課文的一段，那一段留著、其他調暗，學生畫面同步聚焦同一段；再點一下段裡的一句，只留那一句；在那一句上點兩下標黃', done: () => !!S.flags.focusSent, run: () => { goTeacherReaderLive(); S.t.tool = null; S.focus = { page: S.t.page, blk: 'p1', sn: null, mark: false }; S.flags.focusSent = true; later(1400, () => { S.focus = { ...S.focus, sn: 1 }; }); later(2800, () => { S.focus = { ...S.focus, mark: true }; }); } },
+    { side: 'teacher', hint: 't-focus', text: '老師點課文的一段，那一段留著、其他調暗，學生畫面同步聚焦同一段；再點一下段裡的一句，只留那一句', done: () => !!S.flags.focusSent, run: () => { goTeacherReaderLive(); S.t.tool = null; S.focus = { page: S.t.page, blk: 'p1', sn: null, mark: false }; S.flags.focusSent = true; later(1400, () => { S.focus = { ...S.focus, sn: 1 }; }); later(2800, () => { S.focus = { ...S.focus, mark: true }; }); } },
     { side: 'student', hint: () => (S.s.rs && S.s.rs.fs > DEFAULT_RS.fs ? null : 's-settings'), text: '（試做）學生在「設定」把字調大，這一頁變長、要往下捲才看得完。老師點這頁最下面那段，跟隨中的學生畫面會自己捲到那一段', done: () => !!S.flags.followScrolled, run: () => {
       goTeacherReaderLive(); S.t.tool = null; S.t.pop = null; S.s.pop = null;
       if (!locked() && !S.s.follow) setFollow(true);
