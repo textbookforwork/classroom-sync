@@ -2292,7 +2292,7 @@ a.btn { text-decoration: none; }
 .tm-split .tm-edit { padding: 2px 3px; font: inherit; letter-spacing: inherit; }
 .tm-in2 .tm-in-edit { width: 58px; height: 50px; font-size: 32px; padding: 0; }
 .tm-in2 .tm-in-edit { box-shadow: inset 0 0 0 1.5px var(--line); outline: none !important; }
-.tm-in2 .tm-in-edit:focus { box-shadow: inset 0 0 0 2px #99A428; background: var(--lime-subtle); } /* 正在改的那格才有橄欖綠框 */
+.tm-in2 .tm-in-edit:focus { box-shadow: inset 0 0 0 2px #99A428; background: var(--raised); } /* 正在改的那格才有橄欖綠框 */
 .timer-pop.pinned .tm-in2 .tm-in-edit { width: 48px; height: 44px; font-size: 28px; }
 .tm-in-edit { width: 128px; height: 52px; border: 0; border-radius: 12px; background: var(--raised); box-shadow: inset 0 0 0 2px #99A428; text-align: center; font: inherit; font-size: 36px; font-weight: 600; font-variant-numeric: tabular-nums; outline: none; }
 
