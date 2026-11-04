@@ -2251,7 +2251,9 @@ a.btn { text-decoration: none; }
 .vs-c.has-kid { background: transparent; box-shadow: none; }
 .vs-hv { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 19px; font-weight: 700; background: var(--lime-subtle); box-shadow: inset 0 0 0 2px var(--olive); color: var(--olive); opacity: 0; transition: opacity .12s; pointer-events: none; }
 .vs-c.m .vs-hv { background: var(--danger-surface); box-shadow: inset 0 0 0 2px var(--danger); color: var(--danger); }
-.vs-c:hover .vs-hv { opacity: 1; } /* 滑過先預告點下去會 +1 或 −1 */
+.vs-c:hover:not(.ro) .vs-hv { opacity: 1; }
+.vs-c.ro { cursor: default; color: var(--ink); }
+.vs-grid.rec { padding-top: 4px; } /* 滑過先預告點下去會 +1 或 −1 */
 .vs-nm { font-size: 14px; margin-top: 2px; }
 .vs-pl { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--raised); box-shadow: inset 0 0 0 1.2px #C9D27A; color: var(--olive); font: inherit; cursor: pointer; }
 .vs-pl em { font-style: normal; font-size: 11.5px; color: var(--text-2); font-variant-numeric: tabular-nums; }

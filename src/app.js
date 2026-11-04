@@ -1589,12 +1589,12 @@ function Records() {
   const fmt = (n) => (n > 0 ? '+' + n : String(n));
   // 學習紀錄入口：跟班級星艦的班級卡同一套卡片（2026-11-03 乙練：原本的長條列表跟其他頁不協調）
   if (r.view === 'index') return html`<div class="rec-cards">
-    <button class=${'class-card rec-card ' + hint('t-rec-score')} onClick=${act(() => { v.rec = { view: 'sessions' }; })}><span class="rc-ic"><${Icon} n="star" s=${22} /></span><b>加分紀錄</b><span class="rc-n"><em>${S.sessions.length}</em>次上課</span></button>
-    <button class=${'class-card rec-card ' + hint('t-rec-task')} onClick=${act(() => { v.rec = { view: 'tasks' }; })}><span class="rc-ic"><${Icon} n="send" s=${22} /></span><b>任務紀錄</b><span class="rc-n"><em>${S.taskLog.length}</em>題</span></button></div>`;
+    <button class=${'class-card rec-card ' + hint('t-rec-score')} onClick=${act(() => { v.rec = { view: 'sessions' }; })}><span class="rc-ic"><${Icon} n="star" s=${22} /></span><b>加分紀錄</b></button>
+    <button class=${'class-card rec-card ' + hint('t-rec-task')} onClick=${act(() => { v.rec = { view: 'tasks' }; })}><span class="rc-ic"><${Icon} n="send" s=${22} /></span><b>任務紀錄</b></button></div>`;
   if (r.view === 'sessions') return html`<div>
     <div class="rec-h">${back({ view: 'index' })}<b style="font-size:18px">加分紀錄</b></div>
     <div class="rec-list">
-      <button class=${'rec-row total ' + hint('t-rec-total')} onClick=${act(() => { v.rec = { view: 'total' }; })}><span>累計總分（本學期）</span><span class="spacer"></span><small>${S.sessions.length} 次</small><${Icon} n="chevron-right" /></button>
+      <button class=${'rec-row total ' + hint('t-rec-total')} onClick=${act(() => { v.rec = { view: 'total' }; })}><span>累計總分（本學期）</span><span class="spacer"></span><${Icon} n="chevron-right" /></button>
       ${S.sessions.map((s, i) => html`<div class=${'rec-row ' + (i === 0 ? hint('t-rec-session') : '')} role="button" tabindex="0" onClick=${act(() => { v.rec = { view: 'session', id: s.id, sort: 'seat' }; S.flags.sessionSeen = true; })}>
         <span class="when">${s.date} ${s.time}</span>
         ${r.edit === s.id ? html`<input class="inp nm-edit" id=${'nm-' + s.id} value=${s.name || secLabel(s)} placeholder="幫這堂課取個名字" ref=${(el) => { if (el && !el.dataset.f) { el.dataset.f = 1; el.focus(); el.select(); } }} onClick=${(e) => e.stopPropagation()} onInput=${(e) => { s.name = e.target.value; }} onKeyDown=${act((e) => { if (e.key === 'Enter' || e.key === 'Escape') r.edit = null; })} onBlur=${act(() => { if (r.edit === s.id) r.edit = null; })} />`
@@ -1689,7 +1689,7 @@ function ReturnResult({ t, records }) {
   return html`<div>
     <div class="rec-sum"><span><b>${answeredCount(t)}</b>／${seats.length} 回傳</span></div>
     ${t.type !== 'voice' && (() => { const miss = seats.filter((x) => !(t.type === 'text' ? t.texts[x] : t.subs[x])); return miss.length > 0 && html`<div class="miss-line">沒交 ${miss.length} 人：${miss.map((x) => html`<span>${pad(x)} ${nameOf(x)}</span>`)}</div>`; })()}
-    ${t.type === 'voice' ? html`<div class="voice-grid">${seats.filter((x) => (t.voices || {})[x]).map((seat) => html`<${VoiceTile} t=${t} seat=${seat} live=${false} />`)}</div>
+    ${t.type === 'voice' ? html`<div class="vs-grid">${seats.filter((x) => (t.voices || {})[x]).map((seat) => html`<${VoiceSeat} t=${t} seat=${seat} readonly />`)}</div>
       ${seats.some((x) => !(t.voices || {})[x]) && html`<div class="v-none"><b>未作答</b>${seats.filter((x) => !(t.voices || {})[x]).map((x) => html`<span>${pad(x)} ${nameOf(x)}</span>`)}</div>`}`
       : t.type === 'text'
       ? html`<div class="text-cards">${seats.map((seat) => t.texts[seat] ? html`<button class="tcard" onClick=${() => setBig(seat)}><span class="who2"><span class="seat">${pad(seat)}</span>${nameOf(seat)}</span>${t.texts[seat]}</button>` : '')}</div>`
@@ -2460,10 +2460,10 @@ function RvFoot({ list }) {
     <button class=${'btn xs sec ' + hint('t-next-task')} onClick=${act(endTask)}>再派一題</button></div>`;
 }
 /* 聲音題檢討（2026-11-04 乙練）：座號圈＝照上方「加分｜扣分」加減分（跟名單、其他題型同一套，滑過先預告 +1／−1）；名字下面「▶ 0:04」小膠囊＝播放 */
-function VoiceSeat({ t, seat }) {
+function VoiceSeat({ t, seat, readonly }) { // readonly：學習紀錄裡回看，座號圈不能加減分
   const v = t.voices[seat], key = 'v' + t.id + seat, on = S.playingVoice === key, hint = useHint(), minus = S.t.scoreMode === 'minus';
   return html`<div data-seat=${seat} class=${'vs' + drawnCls(seat) + (on ? ' on' : '')}>
-    <button class=${'vs-c' + kidCls(t, seat) + (minus ? ' m' : '')} aria-label=${`幫 ${nameOf(seat)} ${minus ? '扣' : '加'} 1 分`} onClick=${act((e) => rvScore(t, seat, e.currentTarget))}>
+    <button class=${'vs-c' + kidCls(t, seat) + (minus ? ' m' : '') + (readonly ? ' ro' : '')} disabled=${readonly} aria-label=${readonly ? `${pad(seat)} ${nameOf(seat)}` : `幫 ${nameOf(seat)} ${minus ? '扣' : '加'} 1 分`} onClick=${readonly ? undefined : act((e) => rvScore(t, seat, e.currentTarget))}>
       <span class="vs-face"><${SeatFace} t=${t} seat=${seat} box=${50} /></span><i class="vs-hv">${minus ? '−1' : '+1'}</i><${SeatSc} t=${t} seat=${seat} /></button>
     <span class="vs-nm">${nameOf(seat)}</span>
     <button class=${'vs-pl' + (on ? ' on' : '') + (seat === ME ? ' ' + hint('t-voice-play') : '')} aria-label=${(on ? '暫停 ' : '播放 ') + nameOf(seat)} onClick=${act(() => { playVoice(key); S.flags.voicePlayed = true; })}><${Icon} n=${on ? 'pause' : 'play'} s=${12} /><em>${mmss(v.sec)}</em></button>
@@ -2762,7 +2762,7 @@ function AdminCreate() {
     ${mode === 'multi' && html`<div class="form-grid">
       <div class="fld"><label for="ac-school">學校</label><${Combo} id="ac-school" value=${A.madeSchool ? SCHOOL : S.admin.schools[0].name} options=${S.admin.schools.map((x) => x.name)} onChange=${(v) => { if (v !== SCHOOL) toast('admin', `示範只開放${SCHOOL}`); }} placeholder="輸入或展開搜尋" /></div>
       <div class="fld"><label for="ac-cls">班級</label><input class="inp" id="ac-cls" value=${d.cls} onInput=${act((e) => { d.cls = e.target.value; A.justMade = false; })} /></div>
-      <div class="fld"><label for="ac-n">學生人數</label><input class="inp" id="ac-n" value=${d.count} onInput=${act((e) => { d.count = e.target.value; A.justMade = false; })} /></div>
+      <div class="fld"><label for="ac-n">學生人數</label><input class="inp" id="ac-n" value=${d.count} onInput=${act((e) => { d.count = toHalf(e.target.value).replace(/\D/g, ''); A.justMade = false; })} /></div>
       <div class="fld"><label for="ac-pre">帳號前綴</label><input class="inp" id="ac-pre" value=${d.prefix} onInput=${act((e) => { d.prefix = e.target.value; A.justMade = false; })} /></div>
       <div class="fld"><label>密碼</label><div class="seg" style="align-self:flex-start">${[['same', '全班相同'], ['random', '隨機']].map(([k, l]) => html`<button aria-pressed=${(d.pwMode || 'same') === k} onClick=${act(() => { if (d.pwMode !== k) A.justMade = false; d.pwMode = k; })}>${l}</button>`)}</div></div>
       ${d.pwMode === 'same' ? html`<div class="fld"><label for="ac-pw">全班密碼</label><input class="inp" id="ac-pw" placeholder="輸入密碼" value=${d.pw || ''} onInput=${act((e) => { d.pw = e.target.value; A.justMade = false; })} /></div>` : html`<div></div>`}
