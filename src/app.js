@@ -1560,7 +1560,7 @@ function ToolbarSettings() {
     move: (from, to) => { const i = sel.indexOf(from), j = sel.indexOf(to); if (i < 0 || j < 0) return; sel.splice(i, 1); sel.splice(j, 0, from); refresh(); } };
   return html`<div class="tb2-out" ref=${boxRef}><div class="tb2" style=${{ width: Math.round(VW * sc) + 'px' }}>
     <div class="tb2-h"><b>學生看到的樣子</b><div class="seg" role="radiogroup" aria-label="學生閱讀載具">${['4:3', '16:9'].map((x) => html`<button role="radio" aria-pressed=${r === x} onClick=${act(() => { S.ratioDraft.r = x; })}>${x}</button>`)}</div><span class="tb2-sp"></span><button class="btn sec sm" onClick=${act(() => { S.t.modal = 'apply'; })}>套用到其他班</button><button class=${'btn sm ' + hint('t-toolsave')} onClick=${act(() => { S.toolbar[key] = [...sel]; S.ratio[key] = r; S.flags.toolbarSaved = true; toast('teacher', '已儲存'); })}>儲存</button></div>
-    <p class="tb2-note">這是學生預設放在側欄的工具列，其他工具可以在工具箱找到。</p>
+    <p class="tb2-note">在這裡設定學生側欄的預設工具列，最多可以放 6 個；其他工具，學生可以在工具箱中自行選取。</p>
     <div class="tb2-screen" style=${{ width: Math.round(VW * sc) + 'px', height: Math.round(VH * sc) + 'px' }}><div class="tb-preview" style=${{ width: VW + 'px', height: VH + 'px', transform: `scale(${sc})` }}>
       <div class="reader tb-reader"><${Rail} side="student" preview=${[...sel, 'supp', 'settings']} edit=${edit} />
         ${open && html`<${SlotBox} sel=${sel} add=${edit.add} close=${() => setOpen(false)} />`}
