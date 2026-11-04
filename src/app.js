@@ -964,6 +964,8 @@ function makeGroups(g) {
   const res = Array.from({ length: count }, () => []); seats.forEach((x, i) => res[i % count].push(x)); res.forEach((r) => r.sort((a, b) => a - b));
   g.res = res; g.busy = false; S.flags.grouped = true;
 }
+/* 分組卡片：每組一個品牌輔色（淡底＋組號色塊），組員用自己的形狀夥伴，不像表格那麼制式（2026-11-04 乙練） */
+const GROUP_C = ['#F3C11B', '#FF854A', '#00A36E', '#FF87C7', '#03C5E9', '#7F6CDF', '#93663C', '#9DB000'];
 const ZH_N = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五'];
 function GroupPop() {
   const t = S.t;
@@ -974,11 +976,14 @@ function GroupPop() {
   const helper = ok ? `共 ${count} 組，每組約 ${Math.round(N / count)} 人` : '';
   const run = act(() => { g.busy = true; later(700, () => makeGroups(g)); });
   const close = act(() => { t.pop = null; });
-  return html`<div class=${'pop grp-pop' + (g.res ? ' wide' : '')}>
-    <div class="pop-h"><h4>分組</h4><button class="x-btn" aria-label="關閉" onClick=${close}><${Icon} n="x" /></button></div>
+  const cols = g.res ? (g.res.length <= 3 ? g.res.length : g.res.length <= 6 ? 3 : g.res.length <= 8 ? 4 : 5) : 0;
+  const total = g.res ? g.res.reduce((n, r) => n + r.length, 0) : 0;
+  return html`<div class=${'pop grp-pop' + (g.res ? ' wide' : '')} style=${g.res ? { width: cols * 178 + 36 + 'px' } : null}>
+    <div class="pop-h"><h4>分組${g.res && html`<small class="grp-sum">${total} 人・${g.res.length} 組</small>`}</h4><span class="spacer"></span>${g.res && html`<button class="btn sm sec" onClick=${act(() => { g.res = null; })}>重新分組</button>`}<button class="x-btn" aria-label="關閉" onClick=${close}><${Icon} n="x" /></button></div>
     <div class="pop-b">
-      ${g.res ? html`<div class="grp-res">${g.res.map((r, i) => html`<div><p class="field-l">第${ZH_N[i] || i + 1}組（${r.length} 人）</p><div class="grp-seats">${r.map((x) => html`<span>${x}</span>`)}</div></div>`)}</div>
-        <button class="btn sm sec grp-go" onClick=${act(() => { g.res = null; })}>重新分組</button>`
+      ${g.res ? html`<div class="gcards" style=${{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>${g.res.map((r, i) => html`<div class="gcard" style=${{ '--gc': GROUP_C[i % GROUP_C.length] }}>
+          <div class="gcard-h"><span class="gnum" aria-hidden="true"></span><b>第${ZH_N[i] || i + 1}組</b><small>${r.length} 人</small></div>
+          ${r.map((x) => html`<div class="gm"><${Kid} seat=${x} box=${26} /><span>${nameOf(x)}</span><em>${pad(x)}</em></div>`)}</div>`)}</div>`
       : html`<label class="field-l" for="g-total">總人數</label><input class="inp" id="g-total" inputmode="numeric" placeholder="請輸入總人數" value=${g.total} onInput=${act((e) => { g.total = e.target.value.replace(/\D/g, ''); })} />
         <p class="field-l" style="margin-top:14px">分組方式</p>
         <div class="seg grp-seg" role="group" aria-label="分組方式"><button aria-pressed=${g.by === 'groups'} onClick=${act(() => { g.by = 'groups'; })}>依組別數</button><button aria-pressed=${g.by === 'size'} onClick=${act(() => { g.by = 'size'; })}>依每組人數</button></div>

@@ -957,7 +957,18 @@ textarea.note-t { field-sizing: content; min-width: 96px; max-width: 296px; min-
 .grp-res .field-l { margin-bottom: 8px; }
 .grp-seats { display: grid; grid-template-columns: repeat(5, 40px); gap: 8px; }
 /* 分好組後面板加寬：一組最多 10 人，一列排得下 10 個座號（2026-11-03 乙練） */
-.grp-pop.wide { width: 520px; }
+.grp-pop.wide { width: 520px; max-width: calc(100% - 140px); }
+.grp-pop.wide .pop-h { gap: 8px; justify-content: flex-start; }
+.grp-pop .pop-h .spacer { flex: 1; }
+.grp-sum { margin-left: 10px; font-size: 13px; font-weight: 400; color: var(--text-2); }
+.gcards { display: grid; gap: 12px; }
+.gcard { border-radius: 16px; padding: 12px 12px 8px; background: var(--raised); box-shadow: inset 0 0 0 1px var(--line-subtle); } /* 白底；顏色只留在組名前的小色塊，夥伴本身就有顏色，不要再加底色（太花） */
+.gcard-h { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.gnum { width: 12px; height: 12px; border-radius: 4px; background: var(--gc); transform: rotate(12deg); }
+.gcard-h b { font-size: 15px; font-weight: 600; }
+.gcard-h small { margin-left: auto; font-size: 12px; color: var(--text-3); }
+.gm { display: flex; align-items: center; gap: 8px; height: 34px; font-size: 14px; }
+.gm em { margin-left: auto; font-style: normal; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
 .grp-pop.wide .grp-seats { grid-template-columns: repeat(10, 40px); }
 .grp-seats span { width: 40px; height: 40px; border-radius: 999px; background: var(--ink); /* 座號頭像一律黑底白字，同名單 */ color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .spin { width: 16px; height: 16px; border-radius: 999px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; animation: spin .7s linear infinite; }
