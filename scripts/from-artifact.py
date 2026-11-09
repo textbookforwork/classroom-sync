@@ -25,10 +25,10 @@ head, rest = page.split('<div id="app"></div>', 1)
 css = '\n'.join(re.findall(r'<style>(.*?)</style>', head, re.S)).replace('url(assets/', 'url(/assets/')
 css += """
 /* 單一角色視窗：整個畫面給那一端，不留展示版的外框標籤（老師端／誰的筆電／管理員） */
-.solo { height: 100vh; display: flex; padding: 0; background: var(--shell); }
+.solo { height: 100vh; display: flex; padding: 0; background: var(--sunken); }
 .solo .dev-slot { flex: 1; gap: 0; }
 .solo .dev-label { display: none; }
-.solo .dev { top: 50%; transform: translate(-50%, -50%); border-radius: 0; box-shadow: none; }
+.solo .dev { left: 0; top: 0; transform: none; width: 100% !important; height: 100% !important; border-radius: 0; box-shadow: none; }
 """
 
 # ── 程式 ──
@@ -84,6 +84,11 @@ function App() {
   const [, force] = useState(0);
   refresh = () => force((x) => x + 1);
   useEffect(() => { if (!chan) return; if (REMOTE) { REMOTE = false; return; } post({ type: 'state', S }); });""", 1)
+js = rep(js, "    const fit = () => { const w = el.clientWidth, hgt = el.clientHeight || 99999; setSc(Math.max(0.15, Math.min(w / 1440, hgt / 900))); };",
+             "    const fit = () => { const w = el.clientWidth, hgt = el.clientHeight || 99999; setSc(ROLE ? w / 1440 : Math.max(0.15, Math.min(w / 1440, hgt / 900))); if (ROLE) setHgt(hgt); };", 1)
+js = rep(js, "  const [sc, setSc] = useState(0.5);\n  useLayoutEffect(() => {\n    const el = ref.current;\n    const fit", "  const [sc, setSc] = useState(0.5);\n  const [hgt, setHgt] = useState(900);\n  useLayoutEffect(() => {\n    const el = ref.current;\n    const fit", 1)
+js = rep(js, "        <div class=\"stage\" style=${{ transform: `scale(${sc})` }}",
+             "        <div class=\"stage\" style=${{ transform: `scale(${sc})`, height: ROLE ? Math.round(hgt / sc) + 'px' : '900px' }}", 1)
 js = rep(js, "  return html`<div class=\"shell\">\n    <header class=\"bar\">", "  if (ROLE) return html`<div class=\"solo\"><${Device} side=${ROLE} /></div>`;\n  return html`<div class=\"shell\">\n    <header class=\"bar\">", 1)
 js = rep(js, """      <button class="ghost" onClick=${act(() => { S.guide = !S.guide; })}>""", """      <div class="seg" role="group" aria-label="開新視窗">${[['teacher', '老師'], ['student', '學生'], ['admin', '管理員']].map(([r, l]) => html`<button onClick=${() => openRole(r)}><${Icon} n="arrow-up-right" s=${14} />${l}</button>`)}</div>
       <button class="ghost" onClick=${act(() => { S.guide = !S.guide; })}>""", 1)

@@ -3361,9 +3361,10 @@ const DEV = { teacher: ['老師端', `${TEACHER}老師的筆電`], student: ['�
 function Device({ side }) {
   const ref = useRef();
   const [sc, setSc] = useState(0.5);
+  const [hgt, setHgt] = useState(900);
   useLayoutEffect(() => {
     const el = ref.current;
-    const fit = () => { const w = el.clientWidth, hgt = el.clientHeight || 99999; setSc(Math.max(0.15, Math.min(w / 1440, hgt / 900))); };
+    const fit = () => { const w = el.clientWidth, hgt = el.clientHeight || 99999; setSc(ROLE ? w / 1440 : Math.max(0.15, Math.min(w / 1440, hgt / 900))); if (ROLE) setHgt(hgt); };
     fit(); const ro = new ResizeObserver(fit); ro.observe(el); return () => ro.disconnect();
   }, []);
   const toasts = S.toasts[side];
@@ -3373,7 +3374,7 @@ function Device({ side }) {
       ${side === 'student' && S.s.inClass && S.cls.live && html`<span class="tag">${locked() ? '被鎖定' : following() ? '跟隨老師' : '自己翻頁'}</span>`}</div>
     <div class="dev-fit" ref=${ref}>
       <div class="dev" style=${{ width: 1440 * sc + 'px', height: 900 * sc + 'px' }}>
-        <div class="stage" style=${{ transform: `scale(${sc})` }} onClick=${() => { const P = side === 'admin' ? S.admin : side === 'teacher' ? S.t : S.s; if (P.menu || S.t.cardMenu != null || S.admin.rowMenu) { P.menu = false; S.t.cardMenu = null; S.admin.rowMenu = null; refresh(); } }}>
+        <div class="stage" style=${{ transform: `scale(${sc})`, height: ROLE ? Math.round(hgt / sc) + 'px' : '900px' }} onClick=${() => { const P = side === 'admin' ? S.admin : side === 'teacher' ? S.t : S.s; if (P.menu || S.t.cardMenu != null || S.admin.rowMenu) { P.menu = false; S.t.cardMenu = null; S.admin.rowMenu = null; refresh(); } }}>
           ${side === 'teacher' ? html`<${TeacherApp} />` : side === 'student' ? html`<${StudentApp} />` : html`<${AdminApp} />`}
           ${S.cheer && (side === 'teacher' || (side === 'student' && S.s.inClass)) && html`<${Cheer} key=${S.cheer.id} />`}
           <div class="toasts" aria-live="polite">${toasts.map((t) => html`<div class="toast" key=${t.id}>${t.icon && html`<span class=${'t-ic' + (t.icon === 'check' ? ' ok' : '')}><${Icon} n=${t.icon} s=${15} /></span>`}${t.text}</div>`)}</div>
