@@ -32,9 +32,9 @@ await W(1000); await shot(p, 'tasks-07.png', ['.taskbar']);
 // 8 送出畫面 → 預覽：交出的是整頁截圖（含原本的畫記）
 await ev(() => { S.s.modal = 'submit'; S.s.tool = null; refresh(); });
 await W(800); await shot(p, 'tasks-08.png', ['.dialog']);
-// 9 檢討：一人一張作品縮圖
+// 9 檢討：座號圈＋名字＋「看作品」膠囊（跟聲音題同一套）
 await ev(() => { submit(); const t = S.task; present().map((x) => x.seat).filter((x) => S.cls.joined.includes(x) && !NO_SUBMIT.includes(x) && x !== ME).forEach((x) => { t.subs[x] = { ink: genInk(x, t.page), notes: [], at: Date.now() }; }); stopTask(); S.view = 'teacher'; S.t.pop = 'task'; refresh(); });
-await W(1000); await shot(p, 'tasks-09.png', ['.subs-all']);
+await W(1000); await shot(p, 'tasks-09.png', ['.rv-body']);
 // 10 放大看單份：批註工具在右下角，下方一列
 await ev(() => { openDetail(ME); S.task.subs[ME].notes.push({ c: COLORS.note, w: 4, pts: [[600, 60], [700, 40], [790, 70]] }); refresh(); });
 await W(1000); await shot(p, 'tasks-10.png', ['.dt-tools', '.detail-top']);
@@ -47,9 +47,13 @@ await W(1000); await shot(p, 'tasks-12.png', ['txt=看課本']);
 // 聲音題 13 學生錄音
 await ev(() => { endTask(); sendTask('voice', {}); S.view = 'student'; refresh(); });
 await W(1000); await shot(p, 'tasks-13.png', ['.dialog']);
-// 14 檢討：一格一位，點播放鍵聽
+// 14 檢討：一格一位，點播放鍵聽；拍「有一位正在播放」（2026-11-05 D 版：播放中那一格框起來、膠囊裡跑進度）。對應 be-8-14(321:35)
 await ev(() => { submitVoice(9); const t = S.task; present().map((x) => x.seat).filter((x) => S.cls.joined.includes(x) && !NO_SUBMIT.includes(x) && x !== ME).forEach((x) => { t.voices[x] = { sec: 4 + (x % 13), at: Date.now() }; }); stopTask(); S.view = 'teacher'; S.t.pop = 'task'; refresh(); });
-await W(1000); await shot(p, 'tasks-14.png', ['.rv-body']);
+await W(1000); await dev().locator('.vs[data-seat="2"] .vs-pl').click(); await W(1800);
+// 播放中那一格自己有橄欖綠框，橘框往外多留一點，不要壓在綠框上
+const onBox = await ev(() => { const dev = document.querySelector('.dev'); const d = dev.getBoundingClientRect(); const k = d.width / 1440; const b = dev.querySelector('.vs.on').getBoundingClientRect(); const g = 6; /* 綠框是 ::before，inset: -10px 6px -13px */ return { x: (b.left - d.left) / k + 6 - g, y: (b.top - d.top) / k - 10 - g, w: b.width / k - 12 + g * 2, h: b.height / k + 23 + g * 2 }; });
+await shot(p, 'tasks-14.png', [onBox]);
+await ev(() => { if (S.playingVoice) playVoice(S.playingVoice); refresh(); }); // 停掉播放，免得影響下一張
 // 15 沒作答：名字膠囊，整組 −1
 await ev(() => { S.task.tab = 'none'; refresh(); });
 await W(800); await shot(p, 'tasks-15.png', ['.rv-head']);

@@ -24,9 +24,11 @@ head, rest = page.split('<div id="app"></div>', 1)
 # ── 樣式 ──
 css = '\n'.join(re.findall(r'<style>(.*?)</style>', head, re.S)).replace('url(assets/', 'url(/assets/')
 css += """
-/* 單一角色視窗：整個畫面給那一端 */
-.solo { height: 100vh; display: flex; padding: 12px 16px; background: var(--shell); }
-.solo .dev-slot { flex: 1; }
+/* 單一角色視窗：整個畫面給那一端，不留展示版的外框標籤（老師端／誰的筆電／管理員） */
+.solo { height: 100vh; display: flex; padding: 0; background: var(--shell); }
+.solo .dev-slot { flex: 1; gap: 0; }
+.solo .dev-label { display: none; }
+.solo .dev { top: 50%; transform: translate(-50%, -50%); border-radius: 0; box-shadow: none; }
 """
 
 # ── 程式 ──

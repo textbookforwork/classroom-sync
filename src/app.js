@@ -47,6 +47,15 @@ Object.assign(ICONS, {
   school: '<path d="M14 22v-4a2 2 0 1 0-4 0v4" /><path d="m18 10 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7.382a1 1 0 0 1 .553-.894L6 10" /><path d="M18 5v17" /><path d="m4 6 7.106-3.553a2 2 0 0 1 1.788 0L20 6" /><path d="M6 5v17" /><circle cx="12" cy="9" r="2" />',
   pencil2: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />',
 });
+Object.assign(ICONS, {
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />',
+  rocket: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" /><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" /><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />',
+  'package-open': '<path d="M12 22v-9" /><path d="M15.17 2.21a1.67 1.67 0 0 1 1.63 0L21 4.57a1.93 1.93 0 0 1 0 3.36L8.82 14.79a1.655 1.655 0 0 1-1.64 0L3 12.43a1.93 1.93 0 0 1 0-3.36z" /><path d="M20 13v3.87a2.06 2.06 0 0 1-1.11 1.83l-6 3.08a1.93 1.93 0 0 1-1.78 0l-6-3.08A2.06 2.06 0 0 1 4 16.87V13" /><path d="M21 12.43a1.93 1.93 0 0 0 0-3.36L8.83 2.2a1.64 1.64 0 0 0-1.63 0L3 4.57a1.93 1.93 0 0 0 0 3.36l12.18 6.86a1.636 1.636 0 0 0 1.63 0z" />',
+  library: '<path d="m16 6 4 14" /><path d="M12 6v14" /><path d="M8 8v12" /><path d="M4 4v16" />',
+  save: '<path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" /><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" /><path d="M7 3v4a1 1 0 0 0 1 1h7" />',
+  share: '<circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" x2="15.42" y1="13.51" y2="17.49" /><line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />',
+  table: '<path d="M12 3v18" /><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M3 9h18" /><path d="M3 15h18" />',
+});
 const html = htm.bind(h);
 
 /* ───────── 資料 ───────── */
@@ -302,6 +311,7 @@ function fresh(prevView) {
       { id: 'k1', when: '9/30 10:15', type: 'choice', q: '月亮為什麼會有圓缺？', n: 3, opts: ['地球的影子', '太陽照到的部分不同', '月亮自己會發光'], correct: 'B', status: 'stopped', answers: seedChoice(9, 'B', 2) },
     ],
     task: null, compose: null, timer: null, shared: null, drawn: null,
+    stn: freshStn(),
     flags: {},
     toasts: { teacher: [], student: [], admin: [] },
     today: `${now.getMonth() + 1}/${now.getDate()}（${'日一二三四五六'[now.getDay()]}）`,
@@ -732,12 +742,13 @@ function submitVoice(sec) {
   say(line('submit'), 'celebrating', 2600);
 }
 let voiceAudio = null;
+/* 播放進度 0～1：示範錄音檔長度和題目寫的秒數不同，用比例換算，進度條和秒數才會一起走完 */
+const voiceFrac = () => { const a = voiceAudio; return a && a.duration ? Math.min(1, a.currentTime / a.duration) : 0; };
 function playVoice(key) {
   if (voiceAudio) voiceAudio.pause();
   if (S.playingVoice === key) { S.playingVoice = null; voiceAudio = null; return; }
   S.playingVoice = key; voiceAudio = new Audio('assets/vega.mp3');
-  let shown = -1; // 播放膠囊顯示「已播／總長」，每過一秒重畫一次
-  voiceAudio.ontimeupdate = () => { const s = Math.floor(voiceAudio?.currentTime || 0); if (s !== shown) { shown = s; refresh(); } };
+  voiceAudio.ontimeupdate = () => refresh(); // 播放膠囊裡的進度條跟著跑
   voiceAudio.onended = () => { S.playingVoice = null; refresh(); }; voiceAudio.play().catch(() => {});
 }
 function submit() {
@@ -1392,20 +1403,26 @@ function Shelf({ side }) {
       <div class="head-right"><${AvatarMenu} side=${side} /></div>
     </header>
     <nav class="nav">
-      <button class=${tab === 'hall' ? 'on' : ''} onClick=${act(() => { if (teacher) { S.t.shelfTab = 'hall'; S.t.classView = null; } if (admin) S.admin.shelfTab = 'hall'; })}><${Icon} n="book" s=${20} />地球大廳</button>
+      <button class=${(tab === 'hall' ? 'on ' : '') + hint('t-hall')} onClick=${act(() => { if (teacher) { S.t.shelfTab = 'hall'; S.t.classView = null; } if (admin) S.admin.shelfTab = 'hall'; })}><${Icon} n="book" s=${20} />地球大廳</button>
       ${teacher && html`<button class=${(tab === 'classes' ? 'on ' : '') + hint('t-classes')} onClick=${act(() => { S.t.shelfTab = 'classes'; S.t.classView = null; })}><${Icon} n="users" s=${20} />班級星艦</button>`}
+      ${teacher && html`<button class=${(tab === 'space' ? 'on ' : '') + hint('t-space')} onClick=${act(() => goSpace())}><${Icon} n="rocket" s=${20} />${NAME}</button>`}
       ${admin && html`<button class=${(tab === 'accounts' ? 'on ' : '') + hint('a-nav')} onClick=${act(() => { S.admin.shelfTab = 'accounts'; })}><${Icon} n="shield" s=${20} />帳號管理</button>`}
       ${side === 'student' && html`<${ShelfBuddy} />`}
     </nav>
     <section class="shelf-panel">
-      ${tab === 'accounts' ? html`<${Accounts} />` : tab === 'classes' ? (S.t.classView ? html`<${ClassPage} />` : html`<${MyClasses} />`) : html`
-        ${tabs.length > 1 && html`<div class="tab-row"><div class="tabs" role="tablist" aria-label="教材種類">${tabs.map(([k, l]) => html`<button role="tab" aria-selected=${bt === k} class=${bt === k ? 'on' : ''} onClick=${act(() => { P.bookTab = k; })}>${l}</button>`)}</div>
+      ${tab === 'space' ? html`<${Space} />` : tab === 'accounts' ? html`<${Accounts} />` : tab === 'classes' ? (S.t.classView ? html`<${ClassPage} />` : html`<${MyClasses} />`) : html`
+        ${tabs.length > 1 && html`<div class="tab-row"><div class="tabs" role="tablist" aria-label="教材種類">${tabs.map(([k, l]) => html`<button role="tab" aria-selected=${bt === k} class=${(bt === k ? 'on' : '') + (k === 'mine' ? ' ' + hint('t-minetab') : '')} onClick=${act(() => { P.bookTab = k; })}>${l}</button>`)}</div>
           ${admin && bt === 'textbook' && html`<button class="new-btn" onClick=${act(() => toast('admin', '示範不包含建立教材'))}><${Icon} n="plus" s=${16} />建立教材</button>`}</div>`}
         ${bt === 'textbook' ? subjects.map((sj) => html`<section class="sec"><div class="sec-h"><${Pebble} shape=${sj} size=${24} dark=${true} /><h2>${sj}</h2></div>
             <div class="bk-grid">${TEXTBOOKS.filter((b) => b.subject === sj).map(card)}</div></section>`)
+          : bt === 'mine' && teacher ? html`<section class="sec"><div class="sec-h"><${Pebble} shape="自然科學" size=${24} dark=${true} /><h2>自然科學</h2></div>
+            <div class="bk-grid"><article class=${'bk ' + hint('t-myedit')}><div class="bk-cover" role="button" tabindex="0" aria-label="編輯我的自編" onClick=${act(() => { S.t.screen = 'editor'; })}>
+              <img src="assets/covers/science-5b-art.jpg" alt="" draggable="false" /><span class="bk-scrim"></span><div class="bk-meta2"><small>114 國小</small><b>自然 5下 · ${TEACHER}的自編</b></div></div>
+              <div class="bk-below"><span class="bk-status">已共享</span></div></article></div></section>`
           : html`<div class="shelf-empty"><span class="ic"><${Icon} n="ghost" s=${40} /></span><p class="t">這裡還沒有${bt === 'shared' ? '共享教材' : '自編教材'}</p>
             <p class="h">${bt === 'shared' ? '在自編教材按「共享」，就會出現在這裡' : '到數位教科書，按課本卡片的「⋯」選「建立自編」就能建立一份'}</p></div>`}`}
     </section>
+    ${teacher && S.stn.modal && S.stn.modal.detail && html`<${StnDetail} r=${S.stn.modal.detail} />`}
     ${admin && html`<${AdminModals} />`}
     ${S.profile && S.profile.side === side && html`<${ProfileDialog} />`}
     ${teacher && S.t.modal === 'join' && html`<${JoinDialog} />`}
@@ -1776,6 +1793,7 @@ function TeacherApp() {
   const [, tick] = useState(0);
   useEffect(() => { if (!live) return; const id = setInterval(() => tick((x) => x + 1), 1000); return () => clearInterval(id); }, [live]);
   if (t.screen === 'shelf') return html`<${Shelf} side="teacher" />`;
+  if (t.screen === 'editor') return html`<${StnEditor} />`;
   const hint = useHint();
   const page = t.page, pid = PAGES[page].id;
   const w = fitW(page, t.rs);
@@ -2487,7 +2505,7 @@ function VoiceSeat({ t, seat, readonly }) { // readonly：學習紀錄裡回看�
     <button class=${'vs-c' + kidCls(t, seat) + (minus ? ' m' : '') + (readonly ? ' ro' : '')} disabled=${readonly} aria-label=${readonly ? `${pad(seat)} ${nameOf(seat)}` : `幫 ${nameOf(seat)} ${minus ? '扣' : '加'} 1 分`} onClick=${readonly ? undefined : act((e) => rvScore(t, seat, e.currentTarget))}>
       <span class="vs-face"><${SeatFace} t=${t} seat=${seat} box=${50} /></span><i class="vs-hv">${minus ? '−1' : '+1'}</i><${SeatSc} t=${t} seat=${seat} /></button>
     <span class="vs-nm">${nameOf(seat)}</span>
-    <button class=${'vs-pl' + (on ? ' on' : '') + (seat === ME ? ' ' + hint('t-voice-play') : '')} aria-label=${(on ? '暫停 ' : '播放 ') + nameOf(seat)} onClick=${act(() => { playVoice(key); S.flags.voicePlayed = true; })}><${Icon} n=${on ? 'pause' : 'play'} s=${12} /><em>${on ? `${mmss(Math.min(v.sec, Math.floor(voiceAudio?.currentTime || 0)))} / ${mmss(v.sec)}` : mmss(v.sec)}</em></button>
+    <button class=${'vs-pl' + (on ? ' on' : '') + (seat === ME ? ' ' + hint('t-voice-play') : '')} style=${on ? `--p:${Math.round(voiceFrac() * 100)}%` : ''} aria-label=${(on ? '暫停 ' : '播放 ') + nameOf(seat)} onClick=${act(() => { playVoice(key); S.flags.voicePlayed = true; })}><${Icon} n=${on ? 'pause' : 'play'} s=${12} /><em>${on ? mmss(Math.floor(voiceFrac() * v.sec)) : mmss(v.sec)}</em></button>
   </div>`;
 }
 /* 聲音題的一份回答：一格一位，上面座號名字，中間播放鍵和長度，右上角 +1（點了直接加分） */
@@ -2851,6 +2869,318 @@ function TeacherDialog() {
     </div>`, act(close), 'submit-dlg');
 }
 
+/* ───────── 補給站（2026-11-05，老師補充 demo 併進來，原檔 projects/V1/資源共享demo/） ─────────
+   老師在自己的自編裡掛的補充（網站、影片、圖片、聲音、文字），自編共享後，其他老師在「補給站」看得到、收藏、掛進自己的自編。
+   跟出版社原本掛的分開；只收已共享的自編。「N 人收藏」是自動算的。
+   書櫃：上方導覽多一個「補給站」（乙練 11-05 選 B 新區域）。
+   自編器：上方列多一顆「補給站」打開右側面板（乙練 11-05）；收藏直接進媒體庫的「收藏」，不另外做一份。 */
+const NAME = '補給站';
+const STN_BOOKS = [
+  { id: 'mulan', subject: '國語文', stage: '國中二下', title: '國文 2下' },
+  { id: 'social', subject: '社會', stage: '國小五下', title: '社會 5下' },
+  { id: 'eng', subject: '英語文', stage: '國小六年級', title: 'Wonder World 6' },
+  { id: 'sci', subject: '自然科學', stage: '國小五下', title: '自然科學 5下' },
+  { id: 'math', subject: '數學', stage: '國中二下', title: '數學 2下' },
+];
+const stnBook = (id) => STN_BOOKS.find((b) => b.id === id);
+/* 自編器畫布上的第一課課文；補充掛在這些段落上 */
+const BLOCKS = [
+  { id: 'h', kind: 'h1', text: '星星的世界' },
+  { id: 'p1', text: '晴朗的夜晚抬頭往天空看，可以看到許多閃閃發亮的星星。古人把看起來靠得近的星星連起來，想像成人、動物或器具的樣子，這就是星座。' },
+  { id: 'fig', kind: 'fig', img: 'assets/summer-triangle.jpg', cap: '圖 1　夏季大三角', text: '夏天的夜晚，我們可以找到明亮的「夏季大三角」：織女星、牛郎星和天津四。這三顆星分別屬於天琴座、天鷹座和天鵝座。' },
+  { id: 'p2', text: '同一個晚上，星星的位置會慢慢由東向西移動；到了不同的季節，看到的星座也不一樣。這是因為地球一邊自轉、一邊繞著太陽公轉。' },
+  { id: 'p3', text: '觀測星星時，先用指北針找出方位，再對照星座盤，就能找出今晚天空中有哪些星座。' },
+];
+/* 一則補充：book 哪本、lesson 第幾課、blk 掛在第一課哪一段、k 類型、ar 縮圖長寬比、embed 網站能不能內嵌、by 誰加的（第一位最早）、adopt 幾人收藏 */
+const ALL_RES = [
+  { id: 'tam', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'p1', k: 'web', t: '臺北市立天文科學教育館', url: 'https://www.tam.gov.taipei/', dom: 'tam.gov.taipei', shot: 'assets/star-chart.jpg', ar: 1.6, embed: false, tags: ['星座', '校外教學'], by: ['林志明', '陳怡君', '周彥廷'], adopt: 6 },
+  { id: 'stell', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'p1', k: 'web', t: 'Stellarium 線上星空，輸入日期就能看當晚的星座', url: 'https://stellarium-web.org/', dom: 'stellarium-web.org', shot: 'assets/star-trails.jpg', ar: 1.5, embed: true, tags: ['星座', '互動'], by: [TEACHER, '黃柏翰'], adopt: 4 },
+  { id: 'chart', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'p1', k: 'image', t: '古人畫的星座圖（1824 年）', src: 'assets/star-chart.jpg', ar: 0.85, tags: ['星座', '歷史'], by: ['陳怡君'], adopt: 2 },
+  { id: 'what', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'p1', k: 'text', t: '什麼是星座？', body: '國際天文聯合會把整片天空劃分成 88 個星座，天上的每一顆星都屬於其中一個。同一個星座裡的星星看起來靠在一起，其實離我們的距離可能差很多。', tags: ['星座', '補充知識'], by: ['許雅婷'], adopt: 3 },
+  { id: 'orion', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'fig', k: 'image', t: '把星星連起來：獵戶座', src: 'assets/orion-lines.jpg', ar: 1.4, tags: ['星座', '圖解'], by: [TEACHER, '林志明'], adopt: 3 },
+  { id: 'wiki', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'fig', k: 'web', t: '維基百科：夏季大三角', url: 'https://zh.wikipedia.org/zh-tw/夏季大三角', dom: 'zh.wikipedia.org', shot: 'assets/wiki-summer-triangle.jpg', ar: 1.3, embed: true, tags: ['夏季大三角'], by: ['高子豪'], adopt: 1 },
+  { id: 'vega', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'fig', k: 'audio', t: '三顆主角星：織女、牛郎、天津四', dur: '2:40', tags: ['夏季大三角', '故事'], by: ['陳怡君'], adopt: 2 },
+  { id: 'trails', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'p2', k: 'video', t: '星軌縮時：一個晚上星星怎麼轉', src: 'assets/star-trails.jpg', ar: 1.78, dur: '1:12', tags: ['地球自轉', '縮時'], by: ['林志明', '蔡佳穎', '黃柏翰'], adopt: 5 },
+  { id: 'season', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'p2', k: 'video', t: '四季星空為什麼不一樣（3 分鐘動畫）', src: 'assets/summer-triangle.jpg', ar: 1.78, dur: '3:05', tags: ['公轉', '動畫'], by: ['周彥廷'], adopt: 2 },
+  { id: 'mag', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'p2', k: 'text', t: '星座和星等不一樣', body: '星座是天空的分區，星等是星星有多亮。數字越小越亮，最亮的星甚至是負的星等。', tags: ['星等', '補充知識'], by: [TEACHER], adopt: 1 },
+  { id: 'disk', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'p3', k: 'web', t: '星座盤怎麼轉：互動教學', url: 'https://example.edu/planisphere', dom: 'example.edu', shot: 'assets/orion-lines.jpg', ar: 1.4, embed: true, tags: ['星座盤', '互動'], by: ['蔡佳穎'], adopt: 2 },
+  { id: 'sheet', book: 'sci', lesson: 1, lt: '美麗的星空', blk: 'p3', k: 'image', t: '觀星紀錄單（可列印）', src: 'assets/star-chart.jpg', ar: 0.75, tags: ['學習單', '觀測'], by: ['許雅婷', '高子豪'], adopt: 4 },
+  { id: 'l2a', book: 'sci', lesson: 2, lt: '植物的構造與功能', k: 'video', t: '根的向水性縮時攝影', src: 'assets/summer-triangle.jpg', ar: 1.78, dur: '0:48', tags: ['根', '縮時'], by: ['林志明'], adopt: 2 },
+  { id: 'l2b', book: 'sci', lesson: 2, lt: '植物的構造與功能', k: 'web', t: '葉綠素萃取實驗步驟', url: 'https://example.edu/chlorophyll', dom: 'example.edu', shot: 'assets/star-chart.jpg', ar: 1.5, embed: true, tags: ['實驗', '葉'], by: ['陳怡君'], adopt: 1 },
+  { id: 'l2c', book: 'sci', lesson: 2, lt: '植物的構造與功能', k: 'image', t: '校園植物葉形對照圖', src: 'assets/orion-lines.jpg', ar: 1.2, tags: ['葉', '校園'], by: [TEACHER], adopt: 3 },
+  { id: 'l3a', book: 'sci', lesson: 3, lt: '動物的構造與功能', k: 'video', t: '鰓蓋開合慢動作', src: 'assets/star-trails.jpg', ar: 1.78, dur: '0:30', tags: ['呼吸', '慢動作'], by: ['黃柏翰'], adopt: 2 },
+  { id: 'l3c', book: 'sci', lesson: 3, lt: '動物的構造與功能', k: 'web', t: '臺灣鳥類圖鑑', url: 'https://example.gov/birds', dom: 'example.gov', shot: 'assets/wiki-summer-triangle.jpg', ar: 1.3, embed: false, tags: ['鳥', '圖鑑'], by: ['林志明', '蔡佳穎'], adopt: 3 },
+  { id: 'l4b', book: 'sci', lesson: 4, lt: '水溶液', k: 'web', t: '紫色高麗菜汁酸鹼指示劑', url: 'https://example.edu/cabbage', dom: 'example.edu', shot: 'assets/star-chart.jpg', ar: 1.5, embed: true, tags: ['酸鹼', '實驗'], by: ['高子豪', '許雅婷'], adopt: 4 },
+  { id: 'l4d', book: 'sci', lesson: 4, lt: '水溶液', k: 'text', t: '溶解和融化差在哪', body: '溶解是一種東西散到另一種東西裡（糖散在水裡）；融化是固體變液體（冰變水）。', tags: ['溶解', '補充知識'], by: [TEACHER], adopt: 2 },
+  { id: 'm1', book: 'mulan', lesson: 3, lt: '木蘭詩', k: 'audio', t: '木蘭詩吟誦（河洛語）', dur: '3:20', tags: ['吟誦', '樂府'], by: ['吳承恩'], adopt: 7 },
+  { id: 'm2', book: 'mulan', lesson: 3, lt: '木蘭詩', k: 'image', t: '北朝騎兵裝備圖解', src: 'assets/star-chart.jpg', ar: 0.8, tags: ['歷史', '圖解'], by: ['劉子晴', '吳承恩'], adopt: 3 },
+  { id: 'm3', book: 'mulan', lesson: 3, lt: '木蘭詩', k: 'web', t: '故宮：北朝文物線上展', url: 'https://example.gov/npm', dom: 'example.gov', shot: 'assets/wiki-summer-triangle.jpg', ar: 1.4, embed: false, tags: ['歷史', '博物館'], by: ['劉子晴'], adopt: 2 },
+  { id: 'm4', book: 'mulan', lesson: 3, lt: '木蘭詩', k: 'text', t: '「撲朔迷離」的由來', body: '這個成語就是從木蘭詩最後四句來的：雄兔雌兔跑起來分不出公母，比喻事情錯綜複雜、看不清楚。', tags: ['成語', '補充知識'], by: ['吳承恩'], adopt: 5 },
+  { id: 'e1', book: 'eng', lesson: 2, lt: 'Unit 2 Transportation', k: 'video', t: 'Transportation Song', src: 'assets/summer-triangle.jpg', ar: 1.78, dur: '2:15', tags: ['歌曲', 'transportation'], by: ['葉怡美'], adopt: 4 },
+  { id: 'e2', book: 'eng', lesson: 2, lt: 'Unit 2 Transportation', k: 'web', t: '臺北捷運路線圖（英文版）', url: 'https://example.gov/metro', dom: 'example.gov', shot: 'assets/star-trails.jpg', ar: 1.5, embed: true, tags: ['生活', 'map'], by: ['葉怡美', '林淑儀'], adopt: 2 },
+  { id: 's1', book: 'social', lesson: 1, lt: '日本統治下的臺灣', k: 'image', t: '總督府老照片對照今日', src: 'assets/orion-lines.jpg', ar: 1.33, tags: ['歷史', '照片'], by: ['王大明'], adopt: 3 },
+  { id: 'k1', book: 'math', lesson: 2, lt: '三角形', k: 'web', t: 'GeoGebra：拖拖看內角和', url: 'https://example.org/ggb', dom: 'geogebra.org', shot: 'assets/star-chart.jpg', ar: 1.4, embed: true, tags: ['互動', '幾何'], by: ['張家豪'], adopt: 6 },
+];
+/* 補給站只收連結型：網站、YouTube 影片。老師上傳的圖片、聲音、影片檔和自己打的文字只留在自己的自編，不進補給站（著作權，乙練 2026-11-05 定 A 案） */
+const RES = ALL_RES.filter((r) => r.k === 'web' || r.k === 'video').map((r) => (r.k === 'video' ? { ...r, dom: 'youtube.com' } : r));
+const KIND = { web: ['globe', '網站'], video: ['play', '影片'], image: ['image', '圖片'], audio: ['mic', '聲音'], text: ['file-text', '文字'] };
+const STN_KINDS = ['web', 'video'];
+const STN_SUBJECTS = ['國語文', '英語文', '自然科學', '社會', '數學'];
+const quoteOf = (r) => (BLOCKS.find((b) => b.id === r.blk) || {}).text || '';
+const blockRes = (blkId) => RES.filter((r) => r.blk === blkId);
+const whereShort = (r) => `${stnBook(r.book).title} · 第 ${r.lesson} 課 ${r.lt}`;
+function freshStn() {
+  return {
+    sp: { q: '', subj: 'all', kind: 'all', sort: 'adopt', book: null, tag: null, saved: false }, menu: null, modal: null,
+    saved: ['k1'], added: ['stell'], mine: ['stell'],
+    ed: { sel: null, supp: false, add: false, ins: null, lib: false, libTab: 'web', station: false, q: '' },
+  };
+}
+const shint = (k) => (HINT === k ? ' hint' : '');
+const isSaved = (id) => S.stn.saved.includes(id);
+const isAdded = (id) => S.stn.added.includes(id);
+function toggleSave(r) {
+  if (isSaved(r.id)) { S.stn.saved = S.stn.saved.filter((x) => x !== r.id); toast('teacher', '已取消收藏'); }
+  else { S.stn.saved = [...S.stn.saved, r.id]; S.flags.stnSaved = true; toast('teacher', '已收藏，自編時在媒體庫找得到', 'check'); }
+}
+function goSpace(filter = {}) { S.stn.sp = { ...freshStn().sp, ...filter }; S.t.screen = 'shelf'; S.t.shelfTab = 'space'; S.t.classView = null; S.flags.stnIn = true; }
+/* 掛進某一段：掛上去的同時也進媒體庫的收藏 */
+function addToBlock(r, blkId) {
+  if (isAdded(r.id)) return;
+  S.stn.added = [...S.stn.added, r.id];
+  if (!S.stn.saved.includes(r.id)) S.stn.saved = [...S.stn.saved, r.id];
+  S.flags.stnAdded = true;
+  const b = BLOCKS.find((x) => x.id === blkId);
+  toast('teacher', `已掛進「${(b && b.text || '').slice(0, 10)}…」，也放進媒體庫`, 'check');
+}
+function insertHere(r) { S.flags.stnInserted = true; S.stn.ed.ins = null; S.stn.ed.lib = false; toast('teacher', `已插入「${r.t}」`, 'check'); }
+
+/* 補給站：一面牆。分頁（全部／我的收藏）、搜尋、科目一排、類型與排序兩個下拉；卡片只有縮圖、標題、哪本哪課 */
+function StnDropdown({ id, name, label, value, options, onPick }) {
+  const open = S.stn.menu === id;
+  return html`<div class="ddw" onClick=${(e) => e.stopPropagation()}>
+    <button class=${'fchip dd-btn' + (open ? ' open' : '')} aria-expanded=${open} onClick=${act(() => { S.stn.menu = open ? null : id; })}><span class="dd-name">${name}</span>${label}<${Icon} n="chevron-down" s=${14} /></button>
+    ${open && html`<div class="ddm" role="menu">${options.map(([k, l, ic]) => html`<button role="menuitemradio" aria-checked=${value === k} class=${value === k ? 'on' : ''} onClick=${act(() => { onPick(k); S.stn.menu = null; })}>${ic && html`<${Icon} n=${ic} s=${15} />`}${l}${value === k && html`<${Icon} n="check" s=${14} />`}</button>`)}</div>`}
+  </div>`;
+}
+function Space() {
+  const sp = S.stn.sp;
+  const q = sp.q.trim();
+  let list = RES.filter((r) => (!sp.book || r.book === sp.book) && (sp.subj === 'all' || stnBook(r.book).subject === sp.subj) && (!sp.tag || r.tags.includes(sp.tag)) && (sp.kind === 'all' || r.k === sp.kind) && (!sp.saved || isSaved(r.id)));
+  list = list.filter((r) => !q || (r.t + (r.body || '') + r.tags.join('') + stnBook(r.book).title + r.lt + stnBook(r.book).subject).includes(q));
+  list.sort((a, b) => (sp.sort === 'adopt' ? b.adopt - a.adopt : RES.indexOf(b) - RES.indexOf(a)));
+  const book = sp.book && stnBook(sp.book);
+  const kindOpts = [['all', '全部'], ...STN_KINDS.map((k) => [k, KIND[k][1], KIND[k][0]])];
+  const sortOpts = [['adopt', '最多收藏'], ['new', '最新']];
+  return html`<div class="space" onClick=${act(() => { S.stn.menu = null; })}>
+    <div class="tab-row"><div class="tabs" role="tablist" aria-label=${NAME}>
+      <button role="tab" aria-selected=${!sp.saved} class=${!sp.saved ? 'on' : ''} onClick=${act(() => { sp.saved = false; })}>資源補給</button>
+      <button role="tab" aria-selected=${sp.saved} class=${(sp.saved ? 'on' : '') + shint('savedtab')} onClick=${act(() => { sp.saved = true; sp.subj = 'all'; sp.book = null; S.flags.stnSawSaved = true; })}>我的收藏<span class="tn">${S.stn.saved.length}</span></button>
+    </div></div>
+    <div class="sp-top">
+      <div class="srch"><${Icon} n="search" s=${18} /><input class="inp" placeholder="搜尋：科目、課名或概念" value=${sp.q} onInput=${act((e) => { sp.q = e.target.value; })} />${q && html`<button class="x-btn clr" aria-label="清除" onClick=${act(() => { sp.q = ''; })}><${Icon} n="x" s=${14} /></button>`}</div>
+      <div class="sp-dd">
+        <${StnDropdown} id="kind" name="類型" label=${kindOpts.find((o) => o[0] === sp.kind)[1]} value=${sp.kind} options=${kindOpts} onPick=${(k) => { sp.kind = k; }} />
+        <${StnDropdown} id="sort" name="排序" label=${sortOpts.find((o) => o[0] === sp.sort)[1]} value=${sp.sort} options=${sortOpts} onPick=${(k) => { sp.sort = k; }} />
+      </div>
+    </div>
+    <div class="chips">
+      <span class=${'chips-l' + shint('subj')}>
+        <button class=${'fchip' + (sp.subj === 'all' ? ' on' : '')} onClick=${act(() => { sp.subj = 'all'; sp.book = null; })}>全部</button>
+        ${STN_SUBJECTS.map((s) => html`<button class=${'fchip fsubj' + (sp.subj === s ? ' on' : '')} onClick=${act(() => { sp.subj = s; sp.book = null; S.flags.stnFiltered = true; })}><${Pebble} shape=${s} size=${18} dark=${true} />${s}</button>`)}
+      </span>
+    </div>
+    ${(book || sp.tag) && html`<div class="sp-count">
+      ${book && html`<button class="fchip x" onClick=${act(() => { sp.book = null; })}>《${book.title}》<${Icon} n="x" /></button>`}
+      ${sp.tag && html`<button class="fchip x" onClick=${act(() => { sp.tag = null; })}>#${sp.tag}<${Icon} n="x" /></button>`}
+    </div>`}
+    ${list.length === 0 ? html`<div class="shelf-empty"><span class="ic"><${Icon} n="ghost" s=${40} /></span><p class="t">${sp.saved ? '還沒有收藏' : q ? `沒有老師掛過「${q}」` : '這裡還沒有補充'}</p><p class="h">${sp.saved ? '點一張卡，大視窗裡按「收藏」' : '老師開啟共享的教學資源，會出現在這裡'}</p></div>`
+    : html`<div class="wall">${list.map((r, i) => html`<${PinCard} r=${r} key=${r.id} first=${i === 0} />`)}</div>`}
+  </div>`;
+}
+const Wave = ({ n = 12, big, played = -1, onSeek }) => html`<span class=${'swave' + (onSeek ? ' seek' : '')} onClick=${onSeek ? (e) => { const r = e.currentTarget.getBoundingClientRect(); onSeek((e.clientX - r.left) / r.width); } : undefined}>${Array.from({ length: n }, (_, i) => html`<i class=${played >= 0 && i / n < played ? 'on' : ''} style=${{ '--h': (big ? 2 : 1) * [14, 26, 38, 22, 34, 18, 30, 40, 24, 16, 28, 20, 32, 18, 26, 36, 20, 30, 16, 28, 34, 22, 38, 18][i % 24] + 'px' }}></i>`)}</span>`;
+const PinThumb = ({ r }) => {
+  const [ic, label] = KIND[r.k];
+  if (r.k === 'text') return html`<div class="pc-th kt"><span class="kind"><${Icon} n=${ic} s=${13} />${label}</span><p>${r.body}</p></div>`;
+  if (r.k === 'audio') return html`<div class="pc-th audio"><span class="kind"><${Icon} n=${ic} s=${13} />${label}</span><${Wave} /></div>`;
+  return html`<div class="pc-th" style=${{ aspectRatio: String(r.ar || 1.5) }}><img src=${r.k === 'web' ? r.shot : r.src} alt="" />
+    <span class="kind"><${Icon} n=${ic} s=${13} />${label}</span>
+    ${r.k === 'video' && html`<span class="splay"><${Icon} n="play" s=${18} /></span>`}
+    ${r.dom && html`<span class="site">${r.dom}</span>`}</div>`;
+};
+function PinCard({ r, first }) {
+  const mine = r.by[0] === TEACHER;
+  return html`<article class=${'pc' + (first ? shint('card') : '')} onClick=${act(() => { S.stn.modal = { detail: r }; S.flags.stnDetail = true; })}>
+    <${PinThumb} r=${r} />
+    ${!mine && html`<button class=${'pc-save' + (isSaved(r.id) ? ' on' : '')} aria-pressed=${isSaved(r.id)} title=${isSaved(r.id) ? '取消收藏' : '收藏'} onClick=${act((e) => { e.stopPropagation(); toggleSave(r); })}><${Icon} n="bookmark" s=${15} /></button>`}
+    <div class="pc-b"><div class="pc-ttl">${r.t}</div><div class="pc-where">${whereShort(r)}</div></div>
+  </article>`;
+}
+/* 一則補充的大視窗：補給站和自編器共用。能內嵌的網站直接預覽、不能的連出去；影片聲音直接播。在自編器選著一段時多一顆「加進這一段」 */
+function StnDetail({ r }) {
+  const close = () => { S.stn.modal = null; };
+  const b = stnBook(r.book);
+  const mine = r.by[0] === TEACHER;
+  const sel = S.t.screen === 'editor' && S.stn.ed.sel;
+  const [ic, label] = KIND[r.k];
+  const cnt = r.adopt + (isSaved(r.id) && !mine ? 1 : 0); // 收藏數放在收藏鈕裡，不另外一行
+  const [playing, setPlaying] = useState(false);
+  let body;
+  if (r.k === 'text') body = html`<div class="dv kt">${r.body}</div>`;
+  else if (r.k === 'audio') body = html`<div class="dv audio"><${Wave} n=${24} big=${true} played=${playing ? 0.3 : 0} onSeek=${() => setPlaying(true)} /><div class="arow"><button class="play-big" aria-label="播放" onClick=${() => setPlaying(!playing)}><${Icon} n=${playing ? 'pause' : 'play'} s=${26} /></button><span class="dur">${playing ? '0:48' : '0:00'}<small> / ${r.dur}</small></span></div></div>`;
+  else if (r.k === 'video') body = html`<div class="dv video"><img src=${r.src} alt="" />${!playing && html`<button class="play-big" aria-label="播放" onClick=${() => setPlaying(true)}><${Icon} n="play" s=${28} /></button>`}
+    <div class="vbar"><button class="vb" onClick=${() => setPlaying(!playing)}><${Icon} n=${playing ? 'pause' : 'play'} s=${16} /></button><span class="vtrack"><i style=${{ width: playing ? '38%' : '0%' }}></i></span><span class="vtime">${playing ? '0:27' : '0:00'} / ${r.dur}</span></div></div>`;
+  else if (r.k === 'web' && r.embed) body = html`<div class="dv kw"><div class="browser"><div class="bbar"><span></span><span></span><span></span><span class="url">${r.url}</span></div><img src=${r.shot} alt="" /></div></div>`;
+  else if (r.k === 'web') body = html`<div class="dv kw noembed"><img src=${r.shot} alt="" /><div class="noembed-m"><p>這個網站不允許放在別的網頁裡預覽</p><a class="btn" href=${r.url} target="_blank" rel="noopener">在新分頁打開<${Icon} n="arrow-up-right" s=${16} /></a></div></div>`;
+  else body = html`<div class="dv"><img src=${r.src} alt="" /></div>`;
+  return dlg(r.t, html`${body}
+    <div class="di">
+      <div class="hd"><h4>${r.t}</h4><button class="x-btn" aria-label="關閉" onClick=${act(close)}><${Icon} n="x" /></button></div>
+      <div class="meta-line"><${Icon} n=${ic} s=${14} />${label}${r.dom ? ` · ${r.dom}` : ''}${mine && html`<span class="tagme">你加的</span>`}</div>
+      <div class="d-where"><${Pebble} shape=${b.subject} size=${30} dark=${true} /><div><span class="l1">${b.subject} · ${b.stage}</span><b class="l2">第 ${r.lesson} 課　${r.lt}</b></div></div>
+      <div class="tags">${r.tags.map((t) => html`<button class="tag" onClick=${act(() => { close(); goSpace({ tag: t }); })}>#${t}</button>`)}</div>
+      <div class="acts">
+        <div class="row">
+          ${sel && !mine && html`<button class=${'btn sec ico' + (isSaved(r.id) ? ' lime' : '')} aria-pressed=${isSaved(r.id)} title=${(isSaved(r.id) ? '取消收藏' : '收藏') + `，${cnt} 人收藏`} onClick=${act(() => toggleSave(r))}><${Icon} n="bookmark" s=${18} /><span class="n">${cnt}</span></button>`}
+          <a class="btn sec" href=${r.url || 'https://www.youtube.com/'} target="_blank" rel="noopener">${r.k === 'video' ? '在 YouTube 打開' : '打開網站'}<${Icon} n="arrow-up-right" s=${16} /></a>
+          ${sel ? (isAdded(r.id) ? html`<span class="tagin"><${Icon} n="check" s=${16} />${mine ? '在你的自編裡' : '已掛進這一段'}</span>` : html`<button class=${'btn' + shint('addblk')} onClick=${act(() => { addToBlock(r, sel); close(); })}><${Icon} n="plus" s=${16} />加進這一段</button>`)
+          : !mine ? html`<button class=${'btn' + (isSaved(r.id) ? ' lime' : '') + shint('dsave')} aria-pressed=${isSaved(r.id)} title=${`${cnt} 人收藏`} onClick=${act(() => toggleSave(r))}><${Icon} n="bookmark" s=${16} />${isSaved(r.id) ? '已收藏' : '收藏'}<span class="n">${cnt}</span></button>`
+          : html`<span class="tagin"><${Icon} n="check" s=${16} />你掛的，已共享</span>`}
+        </div>
+      </div>
+    </div>`, close, 'detail');
+}
+
+/* ───────── 自編器（照底層改造的編輯器：頂部列 Tool Tile、左欄頁縮圖、灰畫布白紙、浮動膠囊、右側面板與媒體庫） ───────── */
+const INS_TILES = [['text', 'type', '文字'], ['image', 'image', '圖片'], ['video', 'play', '影片'], ['audio', 'mic', '聲音'], ['shape', 'shapes', '圖形'], ['web', 'globe', '網頁'], ['table', 'table', '表格'], ['pdf', 'file-text', 'PDF'], ['library', 'library', '媒體庫']];
+const POP_TILES = [['text', 'file-text', '文字'], ['rich', 'presentation', '大彈窗'], ['image', 'image', '圖片'], ['video', 'play', '影片'], ['audio', 'mic', '聲音'], ['web', 'globe', '網頁'], ['jump', 'arrow-right', '跳轉']];
+function StnEditor() {
+  const ed = S.stn.ed;
+  const sel = ed.sel;
+  const addedOn = (id) => blockRes(id).filter((r) => isAdded(r.id)).length;
+  const tiles = [
+    { ic: 'undo', l: '復原', dis: true }, { ic: 'redo', l: '重做', dis: true }, 'div',
+    { ic: 'rocket', l: '找補充', on: ed.station, k: 'tile', run: () => { ed.station = !ed.station; ed.supp = false; ed.add = false; ed.lib = false; } },
+    { ic: 'settings', l: '設定' }, { ic: 'save', l: '已儲存' }, { ic: 'share', l: '已共享', on: true }, { ic: 'eye', l: '閱讀模式' },
+  ];
+  const closeAll = () => { ed.sel = null; ed.supp = false; ed.add = false; ed.ins = null; };
+  const capsule = html`<div class="capsule" onClick=${(e) => e.stopPropagation()}>
+    <button class="dim" onClick=${act(() => toast('teacher', '示範只做「補充」'))}>內文<${Icon} n="chevron-down" s=${12} /></button>
+    <button class="dim" onClick=${act(() => toast('teacher', '示範只做「補充」'))}>20<${Icon} n="chevron-down" s=${12} /></button>
+    <button class="dim" onClick=${act(() => toast('teacher', '示範只做「補充」'))}>注</button>
+    <span class="ssep"></span>
+    <button class=${'ico' + (ed.supp ? ' on' : '')} title="補充" onClick=${act(() => { ed.supp = !ed.supp; ed.add = false; ed.station = false; ed.lib = false; })}><${Icon} n="blocks" s=${18} /></button>
+    <button class="ico dim" title="對學生隱藏" onClick=${act(() => toast('teacher', '示範只做「補充」'))}><${Icon} n="eye-off" s=${18} /></button>
+    <button class="ico dim" title="刪除" onClick=${act(() => toast('teacher', '示範只做「補充」'))}><${Icon} n="trash" s=${18} /></button>
+  </div>`;
+  /* 插入點：兩列之間滑過浮現；按下展開插入面板（九宮格＋媒體庫） */
+  const gap = (i) => html`<div class=${'gap' + (ed.ins === i ? ' open' : '') + (i >= 2 ? ' gup' : '') + (i === 3 ? shint('gap') : '')} onClick=${(e) => e.stopPropagation()}>
+    <button class="gap-btn" aria-label="在這裡插入" onClick=${act(() => { ed.ins = ed.ins === i ? null : i; ed.sel = null; ed.supp = false; })}><${Icon} n="plus" s=${14} /></button>
+    ${ed.ins === i && html`<div class="ins-panel" role="dialog" aria-label="插入元件">
+      ${INS_TILES.map(([k, ic, l]) => html`<button class=${'ins-t' + (k === 'library' ? shint('lib') : '')} onClick=${act(() => { if (k === 'library') { ed.lib = true; ed.libTab = 'web'; ed.station = false; ed.supp = false; ed.add = false; } else toast('teacher', '示範只做媒體庫'); })}><${Icon} n=${ic} s=${20} />${l}</button>`)}
+    </div>`}
+  </div>`;
+  return html`<div class="editor">
+    <header class="ed-top">
+      <button class="home" title="回書櫃" onClick=${act(() => { S.t.screen = 'shelf'; })}><${Pebble} shape="自然科學" size=${40} /></button>
+      <div class="ed-title" title="教材名稱，點一下就能改">自然 5下 · ${TEACHER}的自編</div>
+      <div class="ed-right">
+        ${[tiles.slice(0, 2), tiles.slice(3)].map((grp, gi) => html`${gi > 0 && html`<span class="ed-div"></span>`}<div class="ed-grp">${grp.map((t) => html`<button class=${'etile' + (t.on ? ' on' : '') + (t.k ? shint(t.k) : '')} disabled=${t.dis} title=${t.l} onClick=${act(() => (t.run ? t.run() : toast('teacher', '示範只做補充與插入')))}><${Icon} n=${t.ic} s=${20} />${t.l}</button>`)}</div>`)}
+      </div>
+    </header>
+    <div class=${'ed-main' + (ed.supp || ed.station || ed.lib ? ' drawer-open' : '')}>
+      <aside class="ed-rail">
+        <div class="pill-seg"><button class="on">頁面 6</button><button onClick=${act(() => toast('teacher', '示範不切目次'))}>目次 5</button></div>
+        <div class="thumbs">${[1, 2, 3, 4, 5].map((n) => html`<div class=${'ethumb' + (n === 1 ? ' on' : '')} onClick=${act(() => { if (n !== 1) toast('teacher', '示範只畫第 1 頁'); })}><span class="no">${n}</span><div class="sh"><b></b><i></i><i></i><i class="s"></i>${n % 2 === 0 && html`<span class="im"></span>`}<i></i></div></div>`)}</div>
+      </aside>
+      ${ed.lib && html`<${StnLibrary} />`}
+      <div class="ed-canvas" onClick=${act(closeAll)}>
+        <div class="esheet" onClick=${(e) => e.stopPropagation()}>
+          ${BLOCKS.flatMap((b, i) => { const n = addedOn(b.id); const on = sel === b.id; const cls = 'blk' + (b.kind ? ' ' + b.kind : '') + (on ? ' esel' : '') + (b.id === 'p3' ? shint('blk') : '');
+            const corner = n > 0 && html`<span class="corner" title=${`這一段掛了 ${n} 則補充`}><${Icon} n="blocks" s=${12} />${n}</span>`;
+            const pick = act(() => { ed.sel = b.id; ed.ins = null; S.flags.stnSelected = true; });
+            const el = b.kind === 'fig' ? html`<figure class=${cls} key=${b.id} onClick=${pick}>${on && capsule}<span class="grip">⋮⋮</span><div><img src=${b.img} alt="" /><figcaption>${b.cap}</figcaption></div><p class="enote">${b.text}</p>${corner}</figure>`
+              : html`<div class=${cls} key=${b.id} onClick=${pick}>${on && capsule}<span class="grip">⋮⋮</span>${b.text}${corner}</div>`;
+            return [el, gap(i)]; })}
+        </div>
+      </div>
+      ${ed.supp && sel && html`<${StnSuppPanel} />`}
+      ${ed.station && html`<${StnStation} />`}
+    </div>
+    ${S.stn.modal && S.stn.modal.detail && html`<${StnDetail} r=${S.stn.modal.detail} />`}
+  </div>`;
+}
+/* 右側「補充內容」面板（照編輯器 PopupPanel）：這一段掛了什麼、「新增一則」展開種類方塊 */
+function StnSuppPanel() {
+  const ed = S.stn.ed;
+  const b = BLOCKS.find((x) => x.id === ed.sel);
+  const mine = blockRes(b.id).filter((r) => isAdded(r.id));
+  return html`<aside class="drawer suppl" aria-label="補充內容">
+    <div class="dr-h"><h4>補充內容</h4><button class="x-btn" aria-label="關閉" onClick=${act(() => { ed.supp = false; })}><${Icon} n="x" /></button></div>
+    <div class="dr-b">
+      ${mine.length > 0 && html`<div class="sp-kind"><${Icon} n=${KIND[mine[0].k][0]} s=${18} />${KIND[mine[0].k][1]}<button class="lnk2" onClick=${act(() => toast('teacher', '示範不更換種類'))}>更換</button></div>
+        <ul class="sp-list">${mine.map((r) => html`<li key=${r.id}><${Icon} n="chevron-right" s=${16} /><span class="t">${r.t}</span><button class="x-btn" aria-label="刪除" onClick=${act(() => toast('teacher', '示範不刪除'))}><${Icon} n="trash" s=${16} /></button></li>`)}</ul>`}
+      <div class=${'add-wrap' + (ed.add ? ' open' : '')}>
+        <button class="add-btn" onClick=${act(() => { ed.add = !ed.add; })}><${Icon} n="plus" s=${16} />新增一則</button>
+        ${ed.add && html`<div class="add-menu">${POP_TILES.map(([k, ic, l]) => html`<button class="add-it" onClick=${act(() => toast('teacher', `示範只做從${NAME}挑`))}><${Icon} n=${ic} s=${20} />${l}</button>`)}</div>`}
+      </div>
+      ${mine.length === 0 && !ed.add && html`<div class="dr-hint">這一段還沒掛補充。「新增一則」自己加，或上方列的「找補充」挑其他老師掛過的。</div>`}
+    </div>
+  </aside>`;
+}
+/* 媒體庫（照編輯器 MediaLibrary：右側面板、依種類分頁、最上面永遠是新增方式、收藏排最前面）。在補給站收藏或掛進課文的，就在這裡的「收藏」 */
+function StnLibrary() {
+  const ed = S.stn.ed;
+  const tabs = [['image', '圖片'], ['video', '影片'], ['audio', '聲音'], ['web', '網頁'], ['pdf', 'PDF']];
+  const k = ed.libTab;
+  const favs = RES.filter((r) => isSaved(r.id) && r.k === k);
+  const ownItems = { image: ['校園植物葉形對照圖', '夏季大三角（課本圖）'], video: ['觀星教室錄影'], audio: ['老師朗讀：星星的世界'], web: ['Stellarium 線上星空'], pdf: ['觀星紀錄單.pdf'] }[k] || [];
+  const addLabel = { image: '上傳圖片', video: '上傳影片或貼 YouTube', audio: '上傳聲音', web: '貼上網址', pdf: '上傳 PDF' }[k];
+  return html`<aside class="drawer lib" aria-label="媒體庫" onClick=${(e) => e.stopPropagation()}>
+    <div class="dr-h"><h4>媒體庫</h4><button class="x-btn" aria-label="關閉" onClick=${act(() => { ed.lib = false; })}><${Icon} n="x" /></button></div>
+    <div class="lib-tabs">${tabs.map(([kk, l]) => html`<button class=${k === kk ? 'on' : ''} onClick=${act(() => { ed.libTab = kk; })}>${l}</button>`)}</div>
+    <div class="lib-b">
+      <button class="lib-add" onClick=${act(() => toast('teacher', '示範不上傳'))}><${Icon} n="plus" s=${16} />${addLabel}</button>
+      ${favs.length > 0 && html`<div class="lib-sec"><h5>收藏<span class="n">${favs.length}</span></h5>
+        <div class="lib-grid">${favs.map((r, i) => html`<button class=${'lib-it' + (i === 0 ? shint('libfav') : '')} key=${r.id} title="插進課文" onClick=${act(() => insertHere(r))}>${r.k === 'audio' ? html`<span class="lib-ic audio"><${Icon} n="mic" s=${18} /></span>` : html`<img src=${r.k === 'web' ? r.shot : r.src} alt="" />`}<span class="lib-t">${r.t}</span><span class="lib-star"><${Icon} n="bookmark" s=${12} /></span></button>`)}</div></div>`}
+      <div class="lib-sec"><h5>${favs.length ? '全部' : ''}</h5>
+        <div class="lib-grid">${ownItems.map((t, i) => html`<button class="lib-it" key=${t} onClick=${act(() => toast('teacher', `已插入「${t}」`, 'check'))}>${k === 'audio' ? html`<span class="lib-ic audio"><${Icon} n="mic" s=${18} /></span>` : k === 'pdf' ? html`<span class="lib-ic"><${Icon} n="file-text" s=${18} /></span>` : html`<img src=${['assets/orion-lines.jpg', 'assets/summer-triangle.jpg'][i % 2]} alt="" />`}<span class="lib-t">${t}</span></button>`)}</div></div>
+    </div>
+  </aside>`;
+}
+/* 自編器裡的補給站：右側面板，一條搜尋、建議字、縮圖格子。點一格開大視窗，在那裡預覽、收藏或掛進選著的那一段 */
+function StnStation() {
+  const ed = S.stn.ed;
+  const q = ed.q.trim();
+  const sel = ed.sel ? BLOCKS.find((b) => b.id === ed.sel) : null;
+  const match = (r) => !q || (r.t + (r.body || '') + r.tags.join('') + stnBook(r.book).title + r.lt).includes(q);
+  const here = sel ? blockRes(sel.id).filter(match) : [];
+  // 預設列這一科（這份自編的科目）；選著一段時先列那一段、再列這一課其他的、再列這一科其他課；搜尋才跨科目
+  const subj = stnBook('sci').subject;
+  const lesson = RES.filter((r) => r.book === 'sci' && r.lesson === 1 && (!sel || r.blk !== sel.id) && match(r));
+  const rest = RES.filter((r) => stnBook(r.book).subject === subj && !(r.book === 'sci' && r.lesson === 1) && match(r));
+  const other = q ? RES.filter((r) => stnBook(r.book).subject !== subj && match(r)) : [];
+  const tile = (r, first) => html`<button class=${'dt' + (first ? shint('eye') : '')} key=${r.id} onClick=${act(() => { S.stn.modal = { detail: r }; S.flags.stnPreviewed = true; })}>
+    <span class=${'dt-th ' + r.k}>${r.k === 'image' || r.k === 'video' || r.k === 'web' ? html`<img src=${r.k === 'web' ? r.shot : r.src} alt="" />` : html`<${Icon} n=${KIND[r.k][0]} s=${22} />`}${r.k === 'video' && html`<span class="dt-play"><${Icon} n="play" s=${12} /></span>`}${isAdded(r.id) && html`<span class="dt-ok"><${Icon} n="check" s=${12} /></span>`}</span>
+    <span class="dt-t">${r.t}</span></button>`;
+  const grid = (list, first) => html`<div class="dt-grid">${list.map((r, i) => tile(r, first && i === 0))}</div>`;
+  return html`<aside class="drawer" aria-label=${NAME}>
+    <div class="dr-h"><h4>找補充</h4><button class="x-btn" aria-label="關閉" onClick=${act(() => { ed.station = false; })}><${Icon} n="x" /></button></div>
+    <div class="dr-tools">
+      <div class="srch"><${Icon} n="search" s=${16} /><input class="inp" placeholder="搜尋：課名或概念" value=${ed.q} onInput=${act((e) => { ed.q = e.target.value; })} />${q && html`<button class="x-btn clr" aria-label="清除" onClick=${act(() => { ed.q = ''; })}><${Icon} n="x" s=${14} /></button>`}</div>
+    </div>
+    <div class="dr-b">
+      ${q ? html`${here.length + lesson.length + rest.length + other.length === 0 ? html`<div class="dr-hint">沒有老師掛過「${q}」。</div>` : grid([...here, ...lesson, ...rest, ...other], true)}`
+      : html`
+        ${sel && here.length > 0 && html`<section class="dr-sec"><h5>這一段</h5>${grid(here, true)}</section>`}
+        ${sel && here.length === 0 && html`<div class="dr-hint">這一段還沒有老師掛補充。</div>`}
+        <section class="dr-sec"><h5>${sel ? '這一課其他的' : '這一課'}</h5>${grid(lesson, !sel || here.length === 0)}</section>
+        <section class="dr-sec"><h5>${subj}其他課</h5>${grid(rest, false)}</section>`}
+    </div>
+    <div class="dr-foot">在這裡收藏或掛進課文的，都在媒體庫的「收藏」。</div>
+  </aside>`;
+}
+
 /* ───────── 導覽 ───────── */
 const firstSub = () => (S.task && (S.task.subs[ME] ? ME : +Object.keys(S.task.subs)[0])) || null;
 const goTeacherReaderLive = () => { ensureLive(); S.t.screen = 'reader'; };
@@ -2863,6 +3193,7 @@ const CHAPTERS = [
   { n: 6, title: '下課', lede: '老師按「下課」，這堂課的加分自動存成一筆紀錄。學生畫面整頁換成下課回饋，形狀夥伴陪學生收尾。下課的畫面和夥伴說的話取自 Rong 的形狀夥伴原型。' },
   { n: 7, title: '學習紀錄', lede: '每次上課的加分、派過的任務都留在班級頁的「學習紀錄」。老師課後回看、補題目，只看得到自己科目的紀錄。' },
   { n: 8, title: '書櫃互動', lede: '學生的書櫃上，形狀夥伴會依情境出現、說話。取自 Rong 的形狀夥伴原型。' },
+  { n: 9, title: NAME, lede: `老師在自己的自編裡掛的網站、YouTube 影片，自編共享後其他老師在「${NAME}」看得到（只收連結，上傳的圖片、聲音、影片檔不進來，避開著作權問題）：一面牆，搜尋、科目、類型找，點一張預覽、收藏。自編器上方列的「找補充」找的是同一批東西，選著一段就能直接掛進去；收藏的都在媒體庫。` },
 ];
 /* 「幫我做這一步」一次只往前走一個畫面：到帳號管理 → 切分頁 → 打開新增視窗 → 建立，讓看的人看得到每一步 */
 function adminStep(tab, modal, finish) {
@@ -2966,6 +3297,19 @@ const STEPS = {
     { side: 'student', hint: 's-avatar', text: '右上角座號頭像的選單看自己的學習夥伴；按「換學習夥伴」可以重選', done: () => !!S.flags.palSeen, run: () => { S.s.screen = 'shelf'; S.s.menu = true; S.flags.palSeen = true; } },
     { side: 'student', hint: null, text: '頭像選單的「個人資料」看自己的帳號和密碼（學生不能改密碼，忘了請老師重設）', done: () => !!S.flags.profileSeen, run: () => { S.s.screen = 'shelf'; S.s.menu = false; S.profile = { side: 'student', show: false, pw: null }; S.flags.profileSeen = true; } },
   ],
+  9: [
+    { side: 'teacher', hint: 't-space', text: `老師書櫃的上方導覽多了「${NAME}」，點進去`, done: () => !!S.flags.stnIn, run: () => { S.t.screen = 'shelf'; goSpace(); } },
+    { side: 'teacher', hint: 'subj', text: '搜尋靠左，跟類型（網站／影片）、排序兩個下拉同一列；下面科目一排。點「自然科學」', done: () => !!S.flags.stnFiltered, run: () => { goSpace({ subj: '自然科學' }); S.flags.stnFiltered = true; } },
+    { side: 'teacher', hint: 'card', text: '點一張卡開大視窗：能內嵌的網站直接預覽、不能的連出去；YouTube 直接播。只寫科目、年段、課次和幾人收藏', done: () => !!S.flags.stnDetail, run: () => { S.stn.modal = { detail: RES[0] }; S.flags.stnDetail = true; } },
+    { side: 'teacher', hint: 'dsave', text: '喜歡就收藏。收藏的會進自編器的媒體庫', done: () => !!S.flags.stnSaved, run: () => { const r = RES.find((x) => !isSaved(x.id) && x.by[0] !== TEACHER); toggleSave(r); S.stn.modal = null; } },
+    { side: 'teacher', hint: 'savedtab', text: '上面的分頁「資源補給｜我的收藏」，切到「我的收藏」', done: () => !!S.flags.stnSawSaved, run: () => { S.stn.modal = null; goSpace({ saved: true }); S.flags.stnSawSaved = true; } },
+    { side: 'teacher', hint: () => (S.t.screen === 'editor' ? null : S.t.shelfTab !== 'hall' ? 't-hall' : (S.t.bookTab || 'textbook') !== 'mine' ? 't-minetab' : 't-myedit'), text: '回「地球大廳」→「自編教材」，打開自己的自編', done: () => S.t.screen === 'editor', run: () => { S.stn.modal = null; if (S.t.shelfTab !== 'hall') { S.t.shelfTab = 'hall'; S.t.classView = null; return; } if ((S.t.bookTab || 'textbook') !== 'mine') { S.t.bookTab = 'mine'; return; } S.t.screen = 'editor'; } },
+    { side: 'teacher', hint: 'tile', text: '上方列按「找補充」，右邊打開面板：一條搜尋，下面是這一科其他老師掛過的縮圖', done: () => !!S.stn.ed.station, run: () => { S.t.screen = 'editor'; S.stn.ed.station = true; S.stn.ed.supp = false; } },
+    { side: 'teacher', hint: 'blk', text: '點課文「觀測星星時…」那一段，面板最上面先列「這一段」其他老師掛了什麼', done: () => !!S.flags.stnSelected, run: () => { S.t.screen = 'editor'; S.stn.ed.station = true; S.stn.ed.sel = 'p3'; S.flags.stnSelected = true; } },
+    { side: 'teacher', hint: 'eye', text: '點一格開大視窗預覽', done: () => !!S.flags.stnPreviewed, run: () => { S.t.screen = 'editor'; S.stn.ed.station = true; if (!S.stn.ed.sel) S.stn.ed.sel = 'p3'; S.stn.modal = { detail: blockRes(S.stn.ed.sel)[0] }; S.flags.stnPreviewed = true; } },
+    { side: 'teacher', hint: 'addblk', text: '按「加進這一段」：掛上去、段落右上角出現角標，同時也進了媒體庫的收藏', done: () => !!S.flags.stnAdded, run: () => { S.t.screen = 'editor'; if (!S.stn.ed.sel) S.stn.ed.sel = 'p3'; const r = blockRes(S.stn.ed.sel).find((x) => !isAdded(x.id)); if (r) addToBlock(r, S.stn.ed.sel); S.stn.modal = null; } },
+    { side: 'teacher', hint: () => (!S.stn.ed.lib ? (S.stn.ed.ins == null ? 'gap' : 'lib') : 'libfav'), text: '另一條路：兩段之間的「＋」→ 插入面板 →「媒體庫」。收藏排最上面，點一下就插進課文', done: () => !!S.flags.stnInserted, run: () => { S.t.screen = 'editor'; S.stn.modal = null; const ed = S.stn.ed; if (!ed.lib) { if (ed.ins == null) { ed.sel = null; ed.supp = false; ed.station = false; ed.ins = 3; return; } ed.lib = true; ed.libTab = 'web'; ed.station = false; ed.supp = false; ed.add = false; return; } const r = RES.find((x) => isSaved(x.id) && x.k === 'web'); if (r) insertHere(r); } },
+  ],
 };
 const WHO = { teacher: '老師', student: '學生', admin: '管理員' };
 function currentStep() { return STEPS[S.chapter].findIndex((st) => !st.done()); }
@@ -3009,6 +3353,7 @@ function goChapter(n) {
   if (n >= 3 && n <= 5) { if (!S.cls.live) { ensureLive(); toast('teacher', '已開始上課'); } S.t.screen = 'reader'; }
   if (n === 6 && !S.flags.ended) { if (!S.cls.live) { ensureLive(); bonus(ME, 1); toast('teacher', '已開始上課'); } S.t.screen = 'reader'; }
   if (n === 8) { if (S.cls.live) endClass(); S.s.screen = 'shelf'; S.s.end = null; S.s.pop = null; S.view = 'split'; }
+  if (n === 9) { if (S.cls.live) endClass(); S.view = 'teacher'; S.t.screen = 'shelf'; S.t.shelfTab = 'hall'; S.t.classView = null; S.t.pop = null; S.stn.modal = null; }
 }
 
 /* ───────── 裝置與外框 ───────── */
