@@ -29,6 +29,8 @@ css += """
 .solo .dev-slot { flex: 1; gap: 0; }
 .solo .dev-label { display: none; }
 .solo .dev { left: 0; top: 0; transform: none; width: 100% !important; height: 100% !important; border-radius: 0; box-shadow: none; }
+.solo .login { grid-template-columns: 1fr 1fr; }
+@media (max-width: 1100px) { .solo .dev-fit { flex: 1; aspect-ratio: auto; } }
 """
 
 # ── 程式 ──
@@ -67,6 +69,7 @@ for bad in ['南一', '翰林', '康軒', '翁子', 'wengzi', 'edu.tw']:
 js = rep(js, "function App() {\n  const [, force] = useState(0);\n  refresh = () => force((x) => x + 1);", """/* 網站版：#/admin、#/teacher、#/student 各開一個角色；其他網址是三端並排的展示版。
    同一台電腦開好幾個視窗時，用 BroadcastChannel 互傳整份狀態（跨裝置要等正式後端） */
 const ROLE = (location.hash.match(/^#\\/(admin|teacher|student)\\b/) || [])[1] || null;
+const STAGE = { w: 1440, h: 900 }; // 單一角色時是整個視窗的大小，課本紙張照這個算
 window.addEventListener('hashchange', () => location.reload());
 const chan = 'BroadcastChannel' in window ? new BroadcastChannel('classroom-sync') : null;
 let REMOTE = false;
@@ -85,10 +88,11 @@ function App() {
   refresh = () => force((x) => x + 1);
   useEffect(() => { if (!chan) return; if (REMOTE) { REMOTE = false; return; } post({ type: 'state', S }); });""", 1)
 js = rep(js, "    const fit = () => { const w = el.clientWidth, hgt = el.clientHeight || 99999; setSc(Math.max(0.15, Math.min(w / 1440, hgt / 900))); };",
-             "    const fit = () => { const w = el.clientWidth, hgt = el.clientHeight || 99999; setSc(ROLE ? w / 1440 : Math.max(0.15, Math.min(w / 1440, hgt / 900))); if (ROLE) setHgt(hgt); };", 1)
-js = rep(js, "  const [sc, setSc] = useState(0.5);\n  useLayoutEffect(() => {\n    const el = ref.current;\n    const fit", "  const [sc, setSc] = useState(0.5);\n  const [hgt, setHgt] = useState(900);\n  useLayoutEffect(() => {\n    const el = ref.current;\n    const fit", 1)
+             "    const fit = () => { const w = el.clientWidth, hgt = el.clientHeight || 99999; setSc(ROLE ? 1 : Math.max(0.15, Math.min(w / 1440, hgt / 900))); if (ROLE) { STAGE.w = w; STAGE.h = hgt; setW(w); setHgt(hgt); } };", 1)
+js = rep(js, "  const [sc, setSc] = useState(0.5);\n  useLayoutEffect(() => {\n    const el = ref.current;\n    const fit", "  const [sc, setSc] = useState(0.5);\n  const [hgt, setHgt] = useState(900);\n  const [w, setW] = useState(1440);\n  useLayoutEffect(() => {\n    const el = ref.current;\n    const fit", 1)
 js = rep(js, "        <div class=\"stage\" style=${{ transform: `scale(${sc})` }}",
-             "        <div class=\"stage\" style=${{ transform: `scale(${sc})`, height: ROLE ? Math.round(hgt / sc) + 'px' : '900px' }}", 1)
+             "        <div class=\"stage\" style=${{ transform: `scale(${sc})`, width: ROLE ? w + 'px' : '1440px', height: ROLE ? hgt + 'px' : '900px' }}", 1)
+js = rep(js, "const fitW = (page, rs) => Math.min(1320, 806 * pr(page, rs));", "const fitW = (page, rs) => Math.min(STAGE.w - 120, (STAGE.h - 94) * pr(page, rs));", 1)
 js = rep(js, "  return html`<div class=\"shell\">\n    <header class=\"bar\">", "  if (ROLE) return html`<div class=\"solo\"><${Device} side=${ROLE} /></div>`;\n  return html`<div class=\"shell\">\n    <header class=\"bar\">", 1)
 js = rep(js, """      <button class="ghost" onClick=${act(() => { S.guide = !S.guide; })}>""", """      <div class="seg" role="group" aria-label="開新視窗">${[['teacher', '老師'], ['student', '學生'], ['admin', '管理員']].map(([r, l]) => html`<button onClick=${() => openRole(r)}><${Icon} n="arrow-up-right" s=${14} />${l}</button>`)}</div>
       <button class="ghost" onClick=${act(() => { S.guide = !S.guide; })}>""", 1)

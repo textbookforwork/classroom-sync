@@ -1,3 +1,6 @@
 node_modules
 dist
 .DS_Store
+
+# Figma 同步用的截圖是腳本產的，不進 git
+design/figma-shots/out/

@@ -22,7 +22,7 @@ git fetch -q origin || true
 # 新 repo 第一次推的時候還沒有 main
 if git rev-parse -q --verify origin/main >/dev/null; then git reset -q --hard origin/main; else git checkout -q -B main; fi
 
-rsync -a --delete --exclude=node_modules --exclude=dist --exclude=.git \
+rsync -a --delete --exclude=node_modules --exclude=dist --exclude=.git --exclude=design/figma-shots/out \
 --exclude=.DS_Store "$SRC/" "$CLONE/"
 git add -A
 if git diff --cached --quiet; then

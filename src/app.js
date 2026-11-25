@@ -1124,7 +1124,7 @@ function Thumb({ page, w, layers = [] }) { return html`<div class="thumb" style=
 const MiniPage = ({ page }) => html`<div class="pg mini" style="--fs:20;--lh:1.6"><${PageArt} page=${page} /></div>`;
 /* 頁面比例跟著整本書，在編輯時定（4:3 或 16:9）；閱讀時不能切，不然老師和學生的頁碼會對不上 */
 const pr = (page, rs) => (rs && rs.ar === '16:9' ? 16 / 9 : PAGES[page].r);
-const fitW = (page, rs) => Math.min(1320, 806 * pr(page, rs)); // 頁框上緣對齊左欄的換頁鈕（78），撐到右、下各留 16
+const fitW = (page, rs) => Math.min(STAGE.w - 120, (STAGE.h - 94) * pr(page, rs)); // 頁框上緣對齊左欄的換頁鈕（78），撐到右、下各留 16
 
 /* ───────── 導覽提示 ───────── */
 let HINT = null;
@@ -3362,9 +3362,10 @@ function Device({ side }) {
   const ref = useRef();
   const [sc, setSc] = useState(0.5);
   const [hgt, setHgt] = useState(900);
+  const [w, setW] = useState(1440);
   useLayoutEffect(() => {
     const el = ref.current;
-    const fit = () => { const w = el.clientWidth, hgt = el.clientHeight || 99999; setSc(ROLE ? w / 1440 : Math.max(0.15, Math.min(w / 1440, hgt / 900))); if (ROLE) setHgt(hgt); };
+    const fit = () => { const w = el.clientWidth, hgt = el.clientHeight || 99999; setSc(ROLE ? 1 : Math.max(0.15, Math.min(w / 1440, hgt / 900))); if (ROLE) { STAGE.w = w; STAGE.h = hgt; setW(w); setHgt(hgt); } };
     fit(); const ro = new ResizeObserver(fit); ro.observe(el); return () => ro.disconnect();
   }, []);
   const toasts = S.toasts[side];
@@ -3374,7 +3375,7 @@ function Device({ side }) {
       ${side === 'student' && S.s.inClass && S.cls.live && html`<span class="tag">${locked() ? '被鎖定' : following() ? '跟隨老師' : '自己翻頁'}</span>`}</div>
     <div class="dev-fit" ref=${ref}>
       <div class="dev" style=${{ width: 1440 * sc + 'px', height: 900 * sc + 'px' }}>
-        <div class="stage" style=${{ transform: `scale(${sc})`, height: ROLE ? Math.round(hgt / sc) + 'px' : '900px' }} onClick=${() => { const P = side === 'admin' ? S.admin : side === 'teacher' ? S.t : S.s; if (P.menu || S.t.cardMenu != null || S.admin.rowMenu) { P.menu = false; S.t.cardMenu = null; S.admin.rowMenu = null; refresh(); } }}>
+        <div class="stage" style=${{ transform: `scale(${sc})`, width: ROLE ? w + 'px' : '1440px', height: ROLE ? hgt + 'px' : '900px' }} onClick=${() => { const P = side === 'admin' ? S.admin : side === 'teacher' ? S.t : S.s; if (P.menu || S.t.cardMenu != null || S.admin.rowMenu) { P.menu = false; S.t.cardMenu = null; S.admin.rowMenu = null; refresh(); } }}>
           ${side === 'teacher' ? html`<${TeacherApp} />` : side === 'student' ? html`<${StudentApp} />` : html`<${AdminApp} />`}
           ${S.cheer && (side === 'teacher' || (side === 'student' && S.s.inClass)) && html`<${Cheer} key=${S.cheer.id} />`}
           <div class="toasts" aria-live="polite">${toasts.map((t) => html`<div class="toast" key=${t.id}>${t.icon && html`<span class=${'t-ic' + (t.icon === 'check' ? ' ok' : '')}><${Icon} n=${t.icon} s=${15} /></span>`}${t.text}</div>`)}</div>
@@ -3388,6 +3389,7 @@ const viaBox = (k) => (BAR === 'toolbox' && S.cls.live && ['t-mode', 't-roster',
 /* 網站版：#/admin、#/teacher、#/student 各開一個角色；其他網址是三端並排的展示版。
    同一台電腦開好幾個視窗時，用 BroadcastChannel 互傳整份狀態（跨裝置要等正式後端） */
 const ROLE = (location.hash.match(/^#\/(admin|teacher|student)\b/) || [])[1] || null;
+const STAGE = { w: 1440, h: 900 }; // 單一角色時是整個視窗的大小，課本紙張照這個算
 window.addEventListener('hashchange', () => location.reload());
 const chan = 'BroadcastChannel' in window ? new BroadcastChannel('classroom-sync') : null;
 let REMOTE = false;

@@ -2715,3 +2715,5 @@ a.btn { text-decoration: none; }
 .solo .dev-slot { flex: 1; gap: 0; }
 .solo .dev-label { display: none; }
 .solo .dev { left: 0; top: 0; transform: none; width: 100% !important; height: 100% !important; border-radius: 0; box-shadow: none; }
+.solo .login { grid-template-columns: 1fr 1fr; }
+@media (max-width: 1100px) { .solo .dev-fit { flex: 1; aspect-ratio: auto; } }
